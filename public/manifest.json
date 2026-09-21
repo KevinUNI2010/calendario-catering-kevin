@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "Calendario de Locales",
+  "short_name": "Calendario",
+  "description": "Calendario colaborativo en tiempo real con gestión de locales, eventos y recordatorios automáticos.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a73e8",
+  "icons": [
+    {
+      "src": "/calendar-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
