@@ -45,6 +45,13 @@ export function getMonthDays(year: number, month: number): Date[] {
     days.push(next);
   }
   
+  if (days[35].getMonth() !== month) {
+    if (days[28].getMonth() !== month) {
+      return days.slice(0, 28);
+    }
+    return days.slice(0, 35);
+  }
+  
   return days;
 }
 

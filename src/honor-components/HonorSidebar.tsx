@@ -107,19 +107,21 @@ export const HonorSidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Google Calendar "+ Crear" FAB button */}
-      <div>
-        <button
-          type="button"
-          id="sidebar-create-btn"
-          onClick={onOpenCreateModal}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-full bg-[#2b6de3] text-white shadow-[0_4px_14px_rgba(43,109,227,0.4)] hover:shadow-[0_6px_20px_rgba(43,109,227,0.6)] transition-all font-semibold text-sm cursor-pointer active:scale-95 group border-none"
-        >
-          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white shadow-none group-hover:rotate-90 transition-transform duration-300">
-            <Plus className="w-5 h-5" />
-          </div>
-          <span>Crear Evento</span>
-        </button>
-      </div>
+      {role !== 'viewer' && (
+        <div>
+          <button
+            type="button"
+            id="sidebar-create-btn"
+            onClick={onOpenCreateModal}
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-full bg-[#2b6de3] text-white shadow-[0_4px_14px_rgba(43,109,227,0.4)] hover:shadow-[0_6px_20px_rgba(43,109,227,0.6)] transition-all font-semibold text-sm cursor-pointer active:scale-95 group border-none"
+          >
+            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white shadow-none group-hover:rotate-90 transition-transform duration-300">
+              <Plus className="w-5 h-5" />
+            </div>
+            <span>Crear Evento</span>
+          </button>
+        </div>
+      )}
 
       {/* Mini Calendar Widget */}
       <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-3xl shadow-[0_2px_12px_rgba(0,0,0,0.02)] border-none">

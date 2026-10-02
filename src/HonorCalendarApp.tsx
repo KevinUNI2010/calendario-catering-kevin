@@ -617,6 +617,7 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
               onSelectEvent={handleSelectEvent}
               onOpenFullEdit={(evt) => setEventForEditModal(evt)}
               onDeleteEvent={handleDeleteEvent}
+              role={session.role}
             />
           )}
         </main>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { UserSession } from '../types';
 
@@ -10,9 +10,9 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const processLogin = async (currentPin: string) => {
     setError(false);
     setIsLoading(true);
 
@@ -20,7 +20,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
       const { isSupabaseConfigured, fetchSupabaseClientByPin } = await import('../lib/supabase');
       
       if (isSupabaseConfigured()) {
-        const client = await fetchSupabaseClientByPin(pin);
+        const client = await fetchSupabaseClientByPin(currentPin);
         if (client) {
           onLogin({ role: 'viewer', allowedLocales: client.allowed_locales || [], name: client.name });
           setIsLoading(false);
@@ -28,11 +28,11 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
         }
       } else {
         // Fallback mock validation
-        if (pin === '1111') {
+        if (currentPin === '1111') {
           onLogin({ role: 'viewer', allowedLocales: ['loc-1', 'loc-2'], name: 'Pepe' });
           setIsLoading(false);
           return;
-        } else if (pin === '2222') {
+        } else if (currentPin === '2222') {
           onLogin({ role: 'viewer', allowedLocales: ['loc-4'], name: 'José' });
           setIsLoading(false);
           return;
@@ -40,7 +40,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
       }
       
       // Admin backdoor for testing
-      if (pin === '9999') {
+      if (currentPin === '9999') {
         onLogin({ role: 'admin', name: 'Admin Test' });
         setIsLoading(false);
         return;
@@ -53,6 +53,16 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
       setPin('');
     } finally {
       setIsLoading(false);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pin.length === 4) {
+      processLogin(pin);
     }
   };
 
@@ -60,8 +70,12 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4">
       <div className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 border border-gray-200 dark:border-gray-800 flex flex-col items-center">
         
-        <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-6">
-          <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+        <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-6 relative">
+          {isLoading ? (
+            <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin absolute" />
+          ) : (
+            <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+          )}
         </div>
         
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center">
@@ -74,13 +88,19 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
           <div className="relative">
             <input
+              ref={inputRef}
               type="password"
               inputMode="numeric"
               pattern="[0-9]*"
               value={pin}
+              disabled={isLoading}
               onChange={(e) => {
-                setPin(e.target.value);
+                const val = e.target.value.replace(/\D/g, '');
+                setPin(val);
                 setError(false);
+                if (val.length === 4) {
+                  processLogin(val);
+                }
               }}
               placeholder="••••"
               maxLength={4}
@@ -88,7 +108,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
                 error 
                   ? 'border-red-500 bg-red-50 dark:bg-red-900/20' 
                   : 'border-gray-200 dark:border-gray-800 focus:border-blue-500'
-              }`}
+              } disabled:opacity-50`}
               autoFocus
             />
           </div>
@@ -99,15 +119,6 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
               <span>PIN incorrecto. Inténtalo de nuevo.</span>
             </div>
           )}
-
-          <button
-            type="submit"
-            disabled={pin.length < 4 || isLoading}
-            className="w-full mt-4 flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 text-white py-3.5 rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed group"
-          >
-            {isLoading ? 'Comprobando...' : 'Entrar'}
-            {!isLoading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
-          </button>
         </form>
         
       </div>

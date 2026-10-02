@@ -67,7 +67,7 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
               className={`min-h-[65px] sm:min-h-[100px] p-2 sm:p-3 flex flex-col group relative rounded-2xl transition-all duration-300 cursor-pointer ${
                 isCurrMonth 
                   ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:scale-[1.01] dark:shadow-none' 
-                  : 'bg-transparent text-gray-400 dark:text-gray-600 opacity-60'
+                  : 'bg-gray-200/50 dark:bg-gray-800/40 text-gray-400 dark:text-gray-600 opacity-80'
               }`}
             >
               {/* Day Number Header */}

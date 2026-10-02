@@ -608,6 +608,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
               onSelectEvent={handleSelectEvent}
               onOpenFullEdit={(evt) => setEventForEditModal(evt)}
               onDeleteEvent={handleDeleteEvent}
+              role={session.role}
             />
           )}
         </main>

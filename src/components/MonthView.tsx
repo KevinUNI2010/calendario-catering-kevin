@@ -67,7 +67,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
               } ${
                 isCurrMonth 
                   ? 'bg-white dark:bg-gray-900 hover:bg-blue-50/30 dark:hover:bg-blue-950/20' 
-                  : 'bg-gray-50/50 dark:bg-gray-900/40 text-gray-400 dark:text-gray-600'
+                  : 'bg-gray-100/80 dark:bg-gray-950/60 text-gray-400 dark:text-gray-600'
               }`}
             >
               {/* Day Number Header */}

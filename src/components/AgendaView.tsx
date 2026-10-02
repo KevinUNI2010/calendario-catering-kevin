@@ -9,6 +9,7 @@ interface AgendaViewProps {
   onSelectEvent: (e: React.MouseEvent, event: CalendarEvent) => void;
   onOpenFullEdit: (event: CalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
+  role?: string;
 }
 
 export const AgendaView: React.FC<AgendaViewProps> = ({
@@ -16,6 +17,7 @@ export const AgendaView: React.FC<AgendaViewProps> = ({
   onSelectEvent,
   onOpenFullEdit,
   onDeleteEvent,
+  role,
 }) => {
   // Sort events chronologically
   const sorted = [...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
@@ -123,26 +125,30 @@ export const AgendaView: React.FC<AgendaViewProps> = ({
                           >
                             Resumen Rápido
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => onOpenFullEdit(event)}
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                            title="Editar evento completo"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (confirm(`¿Eliminar evento "${event.title}"?`)) {
-                                onDeleteEvent(event.id);
-                              }
-                            }}
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition"
-                            title="Eliminar evento"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {role !== 'viewer' && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => onOpenFullEdit(event)}
+                                className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                                title="Editar evento completo"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`¿Eliminar evento "${event.title}"?`)) {
+                                    onDeleteEvent(event.id);
+                                  }
+                                }}
+                                className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition"
+                                title="Eliminar evento"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
                         </div>
 
                       </div>
