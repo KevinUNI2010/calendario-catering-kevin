@@ -28,7 +28,7 @@ export function isSameDay(d1: Date, d2: Date): boolean {
 }
 
 export function isToday(d: Date): boolean {
-  return isSameDay(d, new Date(2026, 8, 14)); // Current context date September 14, 2026
+  return isSameDay(d, new Date());
 }
 
 // Generate 35 or 42 day cells for month view

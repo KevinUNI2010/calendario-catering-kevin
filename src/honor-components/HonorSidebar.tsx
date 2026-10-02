@@ -36,7 +36,7 @@ interface SidebarProps {
   onOpenAccessManagement?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
+export const HonorSidebar: React.FC<SidebarProps> = ({
   isOpen,
   currentDate,
   onSelectDate,
@@ -84,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         aria-hidden="true"
       />
 
-      <aside className="fixed md:static inset-y-0 left-0 z-50 md:z-auto w-72 md:w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col h-full overflow-y-auto shrink-0 select-none p-4 space-y-6 shadow-2xl md:shadow-none animate-in slide-in-from-left duration-200">
+      <aside className="fixed md:static inset-y-0 left-0 z-50 md:z-auto w-72 md:w-64 border-none bg-[#f7f8fa] dark:bg-[#0c0c0c] flex flex-col h-full overflow-y-auto shrink-0 select-none p-4 space-y-6 shadow-2xl md:shadow-none animate-in slide-in-from-left duration-200">
         
         {/* Mobile Header with close button */}
         <div className="flex items-center justify-between md:hidden pb-1 border-b border-gray-100 dark:border-gray-800">
@@ -112,9 +112,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           type="button"
           id="sidebar-create-btn"
           onClick={onOpenCreateModal}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700 transition-all font-semibold text-sm cursor-pointer active:scale-95 group"
+          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-full bg-[#2b6de3] text-white shadow-[0_4px_14px_rgba(43,109,227,0.4)] hover:shadow-[0_6px_20px_rgba(43,109,227,0.6)] transition-all font-semibold text-sm cursor-pointer active:scale-95 group border-none"
         >
-          <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-xs group-hover:rotate-90 transition-transform duration-200">
+          <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white shadow-none group-hover:rotate-90 transition-transform duration-300">
             <Plus className="w-5 h-5" />
           </div>
           <span>Crear Evento</span>
@@ -122,8 +122,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Mini Calendar Widget */}
-      <div className="bg-gray-50/60 dark:bg-gray-800/30 p-3 rounded-2xl border border-gray-100 dark:border-gray-800">
-        <div className="flex items-center justify-between mb-2">
+      <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-3xl shadow-[0_2px_12px_rgba(0,0,0,0.02)] border-none">
+        <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-bold text-gray-700 dark:text-gray-300 capitalize">
             {MONTH_NAMES_ES[miniDate.getMonth()]} {miniDate.getFullYear()}
           </span>

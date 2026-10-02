@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { CalendarEvent, Local, EmailLog } from '../types';
 
 const STORAGE_KEYS = {
-  EVENTS: 'calendario_events_cache_v3',
-  LOCALES: 'calendario_locales_cache_v3',
+  EVENTS: 'calendario_events_cache_v5',
+  LOCALES: 'calendario_locales_cache_v5',
+  MENU_OPTIONS: 'calendario_menu_options_cache_v3',
   EMAILS: 'calendario_emails_cache',
   OFFLINE_QUEUE: 'calendario_offline_queue',
   THEME: 'calendario_dark_theme',
@@ -43,6 +44,20 @@ export function saveCachedLocales(locales: Local[]): void {
 export function getCachedLocales(): Local[] | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.LOCALES);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return null;
+}
+
+export function saveCachedMenuOptions(options: any): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.MENU_OPTIONS, JSON.stringify(options));
+  } catch (e) {}
+}
+
+export function getCachedMenuOptions(): any | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.MENU_OPTIONS);
     if (raw) return JSON.parse(raw);
   } catch (e) {}
   return null;

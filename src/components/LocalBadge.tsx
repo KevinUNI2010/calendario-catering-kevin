@@ -1,5 +1,6 @@
 import React from 'react';
 import { CalendarEvent, GOOGLE_CALENDAR_COLORS } from '../types';
+import { getEventColor } from '../utils/colorUtils';
 import { formatTimeHM } from '../utils/dateUtils';
 import { Store, Clock, MapPin, AlertCircle } from 'lucide-react';
 
@@ -10,7 +11,7 @@ interface LocalBadgeProps {
 }
 
 export const LocalBadge: React.FC<LocalBadgeProps> = ({ event, onClick, compact = false }) => {
-  const colorDef = GOOGLE_CALENDAR_COLORS.find((c) => c.id === event.colorId) || GOOGLE_CALENDAR_COLORS[0];
+  const colorDef = getEventColor(event.colorId);
 
 
 
@@ -20,7 +21,7 @@ export const LocalBadge: React.FC<LocalBadgeProps> = ({ event, onClick, compact 
         id={`local-badge-${event.id}`}
         type="button"
         onClick={(e) => onClick(e, event)}
-        className="w-full text-left group flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-all shadow-xs hover:shadow-md hover:scale-[1.01] active:scale-[0.99] border cursor-pointer select-none"
+        className="w-full text-left group flex items-center gap-1.5 p-[2px] md:px-2 md:py-1 rounded-md text-[10px] md:text-xs font-medium transition-all shadow-xs hover:shadow-md hover:scale-[1.01] active:scale-[0.99] border cursor-pointer select-none"
         style={{
           backgroundColor: colorDef.bg,
           color: colorDef.text,

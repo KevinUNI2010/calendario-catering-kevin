@@ -1,6 +1,7 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
+import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 
 // Register Service Worker for offline support
@@ -14,7 +15,9 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV !== 'test') {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>,
 );
 

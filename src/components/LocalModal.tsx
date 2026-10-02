@@ -1,25 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Local, GOOGLE_CALENDAR_COLORS } from '../types';
+import { getEventColor } from '../utils/colorUtils';
 import { X, Store, Check, Palette } from 'lucide-react';
 
 interface LocalModalProps {
   isOpen: boolean;
+  initialLocal?: Local | null;
   onClose: () => void;
   onSave: (local: Local) => void;
 }
 
-export const LocalModal: React.FC<LocalModalProps> = ({ isOpen, onClose, onSave }) => {
-  if (!isOpen) return null;
-
+export const LocalModal: React.FC<LocalModalProps> = ({ isOpen, initialLocal, onClose, onSave }) => {
   const [name, setName] = useState('');
   const [colorId, setColorId] = useState(GOOGLE_CALENDAR_COLORS[0].id);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialLocal) {
+        setName(initialLocal.name);
+        setColorId(initialLocal.colorId);
+      } else {
+        setName('');
+        setColorId(GOOGLE_CALENDAR_COLORS[0].id);
+      }
+    }
+  }, [isOpen, initialLocal]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
     const newLocal: Local = {
-      id: `loc-${Date.now()}`,
+      id: initialLocal ? initialLocal.id : crypto.randomUUID(),
       name: name.trim(),
       colorId,
     };
@@ -40,7 +54,7 @@ export const LocalModal: React.FC<LocalModalProps> = ({ isOpen, onClose, onSave 
           <div className="flex items-center gap-3">
             <Store className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             <h3 className="font-semibold text-gray-900 dark:text-white text-base">
-              Añadir Nuevo Local
+              {initialLocal ? 'Editar Local' : 'Añadir Nuevo Local'}
             </h3>
           </div>
           <button
@@ -91,6 +105,32 @@ export const LocalModal: React.FC<LocalModalProps> = ({ isOpen, onClose, onSave 
                   {colorId === c.id && <Check className="w-4 h-4 text-white" />}
                 </button>
               ))}
+            </div>
+            
+            <div className="mt-3 flex items-center gap-3">
+              <span className="text-xs text-gray-500">O elige un color personalizado:</span>
+              <div className="relative w-8 h-8 rounded-lg overflow-hidden ring-1 ring-gray-300 dark:ring-gray-700 shadow-sm shrink-0 cursor-pointer">
+                <input
+                  type="color"
+                  value={colorId.startsWith('#') ? colorId : getEventColor(colorId).bg}
+                  onChange={(e) => setColorId(e.target.value)}
+                  className="absolute -top-2 -left-2 w-12 h-12 cursor-pointer"
+                />
+              </div>
+              <input
+                type="text"
+                value={colorId.startsWith('#') ? colorId.toUpperCase() : getEventColor(colorId).bg.toUpperCase()}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
+                    setColorId(val);
+                  } else if (val.length === 0) {
+                    setColorId('#');
+                  }
+                }}
+                className="w-24 px-2 py-1 text-xs rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-500 uppercase font-mono"
+                maxLength={7}
+              />
             </div>
           </div>
 

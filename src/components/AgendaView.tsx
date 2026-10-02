@@ -1,5 +1,6 @@
 import React from 'react';
 import { CalendarEvent, GOOGLE_CALENDAR_COLORS } from '../types';
+import { getEventColor } from '../utils/colorUtils';
 import { DAY_NAMES_FULL, MONTH_NAMES_ES, formatTimeHM, isToday } from '../utils/dateUtils';
 import { Store, Clock, MapPin, Edit3, Trash2, Mail, Users } from 'lucide-react';
 
@@ -68,7 +69,7 @@ export const AgendaView: React.FC<AgendaViewProps> = ({
                 {/* Event Cards */}
                 <div className="grid grid-cols-1 gap-2.5">
                   {dayEvents.map((event) => {
-                    const colorDef = GOOGLE_CALENDAR_COLORS.find(c => c.id === event.colorId) || GOOGLE_CALENDAR_COLORS[0];
+                    const colorDef = getEventColor(event.colorId);
 
                     return (
                       <div

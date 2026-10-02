@@ -45,6 +45,7 @@ export function mapRowToEvent(row: any): CalendarEvent {
     attendees: Array.isArray(row.attendees) ? row.attendees : [],
     reminders: Array.isArray(row.reminders) ? row.reminders : [],
     notes: row.notes || '',
+    dish: row.dish || undefined,
     status: row.status || 'confirmed',
     createdBy: row.created_by || 'kevin.zambrano.inteligencia@gmail.com',
     updatedAt: row.updated_at || new Date().toISOString(),
@@ -57,7 +58,7 @@ export function mapEventToRow(event: CalendarEvent): any {
     id: event.id,
     title: event.title,
     description: event.description,
-    local_id: event.localId,
+    local_id: (event.localId && event.localId.length === 36) ? event.localId : null,
     local_name: event.localName,
     color_id: event.colorId,
     start_date: event.startDate,
@@ -66,6 +67,7 @@ export function mapEventToRow(event: CalendarEvent): any {
     attendees: event.attendees,
     reminders: event.reminders,
     notes: event.notes,
+    dish: event.dish,
     status: event.status,
     created_by: event.createdBy,
     updated_at: new Date().toISOString(),
@@ -100,11 +102,99 @@ export async function fetchSupabaseLocales(): Promise<Local[] | null> {
   try {
     const { data, error } = await sb.from('locales').select('*').order('name', { ascending: true });
     if (error) throw error;
-    if (!data || data.length === 0) return null;
+    if (!data) return [];
     return data.map(mapRowToLocal);
   } catch (err) {
     console.warn('Supabase fetch locales failed:', err);
     return null;
+  }
+}
+
+export async function fetchSupabaseClientByPin(pin: string): Promise<any | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data, error } = await sb.from('clients').select('*').eq('pin', pin).single();
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.warn('Supabase fetch client failed:', err);
+    return null;
+  }
+}
+
+export async function upsertSupabaseLocal(local: Local): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb.from('locales').upsert({
+      id: local.id,
+      name: local.name,
+      color_id: local.colorId
+    });
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.warn('Supabase upsert local failed:', err);
+    return false;
+  }
+}
+
+export async function fetchSupabaseMenuOptions(): Promise<any | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  try {
+    const { data, error } = await sb.from('menu_items').select('*').eq('is_active', true);
+    if (error) throw error;
+    
+    const options: any = {
+      proteinas: [],
+      ensaladas: [],
+      salsas: [],
+      guarniciones: [],
+      carbohidratos: [],
+      servilletas: []
+    };
+
+    if (data) {
+      data.forEach((item: any) => {
+        if (options[item.category]) {
+          options[item.category].push(item.name);
+        }
+      });
+    }
+
+    return options;
+  } catch (err) {
+    console.warn('Supabase fetch menu options failed:', err);
+    return null;
+  }
+}
+
+export async function upsertSupabaseMenuOptions(options: any): Promise<boolean> {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    // Delete existing
+    await sb.from('menu_items').delete().not('id', 'is', null);
+
+    const newItems: any[] = [];
+    Object.keys(options).forEach(category => {
+      if (Array.isArray(options[category])) {
+        options[category].forEach((name: string) => {
+          newItems.push({ name, category, is_active: true });
+        });
+      }
+    });
+
+    if (newItems.length > 0) {
+      const { error } = await sb.from('menu_items').insert(newItems);
+      if (error) throw error;
+    }
+    return true;
+  } catch (err) {
+    console.warn('Supabase upsert menu options failed:', err);
+    return false;
   }
 }
 
@@ -181,5 +271,89 @@ export function subscribeSupabaseEvents(
   } catch (err) {
     console.warn('Failed to subscribe to Supabase channel', err);
     return null;
+  }
+}
+
+
+export async function fetchSupabaseClients() {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const { data, error } = await sb.from('clients').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.warn('Supabase fetch clients failed:', err);
+    return [];
+  }
+}
+
+export async function upsertSupabaseClient(client: any) {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb.from('clients').upsert({
+      id: client.id,
+      name: client.name,
+      pin: client.pin,
+      allowed_locales: client.allowed_locales
+    });
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.warn('Supabase upsert client failed:', err);
+    return false;
+  }
+}
+
+export async function deleteSupabaseClient(id: string) {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb.from('clients').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.warn('Supabase delete client failed:', err);
+    return false;
+  }
+}
+
+export async function fetchSupabaseAdmins() {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const { data, error } = await sb.from('admin_emails').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.warn('Supabase fetch admins failed:', err);
+    return [];
+  }
+}
+
+export async function upsertSupabaseAdmin(email: string) {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb.from('admin_emails').upsert({ email });
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.warn('Supabase upsert admin failed:', err);
+    return false;
+  }
+}
+
+export async function deleteSupabaseAdmin(id: string) {
+  const sb = getSupabase();
+  if (!sb) return false;
+  try {
+    const { error } = await sb.from('admin_emails').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.warn('Supabase delete admin failed:', err);
+    return false;
   }
 }

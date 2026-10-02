@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { CalendarEvent, Local, GOOGLE_CALENDAR_COLORS } from '../types';
+import { CalendarEvent, Local } from '../types';
+import { getEventColor } from '../utils/colorUtils';
 import { formatTimeHM } from '../utils/dateUtils';
 import {
   Store, 
@@ -14,9 +15,10 @@ interface LocalSummaryPopoverProps {
   event: CalendarEvent;
   local?: Local;
   onClose: () => void;
-  onQuickUpdate: (updated: Partial<CalendarEvent>) => void;
+  onQuickUpdate: (updates: Partial<CalendarEvent>) => void;
   onOpenFullEdit: (event: CalendarEvent) => void;
   onDelete: (id: string) => void;
+  role?: string;
 }
 
 export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
@@ -25,8 +27,9 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
   onClose,
   onOpenFullEdit,
   onDelete,
+  role,
 }) => {
-  const colorDef = GOOGLE_CALENDAR_COLORS.find((c) => c.id === event.colorId) || GOOGLE_CALENDAR_COLORS[0];
+  const colorDef = getEventColor(event.colorId);
 
 
 
@@ -49,8 +52,8 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
             </div>
             <div className="flex items-center gap-2 mt-2 text-xs opacity-95">
               <Clock className="w-3.5 h-3.5" />
-              <span>
-                {new Date(event.startDate).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })} · {formatTimeHM(event.startDate)} - {formatTimeHM(event.endDate)}
+              <span className="capitalize">
+                {new Date(event.startDate).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} · {new Date(event.startDate).toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true })}
               </span>
             </div>
           </div>
@@ -101,6 +104,12 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                 {event.dish.ensalada && (
                   <div><span className="font-semibold text-gray-500 dark:text-gray-400">Ensalada:</span> <span className="font-medium text-gray-800 dark:text-gray-200">{event.dish.ensalada}</span></div>
                 )}
+                {event.dish.servilleta && (
+                  <div><span className="font-semibold text-gray-500 dark:text-gray-400">Servilleta:</span> <span className="font-medium text-gray-800 dark:text-gray-200">{event.dish.servilleta}</span></div>
+                )}
+                {event.dish.cantidadPlatos !== undefined && event.dish.cantidadPlatos > 0 && (
+                  <div><span className="font-semibold text-gray-500 dark:text-gray-400">N° Platos:</span> <span className="font-medium text-gray-800 dark:text-gray-200">{event.dish.cantidadPlatos}</span></div>
+                )}
               </div>
             </div>
           )}
@@ -110,20 +119,24 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
 
         {/* Footer Actions */}
         <div className="p-4 bg-gray-50 dark:bg-gray-800/80 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between gap-2">
-          <button
-            type="button"
-            id="delete-event-btn"
-            onClick={() => {
-              if (confirm(`¿Eliminar evento en ${event.localName}?`)) {
-                onDelete(event.id);
-                onClose();
-              }
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40 rounded-lg transition cursor-pointer"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            Eliminar
-          </button>
+          {role !== 'viewer' ? (
+            <button
+              type="button"
+              id="delete-event-btn"
+              onClick={() => {
+                if (confirm(`¿Eliminar evento en ${event.localName}?`)) {
+                  onDelete(event.id);
+                  onClose();
+                }
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40 rounded-lg transition cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Eliminar
+            </button>
+          ) : (
+            <div />
+          )}
 
           <div className="flex items-center gap-2">
             <button
@@ -133,18 +146,20 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
             >
               Cerrar
             </button>
-            <button
-              type="button"
-              id="open-full-edit-btn"
-              onClick={() => {
-                onOpenFullEdit(event);
-                onClose();
-              }}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition cursor-pointer"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              Edición Completa
-            </button>
+            {role !== 'viewer' && (
+              <button
+                type="button"
+                id="open-full-edit-btn"
+                onClick={() => {
+                  onOpenFullEdit(event);
+                  onClose();
+                }}
+                className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                Edición Completa
+              </button>
+            )}
           </div>
         </div>
       </div>

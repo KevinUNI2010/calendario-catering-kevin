@@ -39,6 +39,8 @@ export interface DishSelection {
   salsa: string;
   guarnicion: string;
   carbohidrato: string;
+  servilleta: string;
+  cantidadPlatos: number;
 }
 
 export interface ReminderConfig {
@@ -94,4 +96,21 @@ export interface ConnectedUser {
   email: string;
   color: string;
   lastActive: number;
+}
+
+export type UserRole = 'admin' | 'viewer';
+
+export interface UserSession {
+  role: UserRole;
+  allowedLocales?: string[];
+  name?: string;
+}
+
+export interface MenuOptions {
+  proteinas: string[];
+  ensaladas: string[];
+  salsas: string[];
+  guarniciones: string[];
+  carbohidratos: string[];
+  servilletas: string[];
 }
