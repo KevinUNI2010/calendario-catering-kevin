@@ -44,7 +44,7 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
       </div>
 
       {/* Days Grid */}
-      <div className="grid grid-cols-7 flex-1 auto-rows-fr gap-2 sm:gap-3">
+      <div className="grid grid-cols-7 flex-1 auto-rows-fr gap-1 sm:gap-3">
         {days.map((day, idx) => {
           const isCurrMonth = day.getMonth() === currentMonth;
           const dayEvents = events.filter((e) => {
@@ -64,7 +64,7 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                   onShowDaySummary(day, dayEvents);
                 }
               }}
-              className={`min-h-[65px] sm:min-h-[100px] p-2 sm:p-3 flex flex-col group relative rounded-2xl transition-all duration-300 cursor-pointer ${
+              className={`min-h-[65px] sm:min-h-[100px] p-1 flex flex-col group relative rounded-2xl transition-all duration-300 cursor-pointer ${
                 isCurrMonth 
                   ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:scale-[1.01] dark:shadow-none' 
                   : 'bg-gray-200/50 dark:bg-gray-800/40 text-gray-400 dark:text-gray-600 opacity-80'
@@ -103,18 +103,17 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
               </div>
 
               {/* Event Badges */}
-              <div className="flex-1 mt-1 overflow-y-auto scrollbar-none min-h-[40px] grid grid-cols-2 gap-1 content-start pr-1">
+              <div className="flex-1 mt-1 overflow-y-auto scrollbar-none min-h-[40px] flex flex-col gap-1">
                 {dayEvents.map((event) => {
                   const color = getEventColor(event.colorId);
-                  const initial = event.localName ? event.localName.charAt(0).toUpperCase() : 'E';
                   return (
                     <div 
                       key={event.id} 
-                      className="w-full h-5 sm:h-6 rounded flex items-center justify-center text-[10px] sm:text-xs font-bold shadow-sm"
+                      className="w-full rounded py-[3px] px-0.5 text-[8px] sm:text-[10px] leading-none font-bold shadow-sm whitespace-nowrap overflow-hidden text-clip"
                       style={{ backgroundColor: color.bg, color: color.text || '#fff' }}
                       title={event.localName}
                     >
-                      {initial}
+                      {event.localName || 'Evento'}
                     </div>
                   );
                 })}
