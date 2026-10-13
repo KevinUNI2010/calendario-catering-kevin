@@ -791,6 +791,10 @@ export const EventModal: React.FC<EventModalProps> = ({
       <ImageCropperModal
         isOpen={cropperOpen}
         imageSrc={rawImageForCropper}
+        onConfirm={(croppedBase64) => {
+          setEvidencePhoto(croppedBase64);
+          setCropperOpen(false);
+        }}
         onCropComplete={(croppedBase64) => {
           setEvidencePhoto(croppedBase64);
           setCropperOpen(false);

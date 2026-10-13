@@ -5,7 +5,8 @@ import { useEscapeKey } from '../hooks/useEscapeKey';
 interface ImageCropperModalProps {
   isOpen: boolean;
   imageSrc: string;
-  onConfirm: (croppedDataUrl: string) => void;
+  onConfirm?: (croppedDataUrl: string) => void;
+  onCropComplete?: (croppedDataUrl: string) => void;
   onClose: () => void;
 }
 
@@ -13,9 +14,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
   isOpen,
   imageSrc,
   onConfirm,
+  onCropComplete,
   onClose
 }) => {
-  useEscapeKey(isOpen, onClose);
+  useEscapeKey(onClose, isOpen);
 
   const [rotation, setRotation] = useState<number>(0);
   const [zoom, setZoom] = useState<number>(1);
@@ -113,77 +115,113 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
   // Process Crop and generate compressed Canvas JPEG
   const handleApplyCrop = () => {
-    if (!imgRef.current) return;
-
-    const image = new Image();
-    image.crossOrigin = 'anonymous';
-    image.src = imageSrc;
-
-    image.onload = () => {
-      const naturalWidth = image.naturalWidth;
-      const naturalHeight = image.naturalHeight;
-
-      // Create an intermediate canvas for rotation
-      const rotCanvas = document.createElement('canvas');
-      const rotCtx = rotCanvas.getContext('2d');
-      if (!rotCtx) return;
-
-      const isRotated90or270 = rotation === 90 || rotation === 270;
-      rotCanvas.width = isRotated90or270 ? naturalHeight : naturalWidth;
-      rotCanvas.height = isRotated90or270 ? naturalWidth : naturalHeight;
-
-      rotCtx.translate(rotCanvas.width / 2, rotCanvas.height / 2);
-      rotCtx.rotate((rotation * Math.PI) / 180);
-      rotCtx.drawImage(image, -naturalWidth / 2, -naturalHeight / 2);
-
-      // Now calculate crop coordinates on rotated image
-      const cropPxX = (crop.x / 100) * rotCanvas.width;
-      const cropPxY = (crop.y / 100) * rotCanvas.height;
-      const cropPxW = (crop.width / 100) * rotCanvas.width;
-      const cropPxH = (crop.height / 100) * rotCanvas.height;
-
-      // Target canvas
-      const targetCanvas = document.createElement('canvas');
-      const targetCtx = targetCanvas.getContext('2d');
-      if (!targetCtx) return;
-
-      // Limit max dimension to 1200px for high readability of handwriting while keeping file size small (~150kb)
-      const maxDim = 1200;
-      let outW = cropPxW;
-      let outH = cropPxH;
-      if (outW > maxDim || outH > maxDim) {
-        if (outW > outH) {
-          outH = Math.round((outH * maxDim) / outW);
-          outW = maxDim;
-        } else {
-          outW = Math.round((outW * maxDim) / outH);
-          outH = maxDim;
+    const doCrop = (img: HTMLImageElement) => {
+      try {
+        const naturalWidth = img.naturalWidth || img.width;
+        const naturalHeight = img.naturalHeight || img.height;
+        if (!naturalWidth || !naturalHeight) {
+          console.error('Invalid image dimensions for crop');
+          if (onConfirm) onConfirm(imageSrc);
+          if (onCropComplete) onCropComplete(imageSrc);
+          onClose();
+          return;
         }
+
+        // Create an intermediate canvas for rotation
+        const rotCanvas = document.createElement('canvas');
+        const rotCtx = rotCanvas.getContext('2d');
+        if (!rotCtx) {
+          if (onConfirm) onConfirm(imageSrc);
+          if (onCropComplete) onCropComplete(imageSrc);
+          onClose();
+          return;
+        }
+
+        const isRotated90or270 = rotation === 90 || rotation === 270;
+        rotCanvas.width = isRotated90or270 ? naturalHeight : naturalWidth;
+        rotCanvas.height = isRotated90or270 ? naturalWidth : naturalHeight;
+
+        rotCtx.translate(rotCanvas.width / 2, rotCanvas.height / 2);
+        rotCtx.rotate((rotation * Math.PI) / 180);
+        rotCtx.drawImage(img, -naturalWidth / 2, -naturalHeight / 2);
+
+        // Now calculate crop coordinates on rotated image
+        const cropPxX = Math.max(0, (crop.x / 100) * rotCanvas.width);
+        const cropPxY = Math.max(0, (crop.y / 100) * rotCanvas.height);
+        const cropPxW = Math.min(rotCanvas.width - cropPxX, (crop.width / 100) * rotCanvas.width);
+        const cropPxH = Math.min(rotCanvas.height - cropPxY, (crop.height / 100) * rotCanvas.height);
+
+        // Target canvas
+        const targetCanvas = document.createElement('canvas');
+        const targetCtx = targetCanvas.getContext('2d');
+        if (!targetCtx) {
+          if (onConfirm) onConfirm(imageSrc);
+          if (onCropComplete) onCropComplete(imageSrc);
+          onClose();
+          return;
+        }
+
+        // Limit max dimension to 1200px for high readability of handwriting while keeping file size small (~150kb)
+        const maxDim = 1200;
+        let outW = cropPxW;
+        let outH = cropPxH;
+        if (outW > maxDim || outH > maxDim) {
+          if (outW > outH) {
+            outH = Math.round((outH * maxDim) / outW);
+            outW = maxDim;
+          } else {
+            outW = Math.round((outW * maxDim) / outH);
+            outH = maxDim;
+          }
+        }
+
+        targetCanvas.width = Math.max(10, Math.round(outW));
+        targetCanvas.height = Math.max(10, Math.round(outH));
+
+        targetCtx.imageSmoothingEnabled = true;
+        targetCtx.imageSmoothingQuality = 'high';
+
+        targetCtx.drawImage(
+          rotCanvas,
+          cropPxX,
+          cropPxY,
+          cropPxW,
+          cropPxH,
+          0,
+          0,
+          targetCanvas.width,
+          targetCanvas.height
+        );
+
+        // Compress to JPEG 0.85
+        const croppedBase64 = targetCanvas.toDataURL('image/jpeg', 0.85);
+        if (onConfirm) onConfirm(croppedBase64);
+        if (onCropComplete) onCropComplete(croppedBase64);
+        onClose();
+      } catch (err) {
+        console.error('Error during image crop:', err);
+        if (onConfirm) onConfirm(imageSrc);
+        if (onCropComplete) onCropComplete(imageSrc);
+        onClose();
       }
-
-      targetCanvas.width = Math.max(10, Math.round(outW));
-      targetCanvas.height = Math.max(10, Math.round(outH));
-
-      targetCtx.imageSmoothingEnabled = true;
-      targetCtx.imageSmoothingQuality = 'high';
-
-      targetCtx.drawImage(
-        rotCanvas,
-        cropPxX,
-        cropPxY,
-        cropPxW,
-        cropPxH,
-        0,
-        0,
-        targetCanvas.width,
-        targetCanvas.height
-      );
-
-      // Compress to JPEG 0.85
-      const croppedBase64 = targetCanvas.toDataURL('image/jpeg', 0.85);
-      onConfirm(croppedBase64);
-      onClose();
     };
+
+    if (imgRef.current && imgRef.current.naturalWidth > 0) {
+      doCrop(imgRef.current);
+    } else {
+      const image = new Image();
+      if (!imageSrc.startsWith('data:') && !imageSrc.startsWith('blob:')) {
+        image.crossOrigin = 'anonymous';
+      }
+      image.onload = () => doCrop(image);
+      image.onerror = (e) => {
+        console.error('Failed to load image for cropping', e);
+        if (onConfirm) onConfirm(imageSrc);
+        if (onCropComplete) onCropComplete(imageSrc);
+        onClose();
+      };
+      image.src = imageSrc;
+    }
   };
 
   if (!isOpen || !imageSrc) return null;
