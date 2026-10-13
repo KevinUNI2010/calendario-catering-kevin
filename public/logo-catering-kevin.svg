@@ -1,28 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 684 516" width="684" height="516" role="img" aria-labelledby="ck-title">
 <title id="ck-title">Catering Kevin</title>
 <style>
-.fade{opacity:0;animation-name:ck-fade;animation-fill-mode:both;animation-timing-function:ease-out;animation-duration:.2s}
-@keyframes ck-fade{from{opacity:0}to{opacity:1}}
+.scene{animation:ck-scene 7s ease-in-out infinite}
+@keyframes ck-scene{0%,85%{opacity:1}92%{opacity:0}96%{opacity:0}100%{opacity:1}}
 
-.c{animation:ck-c .6s cubic-bezier(.2,.8,.3,1) .38s both}
-@keyframes ck-c{from{opacity:0;transform:translate(-18px,6px) rotate(-8deg)}to{opacity:1;transform:none}}
-.c{transform-origin:309.5px 255.0px}
+.fade{opacity:0;animation:ck-fade 7s ease-out infinite}
+@keyframes ck-fade{0%{opacity:0}3%{opacity:1}100%{opacity:1}}
 
-.k{transform-origin:431.0px 226.5px;animation:ck-k .75s cubic-bezier(.3,1.5,.5,1) .85s both}
-@keyframes ck-k{from{opacity:0;transform:scale(.45)}60%{opacity:1}to{opacity:1;transform:scale(1)}}
+.c{animation:ck-c 7s cubic-bezier(.2,.8,.3,1) .38s infinite;transform-origin:309.5px 255.0px}
+@keyframes ck-c{0%{opacity:0;transform:translate(-18px,6px) rotate(-8deg)}8.5%{opacity:1;transform:none}100%{opacity:1;transform:none}}
 
-.fork{animation:ck-drop .8s cubic-bezier(.3,.9,.4,1) 1.20s both}
-.spoon{animation:ck-drop .8s cubic-bezier(.3,.9,.4,1) 1.38s both}
-@keyframes ck-drop{0%{opacity:0;transform:translateY(-150px)}12%{opacity:1}62%{transform:translateY(9px)}80%{transform:translateY(-4px)}100%{opacity:1;transform:none}}
+.k{transform-origin:431.0px 226.5px;animation:ck-k 7s cubic-bezier(.3,1.5,.5,1) .85s infinite}
+@keyframes ck-k{0%{opacity:0;transform:scale(.45)}5%{opacity:1}10.5%{opacity:1;transform:scale(1)}100%{opacity:1;transform:scale(1)}}
 
-.hat{transform-origin:284.4px 166.6px;animation:ck-hat 1s cubic-bezier(.3,.8,.4,1) 1.70s both}
-@keyframes ck-hat{0%{opacity:0;transform:translate(-20px,-110px) rotate(-22deg)}15%{opacity:1}55%{transform:translate(0,7px) rotate(5deg)}75%{transform:translate(0,-3px) rotate(-2deg)}100%{opacity:1;transform:none}}
-.tip{transform-origin:284.4px 166.6px;animation:ck-tip 7s ease-in-out 5s infinite}
-@keyframes ck-tip{0%,86%,100%{transform:none}91%{transform:translate(-1px,-4px) rotate(-5deg)}95%{transform:translate(0,-1px) rotate(1.5deg)}}
+.fork{animation:ck-drop 7s cubic-bezier(.3,.9,.4,1) 1.20s infinite}
+.spoon{animation:ck-drop 7s cubic-bezier(.3,.9,.4,1) 1.38s infinite}
+@keyframes ck-drop{0%{opacity:0;transform:translateY(-150px)}2%{opacity:1}7.5%{transform:translateY(9px)}9.5%{transform:translateY(-4px)}11.5%{opacity:1;transform:none}100%{opacity:1;transform:none}}
 
-.rise{animation:ck-rise .6s ease-out 2.0s both}
-@keyframes ck-rise{from{transform:translateY(9px)}to{transform:none}}
-.rise2{animation:ck-rise .6s ease-out 2.45s both}
+.hat{transform-origin:284.4px 166.6px;animation:ck-hat 7s cubic-bezier(.3,.8,.4,1) 1.70s infinite}
+@keyframes ck-hat{0%{opacity:0;transform:translate(-20px,-110px) rotate(-22deg)}2%{opacity:1}7.5%{transform:translate(0,7px) rotate(5deg)}10.5%{transform:translate(0,-3px) rotate(-2deg)}14%{opacity:1;transform:none}48%{transform:none}55%{transform:translate(-2px,-5px) rotate(-5deg)}60%{transform:translate(0,-1px) rotate(2deg)}65%{transform:none}100%{opacity:1;transform:none}}
+
+.tip{display:inline}
+
+.rise{animation:ck-rise 7s ease-out 2.0s infinite}
+@keyframes ck-rise{0%{opacity:0;transform:translateY(9px)}8.5%{opacity:1;transform:none}100%{opacity:1;transform:none}}
+
+.rise2{animation:ck-rise 7s ease-out 2.45s infinite}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;opacity:1!important;transform:none!important}}
 </style>
@@ -160,79 +163,81 @@
 <clipPath id="ck-kevin22"><rect x="664" y="387" width="14" height="130"/></clipPath>
 <clipPath id="ck-kevin23"><rect x="677" y="387" width="13" height="130"/></clipPath>
 </defs>
+<g class="scene">
+
 <g id="ck-ring">
-<g clip-path="url(#ck-w0)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.150s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w1)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.161s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w2)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.172s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w3)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.183s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w4)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.194s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w5)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.205s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w6)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.216s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w7)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.227s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w8)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.238s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w9)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.249s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w10)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.260s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w11)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.271s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w12)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.282s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w13)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.293s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w14)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.304s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w15)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.315s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w16)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.326s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w17)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.337s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w18)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.348s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w19)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.359s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w20)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.370s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w21)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.381s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w22)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.392s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w23)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.403s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w24)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.414s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w25)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.425s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w26)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.436s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w27)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.447s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w28)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.458s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w29)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.469s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w30)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.480s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w31)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.491s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w32)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.502s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w33)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.513s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w34)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.524s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w35)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.535s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w36)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.546s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w37)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.557s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w38)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.568s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w39)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.579s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w40)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.590s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w41)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.601s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w42)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.612s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w43)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.623s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w44)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.634s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w45)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.645s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w46)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.656s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w47)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.667s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w48)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.678s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w49)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.689s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w50)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.700s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w51)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.711s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w52)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.722s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w53)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.733s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w54)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.744s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w55)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.755s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w56)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.766s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w57)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.777s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w58)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.788s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w59)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.799s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w60)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.810s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w61)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.821s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w62)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.832s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w63)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.843s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w64)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.854s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w65)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.865s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w66)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.876s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w67)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.887s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w68)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.898s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w69)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.909s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w70)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.920s;animation-duration:0.16s"/></g>
-<g clip-path="url(#ck-w71)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.931s;animation-duration:0.16s"/></g>
+<g clip-path="url(#ck-w0)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.150s"/></g>
+<g clip-path="url(#ck-w1)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.161s"/></g>
+<g clip-path="url(#ck-w2)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.172s"/></g>
+<g clip-path="url(#ck-w3)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.183s"/></g>
+<g clip-path="url(#ck-w4)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.194s"/></g>
+<g clip-path="url(#ck-w5)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.205s"/></g>
+<g clip-path="url(#ck-w6)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.216s"/></g>
+<g clip-path="url(#ck-w7)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.227s"/></g>
+<g clip-path="url(#ck-w8)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.238s"/></g>
+<g clip-path="url(#ck-w9)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.249s"/></g>
+<g clip-path="url(#ck-w10)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.260s"/></g>
+<g clip-path="url(#ck-w11)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.271s"/></g>
+<g clip-path="url(#ck-w12)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.282s"/></g>
+<g clip-path="url(#ck-w13)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.293s"/></g>
+<g clip-path="url(#ck-w14)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.304s"/></g>
+<g clip-path="url(#ck-w15)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.315s"/></g>
+<g clip-path="url(#ck-w16)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.326s"/></g>
+<g clip-path="url(#ck-w17)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.337s"/></g>
+<g clip-path="url(#ck-w18)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.348s"/></g>
+<g clip-path="url(#ck-w19)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.359s"/></g>
+<g clip-path="url(#ck-w20)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.370s"/></g>
+<g clip-path="url(#ck-w21)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.381s"/></g>
+<g clip-path="url(#ck-w22)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.392s"/></g>
+<g clip-path="url(#ck-w23)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.403s"/></g>
+<g clip-path="url(#ck-w24)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.414s"/></g>
+<g clip-path="url(#ck-w25)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.425s"/></g>
+<g clip-path="url(#ck-w26)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.436s"/></g>
+<g clip-path="url(#ck-w27)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.447s"/></g>
+<g clip-path="url(#ck-w28)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.458s"/></g>
+<g clip-path="url(#ck-w29)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.469s"/></g>
+<g clip-path="url(#ck-w30)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.480s"/></g>
+<g clip-path="url(#ck-w31)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.491s"/></g>
+<g clip-path="url(#ck-w32)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.502s"/></g>
+<g clip-path="url(#ck-w33)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.513s"/></g>
+<g clip-path="url(#ck-w34)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.524s"/></g>
+<g clip-path="url(#ck-w35)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.535s"/></g>
+<g clip-path="url(#ck-w36)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.546s"/></g>
+<g clip-path="url(#ck-w37)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.557s"/></g>
+<g clip-path="url(#ck-w38)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.568s"/></g>
+<g clip-path="url(#ck-w39)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.579s"/></g>
+<g clip-path="url(#ck-w40)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.590s"/></g>
+<g clip-path="url(#ck-w41)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.601s"/></g>
+<g clip-path="url(#ck-w42)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.612s"/></g>
+<g clip-path="url(#ck-w43)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.623s"/></g>
+<g clip-path="url(#ck-w44)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.634s"/></g>
+<g clip-path="url(#ck-w45)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.645s"/></g>
+<g clip-path="url(#ck-w46)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.656s"/></g>
+<g clip-path="url(#ck-w47)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.667s"/></g>
+<g clip-path="url(#ck-w48)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.678s"/></g>
+<g clip-path="url(#ck-w49)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.689s"/></g>
+<g clip-path="url(#ck-w50)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.700s"/></g>
+<g clip-path="url(#ck-w51)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.711s"/></g>
+<g clip-path="url(#ck-w52)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.722s"/></g>
+<g clip-path="url(#ck-w53)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.733s"/></g>
+<g clip-path="url(#ck-w54)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.744s"/></g>
+<g clip-path="url(#ck-w55)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.755s"/></g>
+<g clip-path="url(#ck-w56)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.766s"/></g>
+<g clip-path="url(#ck-w57)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.777s"/></g>
+<g clip-path="url(#ck-w58)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.788s"/></g>
+<g clip-path="url(#ck-w59)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.799s"/></g>
+<g clip-path="url(#ck-w60)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.810s"/></g>
+<g clip-path="url(#ck-w61)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.821s"/></g>
+<g clip-path="url(#ck-w62)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.832s"/></g>
+<g clip-path="url(#ck-w63)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.843s"/></g>
+<g clip-path="url(#ck-w64)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.854s"/></g>
+<g clip-path="url(#ck-w65)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.865s"/></g>
+<g clip-path="url(#ck-w66)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.876s"/></g>
+<g clip-path="url(#ck-w67)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.887s"/></g>
+<g clip-path="url(#ck-w68)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.898s"/></g>
+<g clip-path="url(#ck-w69)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.909s"/></g>
+<g clip-path="url(#ck-w70)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.920s"/></g>
+<g clip-path="url(#ck-w71)"><use xlink:href="#ck-i-ring" class="fade" style="animation-delay:0.931s"/></g>
 </g>
 <g class="c"><use xlink:href="#ck-i-c"/></g>
 <g class="k"><use xlink:href="#ck-i-K"/></g>
@@ -240,59 +245,61 @@
 <g class="spoon"><use xlink:href="#ck-i-spoon"/></g>
 <g class="hat"><g class="tip"><use xlink:href="#ck-i-hat"/></g></g>
 <g class="rise">
-<g clip-path="url(#ck-catering0)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.000s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering1)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.018s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering2)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.036s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering3)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.054s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering4)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.072s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering5)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.090s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering6)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.108s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering7)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.126s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering8)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.144s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering9)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.162s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering10)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.180s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering11)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.198s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering12)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.216s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering13)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.234s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering14)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.252s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering15)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.270s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering16)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.288s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering17)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.306s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering18)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.324s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering19)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.342s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering20)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.360s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering21)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.378s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering22)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.396s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering23)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.414s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering24)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.432s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering25)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.450s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering26)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.468s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-catering27)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.486s;animation-duration:0.28s"/></g>
+<g clip-path="url(#ck-catering0)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.000s"/></g>
+<g clip-path="url(#ck-catering1)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.018s"/></g>
+<g clip-path="url(#ck-catering2)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.036s"/></g>
+<g clip-path="url(#ck-catering3)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.054s"/></g>
+<g clip-path="url(#ck-catering4)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.072s"/></g>
+<g clip-path="url(#ck-catering5)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.090s"/></g>
+<g clip-path="url(#ck-catering6)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.108s"/></g>
+<g clip-path="url(#ck-catering7)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.126s"/></g>
+<g clip-path="url(#ck-catering8)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.144s"/></g>
+<g clip-path="url(#ck-catering9)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.162s"/></g>
+<g clip-path="url(#ck-catering10)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.180s"/></g>
+<g clip-path="url(#ck-catering11)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.198s"/></g>
+<g clip-path="url(#ck-catering12)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.216s"/></g>
+<g clip-path="url(#ck-catering13)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.234s"/></g>
+<g clip-path="url(#ck-catering14)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.252s"/></g>
+<g clip-path="url(#ck-catering15)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.270s"/></g>
+<g clip-path="url(#ck-catering16)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.288s"/></g>
+<g clip-path="url(#ck-catering17)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.306s"/></g>
+<g clip-path="url(#ck-catering18)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.324s"/></g>
+<g clip-path="url(#ck-catering19)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.342s"/></g>
+<g clip-path="url(#ck-catering20)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.360s"/></g>
+<g clip-path="url(#ck-catering21)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.378s"/></g>
+<g clip-path="url(#ck-catering22)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.396s"/></g>
+<g clip-path="url(#ck-catering23)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.414s"/></g>
+<g clip-path="url(#ck-catering24)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.432s"/></g>
+<g clip-path="url(#ck-catering25)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.450s"/></g>
+<g clip-path="url(#ck-catering26)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.468s"/></g>
+<g clip-path="url(#ck-catering27)"><use xlink:href="#ck-i-catering" class="fade" style="animation-delay:2.486s"/></g>
 </g>
 <g class="rise2">
-<g clip-path="url(#ck-kevin0)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.450s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin1)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.468s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin2)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.486s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin3)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.504s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin4)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.522s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin5)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.540s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin6)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.558s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin7)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.576s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin8)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.594s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin9)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.612s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin10)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.630s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin11)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.648s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin12)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.666s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin13)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.684s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin14)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.702s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin15)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.720s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin16)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.738s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin17)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.756s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin18)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.774s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin19)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.792s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin20)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.810s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin21)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.828s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin22)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.846s;animation-duration:0.28s"/></g>
-<g clip-path="url(#ck-kevin23)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.864s;animation-duration:0.28s"/></g>
+<g clip-path="url(#ck-kevin0)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.450s"/></g>
+<g clip-path="url(#ck-kevin1)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.468s"/></g>
+<g clip-path="url(#ck-kevin2)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.486s"/></g>
+<g clip-path="url(#ck-kevin3)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.504s"/></g>
+<g clip-path="url(#ck-kevin4)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.522s"/></g>
+<g clip-path="url(#ck-kevin5)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.540s"/></g>
+<g clip-path="url(#ck-kevin6)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.558s"/></g>
+<g clip-path="url(#ck-kevin7)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.576s"/></g>
+<g clip-path="url(#ck-kevin8)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.594s"/></g>
+<g clip-path="url(#ck-kevin9)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.612s"/></g>
+<g clip-path="url(#ck-kevin10)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.630s"/></g>
+<g clip-path="url(#ck-kevin11)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.648s"/></g>
+<g clip-path="url(#ck-kevin12)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.666s"/></g>
+<g clip-path="url(#ck-kevin13)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.684s"/></g>
+<g clip-path="url(#ck-kevin14)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.702s"/></g>
+<g clip-path="url(#ck-kevin15)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.720s"/></g>
+<g clip-path="url(#ck-kevin16)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.738s"/></g>
+<g clip-path="url(#ck-kevin17)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.756s"/></g>
+<g clip-path="url(#ck-kevin18)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.774s"/></g>
+<g clip-path="url(#ck-kevin19)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.792s"/></g>
+<g clip-path="url(#ck-kevin20)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.810s"/></g>
+<g clip-path="url(#ck-kevin21)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.828s"/></g>
+<g clip-path="url(#ck-kevin22)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.846s"/></g>
+<g clip-path="url(#ck-kevin23)"><use xlink:href="#ck-i-kevin" class="fade" style="animation-delay:2.864s"/></g>
+</g>
+
 </g>
 </svg>

@@ -56,19 +56,13 @@ export const HonorNavbar: React.FC<NavbarProps> = ({
         </button>
 
         {/* Brand */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <div className="flex items-center">
           <div className="rounded-xl dark:bg-white dark:px-2 dark:py-0.5 dark:shadow-sm flex items-center justify-center transition-transform hover:scale-105 shrink-0">
             <img
               src="/logo-catering-kevin.svg"
               alt="Catering Kevin"
-              className="h-9 sm:h-10 md:h-11 w-auto object-contain select-none"
+              className="h-9 sm:h-10 md:h-11 w-auto object-contain select-none cursor-pointer"
             />
-          </div>
-          <div className="hidden md:flex items-center gap-1.5 pl-2 border-l border-gray-200 dark:border-gray-800 leading-none">
-            <span className="text-base font-bold text-gray-800 dark:text-gray-100 tracking-tight">Calendario</span>
-            <span className="text-xs px-1.5 py-0.5 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 font-bold uppercase tracking-wider">
-              Locales
-            </span>
           </div>
         </div>
 
