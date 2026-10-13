@@ -531,7 +531,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-200">
+    <div className="flex flex-col h-screen h-[100dvh] w-screen overflow-hidden bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-200">
       
       {/* Top Navbar */}
       <Navbar

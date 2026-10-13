@@ -28,13 +28,13 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
   const currentMonth = currentDate.getMonth();
 
   return (
-    <div className="flex flex-col h-full bg-[#f7f8fa] dark:bg-[#0c0c0c] select-none overflow-hidden p-2 sm:p-4 gap-2">
+    <div className="flex flex-col h-full bg-[#f7f8fa] dark:bg-[#0c0c0c] select-none overflow-y-auto p-1.5 sm:p-4 gap-2">
       {/* Day of Week Headers */}
-      <div className="grid grid-cols-7 mb-2">
+      <div className="grid grid-cols-7 mb-1 sticky top-0 z-10 shrink-0 bg-[#f7f8fa] dark:bg-[#0c0c0c] py-1">
         {DAY_NAMES_SHORT.map((day, idx) => (
           <div
             key={day}
-            className={`py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${
+            className={`py-1 sm:py-2 text-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${
               idx === 0 || idx === 6 ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'
             }`}
           >
@@ -45,7 +45,7 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
       </div>
 
       {/* Days Grid */}
-      <div className="grid grid-cols-7 flex-1 auto-rows-fr gap-1 sm:gap-3">
+      <div className="grid grid-cols-7 flex-1 auto-rows-fr gap-1 sm:gap-3 pb-20 sm:pb-0">
         {days.map((day, idx) => {
           const isCurrMonth = day.getMonth() === currentMonth;
           const dayEvents = events.filter((e) => {
@@ -65,29 +65,43 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                   onShowDaySummary(day, dayEvents);
                 }
               }}
-              className={`min-h-[65px] sm:min-h-[100px] p-1 flex flex-col group relative rounded-2xl transition-all duration-300 cursor-pointer ${
+              className={`min-h-[65px] sm:min-h-[100px] p-0.5 sm:p-1 flex flex-col group relative rounded-xl sm:rounded-2xl transition-all duration-300 cursor-pointer ${
                 isCurrMonth 
                   ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:scale-[1.01] dark:shadow-none' 
                   : 'bg-gray-200/50 dark:bg-gray-800/40 text-gray-400 dark:text-gray-600 opacity-80'
               }`}
             >
               {/* Day Number Header */}
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className={`text-sm font-medium w-7 h-7 rounded-full inline-flex items-center justify-center transition-all ${
-                      today
-                        ? 'bg-[#2b6de3] text-white shadow-md'
-                        : isCurrMonth
-                        ? 'text-gray-800 dark:text-gray-200 group-hover:bg-gray-100 dark:group-hover:bg-gray-800'
-                        : 'text-gray-400 dark:text-gray-600'
-                    }`}
-                  >
-                    {day.getDate()}
-                  </span>
-                </div>
+              <div className="flex items-center justify-start gap-0.5 sm:gap-1 mb-0.5 sm:mb-1 w-full min-w-0">
+                <span
+                  className={`text-[11px] sm:text-xs font-bold shrink-0 ${
+                    today
+                      ? 'w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#2b6de3] text-white shadow-xs inline-flex items-center justify-center'
+                      : isCurrMonth
+                      ? 'text-gray-800 dark:text-gray-200 pl-0.5 pr-0.5'
+                      : 'text-gray-400 dark:text-gray-600 pl-0.5 pr-0.5'
+                  }`}
+                >
+                  {day.getDate()}
+                </span>
 
-                {/* Quick Add icon visible on hover */}
+                {/* Total Plates Badge a su costado */}
+                {totalPlates > 0 && (
+                  <button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onShowDaySummary) onShowDaySummary(day, dayEvents);
+                    }}
+                    className="inline-flex items-center gap-0.5 text-[8px] sm:text-[9.5px] font-bold text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-950/60 dark:hover:bg-orange-900/60 dark:text-orange-400 px-1 sm:px-1.5 py-0.5 rounded border border-orange-200 dark:border-orange-800 transition cursor-pointer shrink-0 leading-none whitespace-nowrap"
+                    title={`Total de raciones: ${totalPlates}`}
+                  >
+                    <Utensils className="w-2 h-2 sm:w-2.5 sm:h-2.5 shrink-0" />
+                    <span>{totalPlates}</span>
+                  </button>
+                )}
+
+                {/* Quick Add icon visible on hover (desktop) */}
                 {role === 'admin' && (
                   <button
                     type="button"
@@ -95,7 +109,7 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                       e.stopPropagation();
                       onCreateEventOnDate(day);
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-[#2b6de3] transition-all transform hover:scale-110"
+                    className="hidden sm:block ml-auto opacity-0 group-hover:opacity-100 p-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-[#2b6de3] transition-all transform hover:scale-110"
                     title="Añadir evento en este día"
                   >
                     <Plus className="w-3.5 h-3.5" />
