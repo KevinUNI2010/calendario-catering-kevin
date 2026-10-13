@@ -449,23 +449,53 @@ export const EventModal: React.FC<EventModalProps> = ({
 
               {/* Servilletas with explicit color coding */}
               <div>
-                <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">Servilletas</span>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Servilletas</span>
+                  {dish.servilleta && (() => {
+                    const [selName, selColor] = dish.servilleta.split('|');
+                    return (
+                      <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 flex items-center gap-1.5 animate-in fade-in duration-150">
+                        {selColor && (
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/20 shrink-0"
+                            style={{ backgroundColor: selColor }}
+                          />
+                        )}
+                        <span>✓ {selName}</span>
+                      </span>
+                    );
+                  })()}
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {menuOptions.servilletas?.map(opt => {
                     const [name, colorHex] = opt.split('|');
                     const storedName = dish.servilleta ? dish.servilleta.split('|')[0] : '';
                     const isSelected = storedName === name;
+                    const isWhite = colorHex?.toLowerCase() === '#ffffff' || colorHex?.toLowerCase() === '#fff' || name.toLowerCase() === 'blanco';
                     return (
                       <button
                         key={opt}
                         type="button"
                         onClick={() => setDish({ ...dish, servilleta: isSelected ? '' : opt })}
-                        className={`flex items-stretch overflow-hidden rounded-full border transition cursor-pointer shadow-xs ${isSelected ? 'border-gray-500 bg-gray-50 dark:bg-gray-800 ring-2 ring-offset-1 ring-gray-400 dark:ring-gray-600 text-gray-900 dark:text-white' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                        className={`flex items-stretch overflow-hidden rounded-full border transition-all duration-150 cursor-pointer ${
+                          isSelected
+                            ? 'border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/70 ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900 shadow-md text-blue-900 dark:text-blue-100 font-bold scale-105 z-10'
+                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 opacity-80 hover:opacity-100'
+                        }`}
                       >
                         {colorHex && (
-                           <div className="w-5 shrink-0 border-r border-black/5 dark:border-white/5" style={{ backgroundColor: colorHex }} />
+                          <div
+                            className="w-6 shrink-0 flex items-center justify-center border-r border-black/10 dark:border-white/10"
+                            style={{ backgroundColor: colorHex }}
+                          >
+                            {isSelected && (
+                              <Check
+                                className={`w-3.5 h-3.5 stroke-[3] drop-shadow ${isWhite ? 'text-gray-900' : 'text-white'}`}
+                              />
+                            )}
+                          </div>
                         )}
-                        <span className="px-3 py-1.5 text-xs font-semibold">
+                        <span className="px-3 py-1.5 text-xs font-semibold flex items-center gap-1">
                           {name}
                         </span>
                       </button>
