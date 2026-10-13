@@ -101,20 +101,6 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                   </button>
                 )}
 
-                {/* Quick Add icon visible on hover (desktop) */}
-                {role === 'admin' && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onCreateEventOnDate(day);
-                    }}
-                    className="hidden sm:block ml-auto opacity-0 group-hover:opacity-100 p-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-[#2b6de3] transition-all transform hover:scale-110"
-                    title="Añadir evento en este día"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                )}
               </div>
 
               {/* Event Badges */}

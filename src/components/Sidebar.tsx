@@ -106,20 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Google Calendar "+ Crear" FAB button */}
-      <div>
-        <button
-          type="button"
-          id="sidebar-create-btn"
-          onClick={onOpenCreateModal}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700 transition-all font-semibold text-sm cursor-pointer active:scale-95 group"
-        >
-          <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-xs group-hover:rotate-90 transition-transform duration-200">
-            <Plus className="w-5 h-5" />
-          </div>
-          <span>Crear Evento</span>
-        </button>
-      </div>
+
 
       {/* Mini Calendar Widget */}
       <div className="bg-gray-50/60 dark:bg-gray-800/30 p-3 rounded-2xl border border-gray-100 dark:border-gray-800">

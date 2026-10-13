@@ -102,20 +102,6 @@ export const MonthView: React.FC<MonthViewProps> = ({
                   </button>
                 )}
 
-                {/* Quick Add icon (solo en desktop para no robar espacio en móvil) */}
-                {role === 'admin' && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onCreateEventOnDate(day);
-                    }}
-                    className="hidden sm:block ml-auto opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition"
-                    title="Añadir evento en este día"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                )}
               </div>
 
               {/* Event Badges (Boton de cada local) */}
