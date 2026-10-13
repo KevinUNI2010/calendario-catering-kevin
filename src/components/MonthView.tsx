@@ -59,8 +59,8 @@ export const MonthView: React.FC<MonthViewProps> = ({
             <div
               key={idx}
               onClick={() => {
-                if (role !== 'viewer') {
-                  onCreateEventOnDate(day);
+                if (onShowDaySummary) {
+                  onShowDaySummary(day, dayEvents);
                 }
               }}
               className={`min-h-[70px] sm:min-h-[100px] p-0.5 sm:p-1.5 flex flex-col group relative transition-colors ${

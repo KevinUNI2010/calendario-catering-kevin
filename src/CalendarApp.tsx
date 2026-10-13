@@ -24,6 +24,7 @@ import { notify } from './utils/toastHelper';
 
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
+import { HonorMonthView } from './honor-components/HonorMonthView';
 import { MonthView } from './components/MonthView';
 import { WeekView } from './components/WeekView';
 import { DayView } from './components/DayView';
@@ -582,13 +583,14 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
         {/* View Component */}
         <main className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-gray-900">
           {viewMode === 'month' && (
-            <MonthView
+            <HonorMonthView
               currentDate={currentDate}
               events={filteredEvents}
               onSelectEvent={handleSelectEvent}
               onCreateEventOnDate={handleCreateEventOnDate}
               onShowDaySummary={(date, events) => setHonorDayModalData({ isOpen: true, date, events })}
               role={session.role}
+              locales={locales}
             />
           )}
 
@@ -722,6 +724,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
           date={honorDayModalData.date}
           events={honorDayModalData.events}
           onSelectEvent={(event) => handleSelectEvent(null, event)}
+          onCreateEvent={(date) => handleCreateEventOnDate(date)}
           role={session.role}
         />
       )}

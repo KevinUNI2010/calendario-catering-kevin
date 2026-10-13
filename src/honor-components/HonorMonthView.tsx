@@ -124,7 +124,11 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                   return (
                     <div 
                       key={event.id} 
-                      className="w-full rounded py-[3px] px-0.5 text-[8px] sm:text-[10px] leading-none font-bold shadow-sm whitespace-nowrap overflow-hidden text-clip"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectEvent(e, event);
+                      }}
+                      className="w-full rounded py-[3px] px-0.5 text-[8px] sm:text-[10px] leading-none font-bold shadow-sm whitespace-nowrap overflow-hidden text-clip cursor-pointer hover:opacity-90 active:scale-[0.98] transition-transform"
                       style={{ backgroundColor: color.bg, color: color.text || '#fff' }}
                       title={event.localName}
                     >

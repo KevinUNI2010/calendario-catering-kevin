@@ -726,6 +726,7 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
           date={honorDayModalData.date}
           events={honorDayModalData.events}
           onSelectEvent={(event) => handleSelectEvent(null, event)}
+          onCreateEvent={(date) => handleCreateEventOnDate(date)}
           role={session.role}
         />
       )}

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { CalendarEvent } from '../types';
-import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus } from 'lucide-react';
 import { formatDateShort } from '../utils/dateUtils';
 import { getEventColor } from '../utils/colorUtils';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -13,6 +13,7 @@ interface HonorDayDetailsModalProps {
   date: Date | null;
   events: CalendarEvent[];
   onSelectEvent: (event: CalendarEvent) => void;
+  onCreateEvent?: (date: Date) => void;
   role?: string;
 }
 
@@ -22,6 +23,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
   date,
   events,
   onSelectEvent,
+  onCreateEvent,
   role,
 }) => {
   useEscapeKey(onClose, isOpen);
@@ -82,34 +84,64 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-[#c04514] dark:text-orange-400">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-gray-900 dark:text-white capitalize leading-tight">
+              <h2 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white capitalize leading-tight">
                 {date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
               </h2>
-              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
                 {events.length} {events.length === 1 ? 'evento programado' : 'eventos programados'}
               </span>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
-            className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+
+          <div className="flex items-center gap-2">
+            {role === 'admin' && onCreateEvent && (
+              <button 
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onCreateEvent(date);
+                }} 
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-sm hover:shadow transition transform active:scale-95 cursor-pointer"
+                title="Crear un nuevo evento en este día"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Crear Evento</span>
+              </button>
+            )}
+            <button 
+              onClick={onClose} 
+              className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#fcfaf8] dark:bg-[#0c0c0c]">
           
           {/* Eventos del Día */}
-          <div className="mb-4">
+          <div className="flex items-center justify-between mb-4">
              <h3 className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Eventos del Día</h3>
+             {role === 'admin' && onCreateEvent && events.length > 0 && (
+               <button
+                 type="button"
+                 onClick={() => {
+                   onClose();
+                   onCreateEvent(date);
+                 }}
+                 className="sm:hidden flex items-center gap-1 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs"
+               >
+                 <Plus className="w-3.5 h-3.5" />
+                 <span>Crear Evento</span>
+               </button>
+             )}
           </div>
 
           {sortedEvents.length === 0 ? (
@@ -118,6 +150,19 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                 <Calendar className="w-8 h-8 text-gray-300 dark:text-gray-600" />
               </div>
               <p className="text-gray-500 dark:text-gray-400 font-medium">No hay eventos para este día.</p>
+              {role === 'admin' && onCreateEvent && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onCreateEvent(date);
+                  }}
+                  className="mt-4 flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md transition transform active:scale-95"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Crear Primer Evento</span>
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-max">
