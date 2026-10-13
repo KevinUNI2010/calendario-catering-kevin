@@ -21,7 +21,7 @@ export default function App() {
       if (savedPin) {
         try {
           const parsed = JSON.parse(savedPin);
-          if (parsed && parsed.role === 'viewer') {
+          if (parsed && ['admin', 'viewer', 'dueño', 'cocinero', 'mozo'].includes(parsed.role)) {
             setSession(parsed);
             setLoading(false);
             return;
@@ -35,7 +35,6 @@ export default function App() {
         const { data: { session: supaSession } } = await supabase.auth.getSession();
         if (supaSession?.user) {
           const email = supaSession.user.email;
-          console.log('Init Session Email:', email);
           if (email) {
             // Check if email is in admin_emails
             const { data: adminData, error: adminError } = await supabase
@@ -43,8 +42,6 @@ export default function App() {
               .select('email')
               .ilike('email', email)
               .maybeSingle();
-              
-            console.log('Init Session Admin Data:', adminData);
               
             if (adminError) {
               console.error('Error verifying admin:', adminError);
@@ -62,18 +59,14 @@ export default function App() {
 
         // Listen for auth changes (Login/Logout)
         supabase.auth.onAuthStateChange(async (event, currentSession) => {
-          console.log('Auth event:', event, 'Session:', currentSession);
           if (event === 'SIGNED_IN' && currentSession?.user) {
             const email = currentSession.user.email;
-            console.log('Email from Google:', email);
             if (email) {
               const { data: adminData, error: adminError } = await supabase
                 .from('admin_emails')
                 .select('email')
                 .ilike('email', email)
                 .maybeSingle();
-                
-              console.log('Admin Data from DB:', adminData, 'Error:', adminError);
                 
               if (adminError) {
                 console.error('Error verifying admin on sign in:', adminError);
@@ -136,7 +129,7 @@ export default function App() {
         <Route 
           path="/" 
           element={
-            session && session.role === 'viewer' ? (
+            session && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(session.role) ? (
               <HonorCalendarApp session={session} onLogout={handleLogout} />
             ) : session && session.role === 'admin' ? (
               <Navigate to="/admin" replace />
@@ -152,7 +145,7 @@ export default function App() {
           element={
             session && session.role === 'admin' ? (
               <CalendarApp session={session} onLogout={handleLogout} />
-            ) : session && session.role === 'viewer' ? (
+            ) : session && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(session.role) ? (
               <Navigate to="/" replace />
             ) : (
               <AdminLogin />
@@ -166,7 +159,7 @@ export default function App() {
           element={
             session && session.role === 'admin' ? (
               <HonorCalendarApp session={session} onLogout={handleLogout} />
-            ) : session && session.role === 'viewer' ? (
+            ) : session && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(session.role) ? (
               <Navigate to="/" replace />
             ) : (
               <AdminLogin />

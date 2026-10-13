@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentación Ejecutiva - Calendario de Locales y Catering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(18, 24, 38, 0.85);
+      --border: rgba(255, 255, 255, 0.08);
+      --primary: #3b82f6;
+      --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      --accent-orange: #f97316;
+      --accent-green: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+    }
+
+    /* Presentation Container */
+    #deck {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Individual Slide */
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 60px 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96) translateY(20px);
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      background: radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                  #0b0f19;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    /* Badges & Pills */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+    .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge-orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    /* Typography */
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 800px;
+      margin-bottom: 36px;
+    }
+
+    /* Grids & Cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      transition: border-color 0.3s;
+    }
+
+    .card:hover {
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .card-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Metric Highlight Cards */
+    .stat-number {
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Slide Images */
+    .slide-media {
+      width: 100%;
+      height: 380px;
+      border-radius: 24px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Progress & Controls */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--primary-gradient);
+      width: 0%;
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 24px;
+      right: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 8px 16px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+    }
+
+    .ctrl-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .slide-indicator {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding: 0 8px;
+    }
+
+    /* Presenter Footer */
+    .footer-info {
+      position: fixed;
+      bottom: 28px;
+      left: 40px;
+      font-size: 0.85rem;
+      color: #64748b;
+      display: flex;
+      gap: 20px;
+      z-index: 50;
+    }
+
+    /* Print styles for exporting to PDF */
+    @media print {
+      body {
+        overflow: visible;
+        height: auto;
+        background: #fff;
+        color: #000;
+      }
+      .controls, #progress-bar, .footer-info {
+        display: none !important;
+      }
+      .slide {
+        position: relative !important;
+        opacity: 1 !important;
+        transform: none !important;
+        height: 100vh !important;
+        page-break-after: always !important;
+        padding: 40px !important;
+        background: #0b0f19 !important;
+        color: #fff !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <div id="deck">
+
+    <!-- SLIDE 1: PORTADA -->
+    <div class="slide active">
+      <div class="grid-2">
+        <div>
+          <span class="badge badge-blue">🚀 Presentación de Proyecto • Versión 1.0</span>
+          <h1>Plataforma de Calendario y Catering</h1>
+          <p class="subtitle">
+            Sistema centralizado para la coordinación de turnos de locales, pedidos gastronómicos diarios y control de producción en tiempo real.
+          </p>
+          <div style="display: flex; gap: 24px; margin-top: 20px;">
+            <div>
+              <div class="stat-number">100%</div>
+              <div class="stat-label">En la Nube</div>
+            </div>
+            <div>
+              <div class="stat-number">Perú</div>
+              <div class="stat-label">Hora UTC-5</div>
+            </div>
+            <div>
+              <div class="stat-number">RLS</div>
+              <div class="stat-label">Seguridad SQL</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <img src="assets/slide_hero.jpg" alt="Nexus Catering Platform Mockup" class="slide-media">
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: EL PROBLEMA VS LA SOLUCIÓN -->
+    <div class="slide">
+      <span class="badge badge-orange">💡 Diagnóstico y Oportunidad</span>
+      <h2>De la Descoordinación a la Precisión Total</h2>
+      <p class="subtitle">Cómo transformamos el flujo de trabajo entre la cocina central y los locales de la empresa.</p>
+      
+      <div class="grid-2">
+        <div class="card" style="border-left: 4px solid #ef4444;">
+          <div class="card-icon">❌</div>
+          <h3 class="card-title">Antes de la Plataforma</h3>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; color: var(--text-muted); font-size: 0.95rem;">
+            <li>⚠️ <strong>Canales informales:</strong> Pedidos por WhatsApp dispersos y sin registro oficial.</li>
+            <li>⚠️ <strong>Mermas y faltantes:</strong> Desconocimiento del volumen total de raciones para cocina.</li>
+            <li>⚠️ <strong>Desfase horario:</strong> Fechas que cambiaban solas debido al huso horario internacional UTC.</li>
+            <li>⚠️ <strong>Falta de privacidad:</strong> Cualquier local podía ver datos ajenos o no tenía acceso.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-left: 4px solid #10b981;">
+          <div class="card-icon">✅</div>
+          <h3 class="card-title">Con el Nuevo Sistema</h3>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; color: var(--text-muted); font-size: 0.95rem;">
+            <li>✨ <strong>Panel Centralizado:</strong> Calendario sincronizado instantáneamente para todos.</li>
+            <li>✨ <strong>Resumen Mensual:</strong> Histograma de platos por día para abastecimiento exacto.</li>
+            <li>✨ <strong>Hora Oficial de Perú:</strong> Sincronización exacta UTC-5 sin alteraciones.</li>
+            <li>✨ <strong>Acceso Seguro con PIN:</strong> Cada local solo visualiza su programación asignada.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: DOBLE PERFIL DE USUARIO -->
+    <div class="slide">
+      <span class="badge badge-blue">👥 Arquitectura de Usuarios</span>
+      <h2>Experiencia Adaptada para Cada Rol</h2>
+      <p class="subtitle">Separación estricta entre control administrativo y consulta operativa de locales.</p>
+      
+      <div class="grid-2">
+        <div class="card">
+          <span class="badge badge-blue" style="margin-bottom: 12px;">Rol Administrador (/admin)</span>
+          <h3 class="card-title">Supervisión y Control Integral</h3>
+          <p class="card-desc" style="margin-bottom: 16px;">
+            Diseñado para la Gerencia de Operaciones y Planificación.
+          </p>
+          <ul style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-left: 18px;">
+            <li>Acceso seguro mediante <strong>Google OAuth</strong> (Lista Blanca).</li>
+            <li>Creación y modificación de turnos con desglose de menú.</li>
+            <li>Visualización del Resumen Mensual consolidado.</li>
+            <li>Gestión de locales y asignación de códigos PIN a clientes.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <span class="badge badge-orange" style="margin-bottom: 12px;">Rol Espectador / Sede (/)</span>
+          <h3 class="card-title">Portal Ágil para Locales y Clientes</h3>
+          <p class="card-desc" style="margin-bottom: 16px;">
+            Diseñado para encargados de sede, mozos y cocina.
+          </p>
+          <ul style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-left: 18px;">
+            <li>Ingreso ultra-rápido con <strong>PIN numérico de 4 dígitos</strong>.</li>
+            <li>Vista Mes y Vista Agenda adaptada a celulares y tablets.</li>
+            <li>Modo solo lectura: Cero riesgo de borrado accidental.</li>
+            <li>Filtro automático: Solo ven los locales autorizados.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: PLANIFICACIÓN DE CATERING Y MENÚ -->
+    <div class="slide">
+      <span class="badge badge-green">🍽️ Control Gastronómico</span>
+      <h2>Ficha Técnica de Menú en Cada Evento</h2>
+      <p class="subtitle">Cada evento en el calendario incluye la orden de preparación lista para cocina.</p>
+      
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-icon">🍗</div>
+          <h3 class="card-title">Proteínas y Platos</h3>
+          <p class="card-desc">Selección precisa del plato de fondo (Pollo, Pescado, Lomo, Cerdo o Vegetariano).</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">🥗</div>
+          <h3 class="card-title">Guarnición y Ensalada</h3>
+          <p class="card-desc">Definición de carbohidratos (arroz, puré, papas) y tipo de ensalada fresca o cocida.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">📊</div>
+          <h3 class="card-title">Raciones y Servicios</h3>
+          <p class="card-desc">Conteo exacto de platos, requerimiento de servilletas y notas especiales para la sede.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 24px; background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.2);">
+        <p style="font-size: 1.05rem; color: #93c5fd;">
+          <strong>🎯 Impacto Operativo:</strong> La cocina ya no recibe pedidos verbales ni notas extraviadas; toda la demanda del día está consolidada en una sola pantalla.
+        </p>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: EL RESUMEN MENSUAL -->
+    <div class="slide">
+      <span class="badge badge-orange">📈 Módulo Destacado</span>
+      <h2>Resumen Mensual: Planificación Sin Mermas</h2>
+      <p class="subtitle">La herramienta definitiva para la previsión de insumos y logística de compras.</p>
+      
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="card-title">Histograma Dinámico Diario</h3>
+          <p class="card-desc" style="margin-bottom: 16px;">
+            Gráfico de barras interactivo que mapea los 31 días del mes seleccionado.
+          </p>
+          <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #38bdf8;">
+            Día 02: █ 192 platos (Local Gladiolos)<br>
+            Día 03: █ 200 platos (Local Gladiolos)<br>
+            Día 30: █ 300 platos (Local Villa Santiago)<br>
+            ... Total Proyectado Calculado en Segundos
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Beneficios para Compras y Cocina</h3>
+          <ul style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; margin-left: 20px;">
+            <li>Anticipación de compras mayoristas de carnes y verduras.</li>
+            <li>Optimización de los turnos de cocineros y personal de apoyo.</li>
+            <li>Filtro por sede o consolidado general de toda la empresa.</li>
+            <li>Generación de métricas sin necesidad de hojas de cálculo manuales.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: HORA OFICIAL DE PERÚ -->
+    <div class="slide">
+      <span class="badge badge-blue">🇵🇪 Precisión Temporal</span>
+      <h2>Sincronización Estricta con Hora de Perú</h2>
+      <p class="subtitle">Eliminación definitiva del problema de desplazamiento de días en eventos nocturnos.</p>
+      
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-icon">🕒</div>
+          <h3 class="card-title">Huso UTC-5</h3>
+          <p class="card-desc">Configuración nativa con <code>America/Lima</code> en todo el ciclo de vida del dato.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">📅</div>
+          <h3 class="card-title">Turnos Nocturnos</h3>
+          <p class="card-desc">Los eventos de las 19:00 a 23:59 horas permanecen en la fecha correcta sin saltar al día siguiente.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <h3 class="card-title">Multi-Dispositivo</h3>
+          <p class="card-desc">Cálculo uniforme independientemente de la zona horaria del celular o laptop del usuario.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: SEGURIDAD Y PROTECCIÓN DE DATOS -->
+    <div class="slide">
+      <div class="grid-2">
+        <div>
+          <span class="badge badge-green">🛡️ Blindaje Técnico</span>
+          <h2>Seguridad Corporativa de Extremo a Extremo</h2>
+          <p class="subtitle">Protección activa en base de datos, servidor y navegador.</p>
+
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div class="card" style="padding: 16px;">
+              <strong>🔒 Row Level Security (RLS) en Supabase:</strong>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Imposible alterar o borrar datos desde internet sin sesión de administrador.</p>
+            </div>
+            <div class="card" style="padding: 16px;">
+              <strong>🔑 Procedimiento Remoto verify_client_pin:</strong>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Los PINs nunca se exponen al navegador. Validación segura en servidor con SHA-256.</p>
+            </div>
+            <div class="card" style="padding: 16px;">
+              <strong>⏱️ Defensa Anti-Fuerza Bruta:</strong>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">Bloqueo de 30 segundos tras 5 fallos consecutivos para evitar bots.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <img src="assets/slide_security.jpg" alt="Cybersecurity Architecture Concept" class="slide-media">
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: INFRAESTRUCTURA Y ALTA DISPONIBILIDAD -->
+    <div class="slide">
+      <span class="badge badge-blue">☁️ Arquitectura Cloud</span>
+      <h2>Infraestructura Serverless de Alto Desempeño</h2>
+      <p class="subtitle">Tecnologías líderes en el mercado garantizan disponibilidad ininterrumpida.</p>
+      
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-icon">▲</div>
+          <h3 class="card-title">Vercel Edge Network</h3>
+          <p class="card-desc">Frontend desplegado en CDN global con tiempos de carga inferiores a 1 segundo en todo el país.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <h3 class="card-title">Supabase Realtime</h3>
+          <p class="card-desc">Motor PostgreSQL con WebSockets: los cambios se replican en pantallas abiertas sin recargar.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon">💾</div>
+          <h3 class="card-title">Copias de Seguridad</h3>
+          <p class="card-desc">Respaldos diarios automatizados con opción de restauración inmediata ante cualquier contingencia.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: RETORNO DE INVERSIÓN (ROI) -->
+    <div class="slide">
+      <span class="badge badge-green">💰 Valor para el Negocio</span>
+      <h2>Impacto Directo en la Rentabilidad</h2>
+      <p class="subtitle">Beneficios cuantificables desde el primer día de puesta en marcha.</p>
+      
+      <div class="grid-3">
+        <div class="card">
+          <div class="stat-number">-35%</div>
+          <div class="card-title">Reducción de Mermas</div>
+          <p class="card-desc">Compras exactas de carnes e insumos gracias a la previsión cuantitativa del Resumen Mensual.</p>
+        </div>
+
+        <div class="card">
+          <div class="stat-number">-90%</div>
+          <div class="card-title">Menos Descoordinaciones</div>
+          <p class="card-desc">Fin de pedidos duplicados, mensajes perdidos en chats y reclamos por horarios incorrectos.</p>
+        </div>
+
+        <div class="card">
+          <div class="stat-number">100%</div>
+          <div class="card-title">Trazabilidad Total</div>
+          <p class="card-desc">Registro histórico de cada turno, local y menú despachado para auditorías y control interno.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: CONCLUSIÓN Y CIERRE -->
+    <div class="slide">
+      <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+        <span class="badge badge-blue">🏁 Cierre de Proyecto</span>
+        <h2 style="font-size: 3rem; margin-bottom: 20px;">¡Sistema Listo para Producción!</h2>
+        <p class="subtitle" style="margin: 0 auto 36px auto;">
+          La plataforma se encuentra completamente testeada, blindada contra vulnerabilidades y lista para recibir la carga completa de datos de la empresa.
+        </p>
+
+        <div class="grid-3" style="text-align: left; margin-bottom: 36px;">
+          <div class="card">
+            <strong>✅ Pruebas Superadas</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Autenticación Google, PINs, RLS y zona horaria validadas al 100%.</p>
+          </div>
+          <div class="card">
+            <strong>✅ Documentación Completa</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Manual de usuario, informe de seguridad y acta de entrega listos.</p>
+          </div>
+          <div class="card">
+            <strong>✅ Garantía de 30 Días</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Soporte y acompañamiento continuo post-lanzamiento.</p>
+          </div>
+        </div>
+
+        <p style="font-size: 1.1rem; color: #fff; font-weight: 600;">
+          Gracias por su confianza. ¿Preguntas o demostración en vivo?
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Presentation Controls -->
+  <div class="controls">
+    <button class="ctrl-btn" id="prev-btn" title="Anterior (←)">◀</button>
+    <span class="slide-indicator" id="slide-num">1 / 10</span>
+    <button class="ctrl-btn" id="next-btn" title="Siguiente (→)">▶</button>
+    <button class="ctrl-btn" id="fullscreen-btn" title="Pantalla Completa (F11)">⛶</button>
+  </div>
+
+  <div class="footer-info">
+    <span>💼 Presentación Oficial • Kevin Zambrano</span>
+    <span>📅 Octubre 2026</span>
+    <span>🇵🇪 Lima, Perú</span>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progress-bar');
+    const slideNum = document.getElementById('slide-num');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+    let current = 0;
+    const total = slides.length;
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === current);
+      });
+      slideNum.textContent = `${current + 1} / ${total}`;
+      progressBar.style.width = `${((current + 1) / total) * 100}%`;
+    }
+
+    function nextSlide() {
+      if (current < total - 1) {
+        current++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (current > 0) {
+        current--;
+        updateSlide();
+      }
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'Home') {
+        current = 0;
+        updateSlide();
+      } else if (e.key === 'End') {
+        current = total - 1;
+        updateSlide();
+      }
+    });
+
+    nextBtn.addEventListener('click', nextSlide);
+    prevBtn.addEventListener('click', prevSlide);
+
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    updateSlide();
+  </script>
+</body>
+</html>

@@ -107,7 +107,7 @@ export const HonorSidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Google Calendar "+ Crear" FAB button */}
-      {role !== 'viewer' && (
+      {role === 'admin' && (
         <div>
           <button
             type="button"

@@ -8,8 +8,12 @@ export const DAY_NAMES_FULL = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Juev
 
 export function formatTimeHM(dateStr: string): string {
   try {
+    if (typeof dateStr === 'string' && dateStr.includes('T') && !dateStr.includes('Z') && !dateStr.includes('+')) {
+      const timePart = dateStr.split('T')[1];
+      if (timePart) return timePart.substring(0, 5);
+    }
     const d = new Date(dateStr);
-    return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
+    return d.toLocaleTimeString('es-PE', { timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit', hour12: false });
   } catch {
     return dateStr;
   }

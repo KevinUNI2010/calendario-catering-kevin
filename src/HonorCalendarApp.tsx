@@ -108,9 +108,10 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
   const [localForEditModal, setLocalForEditModal] = useState<Local | null>(null);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isAccessManagementOpen, setIsAccessManagementOpen] = useState(false);
-  const [dailySummaryModalData, setDailySummaryModalData] = useState<{ isOpen: boolean, date: Date | null, events: CalendarEvent[], subtitle?: string }>({
+  const [dailySummaryModalData, setDailySummaryModalData] = useState<{ isOpen: boolean, date: Date | null, endDate?: Date | null, events: CalendarEvent[], subtitle?: string }>({
     isOpen: false,
     date: null,
+    endDate: null,
     events: []
   });
   const [honorDayModalData, setHonorDayModalData] = useState<{ isOpen: boolean, date: Date | null, events: CalendarEvent[] }>({
@@ -321,7 +322,8 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
 
     setDailySummaryModalData({
       isOpen: true,
-      date: start, // Solo de referencia
+      date: start,
+      endDate: end,
       events: rangeEvents,
       subtitle: `Del ${formatDayMonth(start)} al ${formatDayMonth(end)}`
     });
@@ -545,6 +547,7 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
         onSearchChange={setSearchQuery}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         onWeeklySummary={() => setIsSummaryConfigOpen(true)}
+        role={session.role}
       />
 
       {/* Main Content Area */}
@@ -649,54 +652,66 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
       )}
 
       {/* Full Event Create / Edit Modal */}
-      <EventModal
-        isOpen={Boolean(eventForEditModal)}
-        event={eventForEditModal}
-        locales={locales}
-        menuOptions={menuOptions}
-        onClose={() => setEventForEditModal(null)}
-        onSave={handleSaveFullEvent}
-        onDelete={handleDeleteEvent}
-      />
+      {Boolean(eventForEditModal) && eventForEditModal && (
+        <EventModal
+          isOpen={Boolean(eventForEditModal)}
+          event={eventForEditModal}
+          locales={locales}
+          menuOptions={menuOptions}
+          onClose={() => setEventForEditModal(null)}
+          onSave={handleSaveFullEvent}
+          onDelete={handleDeleteEvent}
+        />
+      )}
 
       {/* Add / Edit Local Modal */}
-      <LocalModal
-        isOpen={isLocalModalOpen}
-        initialLocal={localForEditModal}
-        onClose={() => {
-          setIsLocalModalOpen(false);
-          setLocalForEditModal(null);
-        }}
-        onSave={handleSaveLocal}
-      />
+      {isLocalModalOpen && (
+        <LocalModal
+          isOpen={isLocalModalOpen}
+          initialLocal={localForEditModal}
+          onClose={() => {
+            setIsLocalModalOpen(false);
+            setLocalForEditModal(null);
+          }}
+          onSave={handleSaveLocal}
+        />
+      )}
 
       {/* Menu Settings Modal */}
-      <MenuSettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-        menuOptions={menuOptions}
-        onSave={async (newOptions) => {
-          setMenuOptions(newOptions);
-          saveCachedMenuOptions(newOptions);
-          if (isSupabaseConfigured()) {
-            await upsertSupabaseMenuOptions(newOptions);
-          }
-          notify.success('Actualizado', 'Opciones de menú guardadas');
-        }}
-      />
-      <SummaryConfigModal
-        isOpen={isSummaryConfigOpen}
-        onClose={() => setIsSummaryConfigOpen(false)}
-        onGenerate={handleGenerateSummary}
-        initialDate={currentDate}
-      />
-      <DailyMenuSummaryModal
-        isOpen={dailySummaryModalData.isOpen}
-        onClose={() => setDailySummaryModalData({ ...dailySummaryModalData, isOpen: false })}
-        date={dailySummaryModalData.date}
-        events={dailySummaryModalData.events}
-        subtitle={dailySummaryModalData.subtitle}
-      />
+      {isSettingsModalOpen && (
+        <MenuSettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+          menuOptions={menuOptions}
+          onSave={async (newOptions) => {
+            setMenuOptions(newOptions);
+            saveCachedMenuOptions(newOptions);
+            if (isSupabaseConfigured()) {
+              await upsertSupabaseMenuOptions(newOptions);
+            }
+            notify.success('Actualizado', 'Opciones de menú guardadas');
+          }}
+        />
+      )}
+      {isSummaryConfigOpen && (
+        <SummaryConfigModal
+          isOpen={isSummaryConfigOpen}
+          onClose={() => setIsSummaryConfigOpen(false)}
+          onGenerate={handleGenerateSummary}
+          initialDate={currentDate}
+        />
+      )}
+      {dailySummaryModalData.isOpen && dailySummaryModalData.date && (
+        <DailyMenuSummaryModal
+          isOpen={dailySummaryModalData.isOpen}
+          onClose={() => setDailySummaryModalData({ ...dailySummaryModalData, isOpen: false })}
+          date={dailySummaryModalData.date}
+          endDate={dailySummaryModalData.endDate}
+          events={dailySummaryModalData.events}
+          subtitle={dailySummaryModalData.subtitle}
+          role={session.role}
+        />
+      )}
       {isAccessManagementOpen && (
         <AccessManagementModal
           locales={allLocales}

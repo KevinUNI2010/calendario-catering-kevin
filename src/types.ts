@@ -40,7 +40,12 @@ export interface DishSelection {
   guarnicion: string;
   carbohidrato: string;
   servilleta: string;
-  cantidadPlatos: number;
+  cantidadPlatos: number; // Conteo efectivo / activo
+  platosContratadosFormula?: string; // ej: "23x8" o "150"
+  platosContratados?: number; // Total calculado de la fórmula (ej: 184)
+  platosConfirmados?: number; // Numérico: ajuste del día para cocina (ej: 198)
+  platosServidos?: number; // Numérico: conteo final servido en sala (ej: 230)
+  evidencePhoto?: string; // Data URL o link a la foto del cuaderno recortada
 }
 
 export interface ReminderConfig {
@@ -67,6 +72,7 @@ export interface CalendarEvent {
   updatedAt: string;
   notes?: string;
   dish?: DishSelection;
+  evidencePhoto?: string; // Foto de cuaderno recortada asociada al evento
 }
 
 export interface EmailLog {
@@ -98,7 +104,7 @@ export interface ConnectedUser {
   lastActive: number;
 }
 
-export type UserRole = 'admin' | 'viewer';
+export type UserRole = 'admin' | 'dueño' | 'cocinero' | 'mozo';
 
 export interface UserSession {
   role: UserRole;

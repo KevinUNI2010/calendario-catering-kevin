@@ -1,3 +1,4 @@
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import React, { useMemo, useRef, useState } from 'react';
 import { X, Utensils, Calendar, Copy } from 'lucide-react';
 import { toBlob } from 'html-to-image';
@@ -5,26 +6,34 @@ import { notify } from '../utils/toastHelper';
 import { CalendarEvent } from '../types';
 import { getEventColor } from '../utils/colorUtils';
 import { formatDateShort } from '../utils/dateUtils';
+import { getEffectivePlateCount } from '../utils/plateMath';
 
 interface DailyMenuSummaryModalProps {
   isOpen: boolean;
   onClose: () => void;
   date: Date | null;
+  endDate?: Date | null;
   events: CalendarEvent[];
   subtitle?: string;
+  role?: string;
 }
 
 export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
   isOpen,
   onClose,
   date,
+  endDate,
   events,
   subtitle,
+  role,
 }) => {
-  if (!isOpen || !date) return null;
+  useEscapeKey(onClose, isOpen);
 
   const printRef = useRef<HTMLDivElement>(null);
   const [isCopying, setIsCopying] = useState(false);
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+
+  if (!isOpen || !date) return null;
 
   const handleCopyImage = async () => {
     if (!printRef.current) return;
@@ -76,18 +85,23 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
 
     events.forEach((event) => {
       const dish = event.dish;
-      if (!dish || dish.cantidadPlatos <= 0) return;
+      const hasFood = dish && (dish.proteina || dish.salsa || dish.carbohidrato || dish.guarnicion || dish.ensalada || dish.servilleta);
+      if (!dish || !hasFood) return;
 
-      totalPlates += dish.cantidadPlatos;
+      const platos = getEffectivePlateCount(dish);
+      totalPlates += platos;
       totalEventsWithFood++;
       if (event.localName) localesAtendidosMap.set(event.localName, event.colorId || 'peacock');
 
-      if (dish.proteina) totals['Proteínas'][dish.proteina] = (totals['Proteínas'][dish.proteina] || 0) + dish.cantidadPlatos;
-      if (dish.salsa) totals['Salsas'][dish.salsa] = (totals['Salsas'][dish.salsa] || 0) + dish.cantidadPlatos;
-      if (dish.carbohidrato) totals['Carbohidratos'][dish.carbohidrato] = (totals['Carbohidratos'][dish.carbohidrato] || 0) + dish.cantidadPlatos;
-      if (dish.guarnicion) totals['Guarniciones'][dish.guarnicion] = (totals['Guarniciones'][dish.guarnicion] || 0) + dish.cantidadPlatos;
-      if (dish.ensalada) totals['Ensaladas'][dish.ensalada] = (totals['Ensaladas'][dish.ensalada] || 0) + dish.cantidadPlatos;
-      if (dish.servilleta) totals['Servilletas'][dish.servilleta] = (totals['Servilletas'][dish.servilleta] || 0) + dish.cantidadPlatos;
+      if (dish.proteina) totals['Proteínas'][dish.proteina] = (totals['Proteínas'][dish.proteina] || 0) + platos;
+      if (dish.salsa) totals['Salsas'][dish.salsa] = (totals['Salsas'][dish.salsa] || 0) + platos;
+      if (dish.carbohidrato) totals['Carbohidratos'][dish.carbohidrato] = (totals['Carbohidratos'][dish.carbohidrato] || 0) + platos;
+      if (dish.guarnicion) totals['Guarniciones'][dish.guarnicion] = (totals['Guarniciones'][dish.guarnicion] || 0) + platos;
+      if (dish.ensalada) totals['Ensaladas'][dish.ensalada] = (totals['Ensaladas'][dish.ensalada] || 0) + platos;
+      if (dish.servilleta) {
+        const servName = dish.servilleta.split('|')[0];
+        totals['Servilletas'][servName] = (totals['Servilletas'][servName] || 0) + platos;
+      }
     });
 
     const localesList = Array.from(localesAtendidosMap.entries()).map(([name, colorId]) => ({
@@ -98,9 +112,110 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
     return { totals, totalPlates, totalEventsWithFood, localesList };
   }, [events]);
 
+  const localSparklines = useMemo(() => {
+    const data: Record<string, {
+      localName: string,
+      color: string,
+      totalPlates: number,
+      history: { date: string, plates: number }[]
+    }> = {};
+
+    const getLocalDateKey = (d: Date | string) => {
+      if (typeof d === 'string') {
+        const match = d.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) return `${match[1]}-${match[2]}-${match[3]}`;
+      }
+      const dt = typeof d === 'string' ? new Date(d) : d;
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const day = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    events.forEach(e => {
+      if (!e.localName) return;
+      const dish = e.dish;
+      if (!dish) return;
+      const plates = getEffectivePlateCount(dish);
+      if (plates === 0) return;
+
+      const localId = e.localId || e.localName;
+      if (!data[localId]) {
+        data[localId] = {
+          localName: e.localName,
+          color: getEventColor(e.colorId).bg,
+          totalPlates: 0,
+          history: []
+        };
+      }
+      data[localId].totalPlates += plates;
+      
+      const dStr = getLocalDateKey(e.startDate);
+      const existing = data[localId].history.find(h => h.date === dStr);
+      if (existing) {
+        existing.plates += plates;
+      } else {
+        data[localId].history.push({ date: dStr, plates });
+      }
+    });
+
+    if (events.length === 0) return [];
+
+    let rangeStart: Date;
+    let rangeEnd: Date;
+
+    if (date && endDate) {
+      rangeStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      rangeEnd = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+    } else if (events.length > 0) {
+      const dates = events.map(e => {
+        const key = getLocalDateKey(e.startDate);
+        const [y, m, d] = key.split('-').map(Number);
+        return new Date(y, m - 1, d).getTime();
+      });
+      rangeStart = new Date(Math.min(...dates));
+      rangeEnd = new Date(Math.max(...dates));
+    } else {
+      const baseDate = date || new Date();
+      rangeStart = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+      rangeEnd = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+    }
+
+    const allDates: string[] = [];
+    let curr = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate());
+    const finalEnd = new Date(rangeEnd.getFullYear(), rangeEnd.getMonth(), rangeEnd.getDate());
+
+    while (curr <= finalEnd) {
+      allDates.push(getLocalDateKey(curr));
+      curr.setDate(curr.getDate() + 1);
+    }
+    const sortedDates = allDates;
+
+    const formattedDates = sortedDates.map(d => {
+      const [, , day] = d.split('-');
+      return parseInt(day, 10).toString();
+    });
+
+    return Object.values(data).map(loc => {
+      const fullHistory = sortedDates.map(d => {
+        const existing = loc.history.find(h => h.date === d);
+        return existing ? existing.plates : 0;
+      });
+
+      const maxVal = Math.max(...fullHistory, 1);
+
+      return {
+        ...loc,
+        fullHistory,
+        maxVal,
+        formattedDates
+      };
+    }).sort((a, b) => b.totalPlates - a.totalPlates);
+  }, [events, date, endDate]);
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 flex flex-col max-h-[85vh] overflow-hidden">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200" onClick={onClose}>
+      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 flex flex-col max-h-[85vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         
         {/* Scrollable Container */}
         <div className="flex-1 overflow-y-auto scrollbar-thin">
@@ -191,31 +306,90 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
                 </div>
               </div>
 
-              {/* Breakdown by Category */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8 pt-4">
-                {Object.entries(summary.totals).map(([category, items]) => {
-                  const keys = Object.keys(items);
-                  if (keys.length === 0) return null;
+              {/* Local Histograms */}
+              {localSparklines.length > 0 && (
+                <div className="pt-6 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700 pb-2">
+                    Producción por Local
+                  </h3>
+                  <div 
+                    className="flex flex-col gap-6"
+                    onClick={() => setActiveTooltip(null)}
+                  >
+                    {localSparklines.map((loc, idx) => (
+                      <div key={idx} className="flex flex-col gap-2 bg-gray-50 dark:bg-gray-800/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                        <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 pb-2 mb-2">
+                          <span className="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide" style={{ color: loc.color }}>
+                            {loc.localName}
+                          </span>
+                          <span className="text-sm font-extrabold text-gray-700 dark:text-gray-300">
+                            {loc.totalPlates} <span className="text-[10px] font-medium text-gray-500">platos totales</span>
+                          </span>
+                        </div>
+                        <div className="w-full overflow-x-auto scrollbar-thin mt-2 pb-2">
+                          <div className="flex items-end justify-between h-[140px] pt-8 min-w-[500px] relative px-2">
+                            {/* Baseline */}
+                            <div className="absolute bottom-6 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700" />
+                            
+                            {loc.fullHistory.map((val, i) => {
+                              const showLabel = val > 0 || i === 0 || i === loc.fullHistory.length - 1 || i % 5 === 0;
+                              const heightPercent = loc.maxVal > 0 ? (val / loc.maxVal) * 100 : 0;
+                              
+                              const tooltipId = `${idx}-${i}`;
+                              const isTooltipActive = activeTooltip === tooltipId;
 
-                  return (
-                    <div key={category} className="space-y-3">
-                      <h4 className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700 pb-1.5 flex justify-between">
-                        {category}
-                      </h4>
-                      <ul className="space-y-2">
-                        {keys.sort((a, b) => items[b] - items[a]).map(item => (
-                          <li key={item} className="flex justify-between items-center bg-gray-50 dark:bg-gray-800/30 px-3 py-2 rounded-lg text-sm">
-                            <span className="font-medium text-gray-700 dark:text-gray-300">{item}</span>
-                            <span className="font-bold bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-2 py-0.5 rounded text-gray-900 dark:text-gray-100 shadow-xs">
-                              {items[item]}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                })}
-              </div>
+                              return (
+                                <div 
+                                  key={i} 
+                                  className="flex flex-col justify-end items-center h-full group flex-1 relative z-10 cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveTooltip(isTooltipActive ? null : tooltipId);
+                                  }}
+                                  onMouseEnter={() => setActiveTooltip(tooltipId)}
+                                  onMouseLeave={() => setActiveTooltip(null)}
+                                >
+                                  {/* Value tooltip on hover/click */}
+                                  {val > 0 && (
+                                    <div 
+                                      className={`absolute top-0 bg-gray-800 dark:bg-gray-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded pointer-events-none whitespace-nowrap shadow-sm transition-opacity z-50 ${isTooltipActive ? 'opacity-100' : 'opacity-0'}`}
+                                    >
+                                      {val}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Bar wrapper */}
+                                  <div className="w-full flex justify-center h-[calc(100%-1.5rem)] items-end">
+                                    {val > 0 && (
+                                      <div 
+                                        className={`w-full max-w-[14px] rounded-t-sm transition-all duration-300 shadow-sm ${isTooltipActive ? 'brightness-110 scale-y-105' : ''}`}
+                                        style={{ 
+                                          height: `${Math.max(5, heightPercent)}%`, // At least 5% height if > 0
+                                          backgroundColor: loc.color,
+                                          transformOrigin: 'bottom'
+                                        }}
+                                      />
+                                    )}
+                                  </div>
+                                  
+                                  {/* Label */}
+                                  <div className="h-6 mt-1 flex items-center justify-center">
+                                    {showLabel ? (
+                                      <span className={`text-[10px] ${val > 0 ? 'font-bold text-gray-700 dark:text-gray-300' : 'font-medium text-gray-400'}`}>
+                                        {loc.formattedDates[i]}
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
             </div>
@@ -223,15 +397,17 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex justify-between items-center">
-          <button
-            onClick={handleCopyImage}
-            disabled={summary.totalPlates === 0 || isCopying}
-            className="px-5 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Copy className="w-4 h-4" />
-            {isCopying ? 'Copiando...' : 'Copiar Imagen para WhatsApp'}
-          </button>
+        <div className={`p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 flex ${role === 'admin' ? 'justify-between' : 'justify-end'} items-center`}>
+          {role === 'admin' && (
+            <button
+              onClick={handleCopyImage}
+              disabled={summary.totalPlates === 0 || isCopying}
+              className="px-5 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Copy className="w-4 h-4" />
+              {isCopying ? 'Copiando...' : 'Copiar Imagen para WhatsApp'}
+            </button>
+          )}
           <button
             onClick={onClose}
             className="px-5 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"

@@ -3,6 +3,7 @@ import { CalendarEvent, Local } from '../types';
 import { getMonthDays, isSameDay, isToday, DAY_NAMES_SHORT } from '../utils/dateUtils';
 import { getEventColor } from '../utils/colorUtils';
 import { Plus, Utensils } from 'lucide-react';
+import { getEffectivePlateCount } from '../utils/plateMath';
 
 interface MonthViewProps {
   currentDate: Date;
@@ -54,7 +55,7 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
           const today = isToday(day);
           
           // Calculate total plates for this day
-          const totalPlates = dayEvents.reduce((sum, e) => sum + (e.dish?.cantidadPlatos || 0), 0);
+          const totalPlates = dayEvents.reduce((sum, e) => sum + getEffectivePlateCount(e.dish), 0);
 
           return (
             <div
@@ -87,7 +88,7 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                 </div>
 
                 {/* Quick Add icon visible on hover */}
-                {role !== 'viewer' && (
+                {role === 'admin' && (
                   <button
                     type="button"
                     onClick={(e) => {

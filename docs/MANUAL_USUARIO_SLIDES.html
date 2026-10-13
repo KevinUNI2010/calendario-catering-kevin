@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual de Usuario en Diapositivas - Con Pantallas Reales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: rgba(22, 27, 34, 0.95);
+      --border: rgba(255, 255, 255, 0.1);
+      --primary: #38bdf8;
+      --primary-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+      --accent-orange: #fb923c;
+      --accent-green: #34d399;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+    }
+
+    #deck {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px 70px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96) translateY(20px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      background: radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+                  radial-gradient(circle at 15% 85%, rgba(129, 140, 248, 0.08) 0%, transparent 50%),
+                  #0d1117;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+      width: fit-content;
+    }
+    .badge-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-orange { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
+    .badge-green { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 800px;
+      margin-bottom: 24px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .card-step {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #0d1117;
+      font-weight: 800;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Real Screenshot Display */
+    .screen-wrapper {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      background: #000;
+    }
+
+    .screen-img {
+      width: 100%;
+      height: 400px;
+      object-fit: contain;
+      background: #0b0f19;
+      display: block;
+      transition: transform 0.3s;
+    }
+
+    .screen-tag {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #38bdf8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .callout {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 12px 12px 0;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      color: #bae6fd;
+      margin-top: 16px;
+    }
+
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--primary-gradient);
+      width: 0%;
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      right: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 50;
+      background: rgba(22, 27, 34, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+    }
+
+    .ctrl-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.05rem;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .slide-indicator {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      padding: 0 6px;
+    }
+
+    .footer-info {
+      position: fixed;
+      bottom: 24px;
+      left: 36px;
+      font-size: 0.8rem;
+      color: #64748b;
+      display: flex;
+      gap: 16px;
+      z-index: 50;
+    }
+
+    @media print {
+      body {
+        overflow: visible;
+        height: auto;
+        background: #fff;
+        color: #000;
+      }
+      .controls, #progress-bar, .footer-info {
+        display: none !important;
+      }
+      .slide {
+        position: relative !important;
+        opacity: 1 !important;
+        transform: none !important;
+        height: 100vh !important;
+        page-break-after: always !important;
+        padding: 40px !important;
+        background: #0d1117 !important;
+        color: #fff !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <div id="deck">
+
+    <!-- SLIDE 1: PORTADA -->
+    <div class="slide active">
+      <div class="grid-2">
+        <div>
+          <span class="badge badge-blue">📘 Manual de Usuario Ilustrado</span>
+          <h1>Guía Operativa del Sistema</h1>
+          <p class="subtitle">
+            Aprende a utilizar cada módulo con capturas reales extraídas directamente de la plataforma en producción.
+          </p>
+          <div style="display: flex; gap: 16px;">
+            <div class="card" style="padding: 12px 18px;">
+              <strong style="color: #38bdf8;">Administración</strong>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Acceso Google • /admin</div>
+            </div>
+            <div class="card" style="padding: 12px 18px;">
+              <strong style="color: #fb923c;">Locales / Clientes</strong>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Acceso PIN • /</div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-wrapper">
+          <img src="assets/slide_training.jpg" alt="Capacitacion de equipo" class="screen-img" style="object-fit: cover;">
+          <div class="screen-tag">Capacitación 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: PANTALLA 1 - LOGIN POR PIN -->
+    <div class="slide">
+      <div class="grid-2">
+        <div>
+          <span class="badge badge-orange">Paso 1 • Clientes y Sedes</span>
+          <h2>Pantalla de Acceso por PIN</h2>
+          <p class="subtitle">Ingreso rápido y seguro sin contraseñas largas para el personal de local.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card">
+              <div class="card-step">1</div>
+              <h3 class="card-title">Dirección Principal (/)</h3>
+              <p class="card-desc">El encargado ingresa desde su computadora, tablet o celular a la URL principal.</p>
+            </div>
+            <div class="card">
+              <div class="card-step">2</div>
+              <h3 class="card-title">Digitar 4 Dígitos</h3>
+              <p class="card-desc">Escribe su código PIN asignado. La validación se ejecuta automáticamente sin pulsar botones adicionales.</p>
+            </div>
+            <div class="card">
+              <div class="card-step">3</div>
+              <h3 class="card-title">Bloqueo de Seguridad Anti-Robo</h3>
+              <p class="card-desc">Si se ingresa un código erróneo 5 veces consecutivas, el sistema se bloquea por 30 segundos.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-wrapper">
+          <img src="assets/screen_01_pin_login.png" alt="Pantalla Real de Login con PIN" class="screen-img">
+          <div class="screen-tag">Pantalla Real • PinLogin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: PANTALLA 2 - CALENDARIO ADMINISTRADOR -->
+    <div class="slide">
+      <div class="grid-2">
+        <div>
+          <span class="badge badge-blue">Paso 2 • Administrador</span>
+          <h2>Calendario Central de Administrador</h2>
+          <p class="subtitle">Visión panorámica de todos los locales y eventos programados.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card">
+              <h3 class="card-title">1. Locales con Códigos Cromáticos</h3>
+              <p class="card-desc">En la barra izquierda se observan las sedes oficiales: <em>Aryes, Cristales, Estelar, Gladiolos y Villa Santiago</em>.</p>
+            </div>
+            <div class="card">
+              <h3 class="card-title">2. Programación de Octubre 2026</h3>
+              <p class="card-desc">Eventos diferenciados con etiquetas de color y conteo de platos (ej. Villa Santiago 300 platos, Gladiolos 192 platos).</p>
+            </div>
+            <div class="card">
+              <h3 class="card-title">3. Acciones Rápidas</h3>
+              <p class="card-desc">Botones de <strong>+ Crear Evento</strong>, <strong>Resumen Mensual</strong>, <strong>Gestión de Menú</strong> y <strong>Accesos y Permisos</strong>.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-wrapper">
+          <img src="assets/screen_02_admin_calendar.png" alt="Calendario Real de Administrador" class="screen-img">
+          <div class="screen-tag">Pantalla Real • CalendarApp (/admin)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: PANTALLA 3 - MODAL CREAR EVENTO CON MENÚ -->
+    <div class="slide">
+      <div class="grid-2">
+        <div>
+          <span class="badge badge-blue">Paso 3 • Administrador</span>
+          <h2>Creación de Eventos y Menús</h2>
+          <p class="subtitle">Formulario completo con desglose técnico de raciones de cocina.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card">
+              <div class="card-step">1</div>
+              <h3 class="card-title">Título y Horarios</h3>
+              <p class="card-desc">Se define el título del turno, el local y las horas exactas en huso horario de Perú (UTC-5).</p>
+            </div>
+            <div class="card">
+              <div class="card-step">2</div>
+              <h3 class="card-title">Control de Platos (3 Estados y Fórmulas)</h3>
+              <p class="card-desc">Soporta fórmulas como <strong>23x8</strong> (calcula 184 raciones en vivo), ajuste del día para cocina y conteo final de sala.</p>
+            </div>
+            <div class="card">
+              <div class="card-step">3</div>
+              <h3 class="card-title">Sincronización Inmediata</h3>
+              <p class="card-desc">Al pulsar "Guardar Evento", la orden queda disponible en la nube de Supabase para cocina y sedes.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-wrapper">
+          <img src="assets/screen_03_create_event.png" alt="Modal Real de Crear Evento" class="screen-img">
+          <div class="screen-tag">Pantalla Real • EventModal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: PANTALLA 4 - MODAL RESUMEN MENSUAL -->
+    <div class="slide">
+      <div class="grid-2">
+        <div>
+          <span class="badge badge-orange">Paso 4 • Módulo Clave</span>
+          <h2>Resumen Mensual de Producción</h2>
+          <p class="subtitle">Histograma cuantitativo para abastecimiento y cocina sin mermas.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card">
+              <h3 class="card-title">Histograma Diario de Demanda</h3>
+              <p class="card-desc">Mapeo de los 31 días del mes. Muestra barras interactivas con las raciones requeridas para cada fecha exacta.</p>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Filtros Avanzados</h3>
+              <p class="card-desc">Permite evaluar un local en específico o consolidar la suma total de toda la cadena.</p>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Impacto en Logística</h3>
+              <p class="card-desc">El jefe de cocina y compras revisa el gráfico y programa la compra de insumos con días de anticipación.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-wrapper">
+          <img src="assets/screen_04_monthly_summary.png" alt="Modal Real de Resumen Mensual" class="screen-img">
+          <div class="screen-tag">Pantalla Real • DailyMenuSummaryModal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: PANTALLA 5 - MODAL ACCESOS Y PERMISOS -->
+    <div class="slide">
+      <div class="grid-2">
+        <div>
+          <span class="badge badge-blue">Paso 5 • Administrador</span>
+          <h2>Gestión de Clientes y Asignación de PINs</h2>
+          <p class="subtitle">Control total sobre quién accede a cada sede.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card">
+              <div class="card-step">1</div>
+              <h3 class="card-title">Formulario de Alta</h3>
+              <p class="card-desc">Ingresa el Nombre del cliente/encargado y define su PIN numérico de 4 dígitos.</p>
+            </div>
+            <div class="card">
+              <div class="card-step">2</div>
+              <h3 class="card-title">Asignación de Locales</h3>
+              <p class="card-desc">Marca las casillas de los locales permitidos. El usuario únicamente podrá ver las sedes seleccionadas.</p>
+            </div>
+            <div class="card">
+              <div class="card-step">3</div>
+              <h3 class="card-title">Lista Blanca de Administradores</h3>
+              <p class="card-desc">Pestaña para agregar o revocar correos con privilegios administrativos en el sistema.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-wrapper">
+          <img src="assets/screen_05_access_management.png" alt="Modal Real de Accesos y Permisos" class="screen-img">
+          <div class="screen-tag">Pantalla Real • AccessManagementModal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: PANTALLA 6 - PORTAL DE CLIENTE / SEDE -->
+    <div class="slide">
+      <div class="grid-2">
+        <div>
+          <span class="badge badge-orange">Paso 6 • Clientes y Sedes</span>
+          <h2>Portal Limpio del Encargado de Sede</h2>
+          <p class="subtitle">Vista simplificada, elegante y en modo solo lectura.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div class="card">
+              <h3 class="card-title">Filtro Exclusivo de Local</h3>
+              <p class="card-desc">El encargado solo visualiza los turnos y pedidos de su propia sede, garantizando privacidad empresarial.</p>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Modo Solo Lectura</h3>
+              <p class="card-desc">No existen botones de crear o borrar para evitar accidentes operativos por parte del personal de sala.</p>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Adaptado a Móviles</h3>
+              <p class="card-desc">Se puede alternar a la <strong>Vista Agenda</strong> para revisar turnos en teléfonos celulares con un toque.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-wrapper">
+          <img src="assets/screen_06_client_portal.png" alt="Vista Real del Portal de Clientes" class="screen-img">
+          <div class="screen-tag">Pantalla Real • HonorCalendarApp (/)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: CIERRE Y SOPORTE -->
+    <div class="slide">
+      <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+        <span class="badge badge-green">✨ Capacitación Concluida</span>
+        <h2 style="font-size: 2.8rem; margin-bottom: 16px;">¡Todo el Equipo Está Listo!</h2>
+        <p class="subtitle" style="margin: 0 auto 28px auto;">
+          Con estas pantallas reales, la administración y las sedes operarán con máxima fluidez, sincronización y cero errores.
+        </p>
+
+        <div class="grid-3" style="text-align: left; margin-bottom: 28px;">
+          <div class="card">
+            <strong>¿Olvido de PIN?</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Cambio en 5 segundos desde el modal de Accesos y Permisos.</p>
+          </div>
+          <div class="card">
+            <strong>Cierre de Sesión</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Usa el botón "Cerrar Sesión" al finalizar turnos en equipos compartidos.</p>
+          </div>
+          <div class="card">
+            <strong>Soporte Técnico</strong>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">Consultas y soporte directo con Kevin Zambrano.</p>
+          </div>
+        </div>
+
+        <p style="font-size: 1.1rem; color: #fff; font-weight: 600;">
+          ¿Deseas proyectar o imprimir este manual para el equipo?
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="prev-btn" title="Anterior (←)">◀</button>
+    <span class="slide-indicator" id="slide-num">1 / 8</span>
+    <button class="ctrl-btn" id="next-btn" title="Siguiente (→)">▶</button>
+    <button class="ctrl-btn" id="fullscreen-btn" title="Pantalla Completa (F11)">⛶</button>
+  </div>
+
+  <div class="footer-info">
+    <span>📘 Manual con Pantallas Reales • Kevin Zambrano</span>
+    <span>🇵🇪 Calendario de Catering</span>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progress-bar');
+    const slideNum = document.getElementById('slide-num');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+    let current = 0;
+    const total = slides.length;
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === current);
+      });
+      slideNum.textContent = `${current + 1} / ${total}`;
+      progressBar.style.width = `${((current + 1) / total) * 100}%`;
+    }
+
+    function nextSlide() {
+      if (current < total - 1) {
+        current++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (current > 0) {
+        current--;
+        updateSlide();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'Home') {
+        current = 0;
+        updateSlide();
+      } else if (e.key === 'End') {
+        current = total - 1;
+        updateSlide();
+      }
+    });
+
+    nextBtn.addEventListener('click', nextSlide);
+    prevBtn.addEventListener('click', prevSlide);
+
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    updateSlide();
+  </script>
+</body>
+</html>

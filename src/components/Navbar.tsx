@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:hover:bg-orange-900/60 transition cursor-pointer"
         >
           <BarChart2 className="w-4 h-4" />
-          <span className="hidden sm:inline">Resumen Semanal</span>
+          <span className="hidden sm:inline">Resumen Mensual</span>
         </button>
 
         {/* View Mode Dropdown */}
@@ -139,8 +139,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 cursor-pointer"
         >
           <option value="month">Mes</option>
-          <option value="week">Semana</option>
-          <option value="day">Día</option>
           <option value="agenda">Agenda</option>
         </select>
 

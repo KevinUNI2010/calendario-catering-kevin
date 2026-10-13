@@ -1,3 +1,4 @@
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import React, { useState } from 'react';
 import { EmailLog } from '../types';
 import { X, Mail, Send, Clock, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
@@ -15,13 +16,15 @@ export const EmailOutboxModal: React.FC<EmailOutboxModalProps> = ({
   emailLogs,
   onSendTestEmail,
 }) => {
-  if (!isOpen) return null;
+  useEscapeKey(onClose, isOpen);
 
   const [testEmail, setTestEmail] = useState('kevin.zambrano.inteligencia@gmail.com');
   const [testSubject, setTestSubject] = useState('🔔 Recordatorio: Apertura y Operación de Local');
   const [testBody, setTestBody] = useState('Hola Kevin,\n\nEste es un recordatorio automático programado para la operación del local.\n\nEl sistema sincroniza automáticamente las alertas 15m, 30m, 1h antes del turno.');
   const [isSending, setIsSending] = useState(false);
   const [sentSuccess, setSentSuccess] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +37,8 @@ export const EmailOutboxModal: React.FC<EmailOutboxModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200" onClick={onClose}>
+      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40">

@@ -1,6 +1,8 @@
 import express from 'express';
 import http from 'http';
 import path from 'path';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { WebSocketServer, WebSocket } from 'ws';
 import { createServer as createViteServer } from 'vite';
 import { INITIAL_EVENTS, DEFAULT_LOCALES } from './src/data/seedData';
@@ -100,9 +102,17 @@ wss.on('connection', (ws: ExtendedWebSocket) => {
     activeClientsCount: wss.clients.size,
   });
 
-  ws.on('message', (data: string) => {
+  ws.on('message', (data: string | Buffer) => {
     try {
-      const parsed = JSON.parse(data.toString());
+      const raw = data.toString();
+      if (raw.length > 65536) {
+        ws.close(1009, 'Message too big');
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object' || typeof parsed.type !== 'string') {
+        return;
+      }
       const { type, payload } = parsed;
 
       if (type === 'event:create') {
@@ -202,8 +212,34 @@ setInterval(() => {
   });
 }, 15000); // Check every 15 seconds
 
-// JSON body parser
-app.use(express.json());
+// Security Headers Middleware
+app.use(helmet({
+  contentSecurityPolicy: false, // Vite Dev and static SPA friendly
+  crossOriginEmbedderPolicy: false,
+}));
+
+// Global API Rate Limiter (Protects against DoS / brute force)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // Limit each IP to 200 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes desde esta IP, por favor inténtalo más tarde.' },
+});
+
+// Strict Rate Limiter for sensitive actions (sending emails, invitations)
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Max 20 email / share actions per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Límite de envíos excedido por seguridad. Inténtalo más tarde.' },
+});
+
+// JSON body parser with strict size limit to prevent memory exhaustion
+app.use(express.json({ limit: '1mb' }));
+app.use('/api/', apiLimiter);
+app.use(['/api/emails/send-test', '/api/share'], strictLimiter);
 
 // API Routes
 app.get('/api/health', (req, res) => {

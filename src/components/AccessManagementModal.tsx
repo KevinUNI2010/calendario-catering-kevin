@@ -1,7 +1,8 @@
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import React, { useState, useEffect } from 'react';
-import { X, Save, Trash2, Plus, Users, ShieldCheck, Mail } from 'lucide-react';
+import { X, Save, Trash2, Plus, Users, ShieldCheck, Mail, Edit2 } from 'lucide-react';
 import { fetchSupabaseClients, upsertSupabaseClient, deleteSupabaseClient, fetchSupabaseAdmins, upsertSupabaseAdmin, deleteSupabaseAdmin } from '../lib/supabase';
-import { Local } from '../types';
+import { Local, UserRole } from '../types';
 import { notify } from '../utils/toastHelper';
 
 interface AccessManagementModalProps {
@@ -10,15 +11,19 @@ interface AccessManagementModalProps {
 }
 
 export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ onClose, locales }) => {
+  useEscapeKey(onClose);
+
   const [activeTab, setActiveTab] = useState<'clients' | 'admins'>('clients');
   const [clients, setClients] = useState<any[]>([]);
   const [admins, setAdmins] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // New Client State
   const [newClientName, setNewClientName] = useState('');
   const [newClientPin, setNewClientPin] = useState('');
   const [newClientLocales, setNewClientLocales] = useState<string[]>([]);
+  const [newClientRole, setNewClientRole] = useState<UserRole>('dueño');
+  const [activeRoleTab, setActiveRoleTab] = useState<UserRole>('dueño');
+  const [editingClientId, setEditingClientId] = useState<string | null>(null);
 
   // New Admin State
   const [newAdminEmail, setNewAdminEmail] = useState('');
@@ -49,23 +54,25 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ on
       return;
     }
     
-    // Auto-generate UUID for new client
-    const id = crypto.randomUUID();
+    const id = editingClientId || crypto.randomUUID();
     const success = await upsertSupabaseClient({
       id,
       name: newClientName.trim(),
       pin: newClientPin.trim(),
-      allowed_locales: newClientLocales
+      allowed_locales: newClientLocales,
+      role: newClientRole
     });
 
     if (success) {
-      notify.success('Espectador creado correctamente');
+      notify.success(editingClientId ? 'Espectador actualizado correctamente' : 'Espectador creado correctamente');
       setNewClientName('');
       setNewClientPin('');
       setNewClientLocales([]);
+      setNewClientRole('dueño');
+      setEditingClientId(null);
       loadData();
     } else {
-      notify.error('Error al crear el espectador');
+      notify.error('Error al guardar el espectador');
     }
   };
 
@@ -74,10 +81,29 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ on
     const success = await deleteSupabaseClient(id);
     if (success) {
       notify.success('Espectador eliminado');
+      if (editingClientId === id) cancelEdit();
       loadData();
     } else {
       notify.error('Error al eliminar');
     }
+  };
+
+  const handleEditClient = (client: any) => {
+    setEditingClientId(client.id);
+    setNewClientName(client.name);
+    setNewClientPin(client.pin);
+    setNewClientLocales(client.allowed_locales || []);
+    setNewClientRole(client.role || 'dueño');
+    setActiveTab('clients');
+    setActiveRoleTab(client.role || 'dueño');
+  };
+
+  const cancelEdit = () => {
+    setEditingClientId(null);
+    setNewClientName('');
+    setNewClientPin('');
+    setNewClientLocales([]);
+    setNewClientRole('dueño');
   };
 
   const handleCreateAdmin = async (e: React.FormEvent) => {
@@ -115,8 +141,8 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ on
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={onClose}>
+      <div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-blue-600" />
@@ -155,13 +181,21 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ on
             </div>
           ) : activeTab === 'clients' ? (
             <div className="space-y-6">
-              {/* Form to create new client */}
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-green-500" /> Nuevo Espectador
-                </h3>
+              {/* Form to create/edit new client */}
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 transition-all">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                    {editingClientId ? <Edit2 className="w-4 h-4 text-orange-500" /> : <Plus className="w-4 h-4 text-green-500" />}
+                    {editingClientId ? 'Editar Espectador' : 'Nuevo Espectador'}
+                  </h3>
+                  {editingClientId && (
+                    <button onClick={cancelEdit} className="text-xs text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded">
+                      Cancelar Edición
+                    </button>
+                  )}
+                </div>
                 <form onSubmit={handleCreateClient} className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input
                       type="text"
                       placeholder="Nombre (ej. Cliente VIP)"
@@ -176,6 +210,15 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ on
                       onChange={(e) => setNewClientPin(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500"
                     />
+                    <select
+                      value={newClientRole}
+                      onChange={(e) => setNewClientRole(e.target.value as UserRole)}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="dueño">Dueño de Local</option>
+                      <option value="cocinero">Cocinero</option>
+                      <option value="mozo">Mozo</option>
+                    </select>
                   </div>
                   <div>
                     <span className="text-xs font-semibold text-gray-500 block mb-2">Locales permitidos:</span>
@@ -197,38 +240,70 @@ export const AccessManagementModal: React.FC<AccessManagementModalProps> = ({ on
                     </div>
                   </div>
                   <div className="flex justify-end pt-2">
-                    <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition shadow-md">
-                      Crear Espectador
+                    <button type="submit" className={`px-4 py-2 text-white text-sm font-semibold rounded-lg transition shadow-md ${editingClientId ? 'bg-orange-600 hover:bg-orange-700' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                      {editingClientId ? 'Actualizar Espectador' : 'Crear Espectador'}
                     </button>
                   </div>
                 </form>
               </div>
 
-              {/* List of existing clients */}
-              <div className="space-y-2">
-                <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">Espectadores Registrados</h3>
-                {clients.length === 0 ? (
-                  <p className="text-sm text-gray-500">No hay espectadores registrados.</p>
-                ) : (
-                  clients.map(client => (
-                    <div key={client.id} className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                      <div>
-                        <div className="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-2">
-                          {client.name} <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded text-xs font-mono">PIN: {client.pin}</span>
+              {/* List of existing clients by Role Tabs */}
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">Espectadores Registrados</h3>
+                </div>
+                
+                {/* Role Tabs */}
+                <div className="flex p-1 bg-gray-100 dark:bg-gray-800/50 rounded-lg overflow-x-auto hide-scrollbar">
+                  {(['dueño', 'cocinero', 'mozo'] as UserRole[]).map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => setActiveRoleTab(role)}
+                      className={`flex-1 min-w-[100px] py-1.5 px-3 text-xs font-semibold rounded-md transition capitalize ${
+                        activeRoleTab === role
+                          ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                          : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50'
+                      }`}
+                    >
+                      {role === 'dueño' ? 'Dueños de Local' : role + 's'}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="space-y-2">
+                  {clients.filter(c => (c.role || 'dueño') === activeRoleTab).length === 0 ? (
+                    <p className="text-sm text-gray-500 py-4 text-center bg-gray-50 dark:bg-gray-800/20 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
+                      No hay espectadores con este rol.
+                    </p>
+                  ) : (
+                    clients
+                      .filter(c => (c.role || 'dueño') === activeRoleTab)
+                      .map(client => (
+                        <div key={client.id} className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                          <div>
+                            <div className="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-2">
+                              {client.name} 
+                              <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded text-xs font-mono">PIN: {client.pin}</span>
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-1">
+                              {client.allowed_locales?.map((id: string) => {
+                                const loc = locales.find(l => l.id === id);
+                                return loc ? <span key={id} className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">{loc.name}</span> : null;
+                              })}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => handleEditClient(client)} className="p-2 text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition" title="Editar">
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleDeleteClient(client.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition" title="Eliminar">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-1">
-                          {client.allowed_locales?.map((id: string) => {
-                            const loc = locales.find(l => l.id === id);
-                            return loc ? <span key={id} className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">{loc.name}</span> : null;
-                          })}
-                        </div>
-                      </div>
-                      <button onClick={() => handleDeleteClient(client.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition" title="Eliminar">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))
-                )}
+                      ))
+                  )}
+                </div>
               </div>
             </div>
           ) : (

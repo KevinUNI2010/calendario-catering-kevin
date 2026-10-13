@@ -69,7 +69,7 @@ const ToastrCustom = ({ t, title, message, type, duration }: { t: Toast, title: 
       {/* Content */}
       <div className="flex flex-col flex-1 pb-1">
         <span className="font-bold text-[16px] leading-tight mb-0.5 tracking-wide">{title}</span>
-        <span className="text-[14px] leading-snug">{message}</span>
+        {message ? <span className="text-[14px] leading-snug">{message}</span> : null}
       </div>
 
       {/* Progress Bar (Bottom Line) */}
@@ -84,10 +84,10 @@ const ToastrCustom = ({ t, title, message, type, duration }: { t: Toast, title: 
   );
 };
 
-const createToast = (type: ToastType, title: string, message: string, options?: any) => {
+const createToast = (type: ToastType, title: string, message?: string, options?: any) => {
   const duration = options?.duration || 4000;
   toast.custom((t) => (
-    <ToastrCustom t={t} title={title} message={message} type={type} duration={duration} />
+    <ToastrCustom t={t} title={title} message={message || ''} type={type} duration={duration} />
   ), {
     duration,
     ...options
@@ -95,8 +95,8 @@ const createToast = (type: ToastType, title: string, message: string, options?: 
 };
 
 export const notify = {
-  success: (title: string, message: string, options?: any) => createToast('success', title, message, options),
-  error: (title: string, message: string, options?: any) => createToast('error', title, message, options),
-  warning: (title: string, message: string, options?: any) => createToast('warning', title, message, options),
-  info: (title: string, message: string, options?: any) => createToast('info', title, message, options),
+  success: (title: string, message: string = '', options?: any) => createToast('success', title, message, options),
+  error: (title: string, message: string = '', options?: any) => createToast('error', title, message, options),
+  warning: (title: string, message: string = '', options?: any) => createToast('warning', title, message, options),
+  info: (title: string, message: string = '', options?: any) => createToast('info', title, message, options),
 };

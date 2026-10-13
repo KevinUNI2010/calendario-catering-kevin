@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import { CalendarEvent, Local } from '../types';
 import { getEventColor } from '../utils/colorUtils';
 import { formatTimeHM } from '../utils/dateUtils';
+import { parsePlateFormula } from '../utils/plateMath';
+import { EvidenceLightboxModal } from './EvidenceLightboxModal';
 import {
   Store, 
   Clock, 
   X, 
   Edit3, 
   Trash2, 
-  Utensils
+  Utensils,
+  FileText,
+  Eye
 } from 'lucide-react';
 
 interface LocalSummaryPopoverProps {
@@ -30,8 +34,8 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
   role,
 }) => {
   const colorDef = getEventColor(event.colorId);
-
-
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const evidencePhoto = event.dish?.evidencePhoto || event.evidencePhoto;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150">
@@ -53,7 +57,7 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
             <div className="flex items-center gap-2 mt-2 text-xs opacity-95">
               <Clock className="w-3.5 h-3.5" />
               <span className="capitalize">
-                {new Date(event.startDate).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} · {new Date(event.startDate).toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                {new Date(event.startDate).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} · {formatTimeHM(event.startDate)} - {formatTimeHM(event.endDate)}
               </span>
             </div>
           </div>
@@ -105,21 +109,96 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                   <div><span className="font-semibold text-gray-500 dark:text-gray-400">Ensalada:</span> <span className="font-medium text-gray-800 dark:text-gray-200">{event.dish.ensalada}</span></div>
                 )}
                 {event.dish.servilleta && (
-                  <div><span className="font-semibold text-gray-500 dark:text-gray-400">Servilleta:</span> <span className="font-medium text-gray-800 dark:text-gray-200">{event.dish.servilleta}</span></div>
+                  <div><span className="font-semibold text-gray-500 dark:text-gray-400">Servilleta:</span> <span className="font-medium text-gray-800 dark:text-gray-200">{event.dish.servilleta.split('|')[0]}</span></div>
                 )}
-                {event.dish.cantidadPlatos !== undefined && event.dish.cantidadPlatos > 0 && (
-                  <div><span className="font-semibold text-gray-500 dark:text-gray-400">N° Platos:</span> <span className="font-medium text-gray-800 dark:text-gray-200">{event.dish.cantidadPlatos}</span></div>
-                )}
+                {(() => {
+                  const contratadosFormula = event.dish.platosContratadosFormula;
+                  const contratadosNum = event.dish.platosContratados ||
+                    (contratadosFormula ? parsePlateFormula(contratadosFormula).total : (event.dish.cantidadPlatos || 0));
+
+                  const displayPactado = contratadosFormula || (contratadosNum > 0 ? String(contratadosNum) : '');
+
+                  // Cocina toma platosConfirmados; si no hay, toma contratadosNum
+                  const cocinaNum = (event.dish.platosConfirmados !== undefined && event.dish.platosConfirmados > 0)
+                    ? event.dish.platosConfirmados
+                    : contratadosNum;
+
+                  // Servidos toma platosServidos; si no hay, toma cocinaNum
+                  const servidosNum = (event.dish.platosServidos !== undefined && event.dish.platosServidos > 0)
+                    ? event.dish.platosServidos
+                    : cocinaNum;
+
+                  const hasPlates = Boolean(displayPactado || cocinaNum > 0 || servidosNum > 0);
+
+                  if (hasPlates) {
+                    return (
+                      <div className="pt-0.5">
+                        <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 block mb-1">Control de Platos:</span>
+                        <div className="flex flex-wrap gap-1.5 text-[11px]">
+                          <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800">
+                            Pactado: {displayPactado || contratadosNum}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800">
+                            Cocina: {cocinaNum}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800">
+                            Servidos: {servidosNum}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div>
+                      <span className="font-semibold text-gray-500 dark:text-gray-400">Control de Platos:</span>{' '}
+                      <span className="text-[13px] text-orange-500 dark:text-orange-400 font-bold bg-orange-50 dark:bg-orange-900/20 px-2 py-0.5 rounded-md ml-1">Por confirmar</span>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
 
+          {/* Evidencia / Foto del Cuaderno Físico */}
+          {evidencePhoto && (
+            <div className="text-xs bg-gray-50 dark:bg-gray-800/40 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-500 dark:text-gray-400 font-bold tracking-wide flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-blue-500" />
+                  EVIDENCIA DEL CUADERNO
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setLightboxOpen(true)}
+                  className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  Ampliar
+                </button>
+              </div>
+              <div 
+                onClick={() => setLightboxOpen(true)}
+                className="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 cursor-pointer h-36 flex items-center justify-center"
+              >
+                <img 
+                  src={evidencePhoto} 
+                  alt="Evidencia del cuaderno" 
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white">
+                  <Eye className="w-4 h-4 drop-shadow" />
+                  <span className="text-xs font-semibold drop-shadow">Ver foto completa</span>
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
 
         {/* Footer Actions */}
         <div className="p-4 bg-gray-50 dark:bg-gray-800/80 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between gap-2">
-          {role !== 'viewer' ? (
+          {role === 'admin' ? (
             <button
               type="button"
               id="delete-event-btn"
@@ -146,7 +225,7 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
             >
               Cerrar
             </button>
-            {role !== 'viewer' && (
+            {role === 'admin' && (
               <button
                 type="button"
                 id="open-full-edit-btn"
@@ -163,6 +242,16 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Lightbox para inspeccionar la evidencia */}
+      {evidencePhoto && (
+        <EvidenceLightboxModal
+          isOpen={lightboxOpen}
+          imageSrc={evidencePhoto}
+          eventTitle={event.title || event.localName}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </div>
   );
 };

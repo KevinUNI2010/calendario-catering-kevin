@@ -39,6 +39,7 @@ import { SupabaseModal } from './components/SupabaseModal';
 import { DailyMenuSummaryModal } from './components/DailyMenuSummaryModal';
 import { SummaryConfigModal } from './components/SummaryConfigModal';
 import { AccessManagementModal } from './components/AccessManagementModal';
+import { HonorDayDetailsModal } from './honor-components/HonorDayDetailsModal';
 import { 
   isSupabaseConfigured, 
   fetchSupabaseEvents, 
@@ -107,7 +108,13 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
   const [localForEditModal, setLocalForEditModal] = useState<Local | null>(null);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isAccessManagementOpen, setIsAccessManagementOpen] = useState(false);
-  const [dailySummaryModalData, setDailySummaryModalData] = useState<{ isOpen: boolean, date: Date | null, events: CalendarEvent[], subtitle?: string }>({
+  const [dailySummaryModalData, setDailySummaryModalData] = useState<{ isOpen: boolean, date: Date | null, endDate?: Date | null, events: CalendarEvent[], subtitle?: string }>({
+    isOpen: false,
+    date: null,
+    endDate: null,
+    events: []
+  });
+  const [honorDayModalData, setHonorDayModalData] = useState<{ isOpen: boolean, date: Date | null, events: CalendarEvent[] }>({
     isOpen: false,
     date: null,
     events: []
@@ -315,7 +322,8 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
 
     setDailySummaryModalData({
       isOpen: true,
-      date: start, // Solo de referencia
+      date: start,
+      endDate: end,
       events: rangeEvents,
       subtitle: `Del ${formatDayMonth(start)} al ${formatDayMonth(end)}`
     });
@@ -579,7 +587,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
               events={filteredEvents}
               onSelectEvent={handleSelectEvent}
               onCreateEventOnDate={handleCreateEventOnDate}
-              onShowDaySummary={(date, events) => setDailySummaryModalData({ isOpen: true, date, events })}
+              onShowDaySummary={(date, events) => setHonorDayModalData({ isOpen: true, date, events })}
               role={session.role}
             />
           )}
@@ -640,58 +648,81 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
       )}
 
       {/* Full Event Create / Edit Modal */}
-      <EventModal
-        isOpen={Boolean(eventForEditModal)}
-        event={eventForEditModal}
-        locales={locales}
-        menuOptions={menuOptions}
-        onClose={() => setEventForEditModal(null)}
-        onSave={handleSaveFullEvent}
-        onDelete={handleDeleteEvent}
-      />
+      {Boolean(eventForEditModal) && eventForEditModal && (
+        <EventModal
+          isOpen={Boolean(eventForEditModal)}
+          event={eventForEditModal}
+          locales={locales}
+          menuOptions={menuOptions}
+          onClose={() => setEventForEditModal(null)}
+          onSave={handleSaveFullEvent}
+          onDelete={handleDeleteEvent}
+        />
+      )}
 
       {/* Add / Edit Local Modal */}
-      <LocalModal
-        isOpen={isLocalModalOpen}
-        initialLocal={localForEditModal}
-        onClose={() => {
-          setIsLocalModalOpen(false);
-          setLocalForEditModal(null);
-        }}
-        onSave={handleSaveLocal}
-      />
+      {isLocalModalOpen && (
+        <LocalModal
+          isOpen={isLocalModalOpen}
+          initialLocal={localForEditModal}
+          onClose={() => {
+            setIsLocalModalOpen(false);
+            setLocalForEditModal(null);
+          }}
+          onSave={handleSaveLocal}
+        />
+      )}
 
       {/* Menu Settings Modal */}
-      <MenuSettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-        menuOptions={menuOptions}
-        onSave={async (newOptions) => {
-          setMenuOptions(newOptions);
-          saveCachedMenuOptions(newOptions);
-          if (isSupabaseConfigured()) {
-            await upsertSupabaseMenuOptions(newOptions);
-          }
-          notify.success('Actualizado', 'Opciones de menú guardadas');
-        }}
-      />
-      <SummaryConfigModal
-        isOpen={isSummaryConfigOpen}
-        onClose={() => setIsSummaryConfigOpen(false)}
-        onGenerate={handleGenerateSummary}
-        initialDate={currentDate}
-      />
-      <DailyMenuSummaryModal
-        isOpen={dailySummaryModalData.isOpen}
-        onClose={() => setDailySummaryModalData({ ...dailySummaryModalData, isOpen: false })}
-        date={dailySummaryModalData.date}
-        events={dailySummaryModalData.events}
-        subtitle={dailySummaryModalData.subtitle}
-      />
+      {isSettingsModalOpen && (
+        <MenuSettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+          menuOptions={menuOptions}
+          onSave={async (newOptions) => {
+            setMenuOptions(newOptions);
+            saveCachedMenuOptions(newOptions);
+            if (isSupabaseConfigured()) {
+              await upsertSupabaseMenuOptions(newOptions);
+            }
+            notify.success('Actualizado', 'Opciones de menú guardadas');
+          }}
+        />
+      )}
+      {isSummaryConfigOpen && (
+        <SummaryConfigModal
+          isOpen={isSummaryConfigOpen}
+          onClose={() => setIsSummaryConfigOpen(false)}
+          onGenerate={handleGenerateSummary}
+          initialDate={currentDate}
+        />
+      )}
+      {dailySummaryModalData.isOpen && dailySummaryModalData.date && (
+        <DailyMenuSummaryModal
+          isOpen={dailySummaryModalData.isOpen}
+          onClose={() => setDailySummaryModalData({ ...dailySummaryModalData, isOpen: false })}
+          date={dailySummaryModalData.date}
+          endDate={dailySummaryModalData.endDate}
+          events={dailySummaryModalData.events}
+          subtitle={dailySummaryModalData.subtitle}
+          role={session.role}
+        />
+      )}
       {isAccessManagementOpen && (
         <AccessManagementModal
           locales={allLocales}
           onClose={() => setIsAccessManagementOpen(false)}
+        />
+      )}
+      
+      {honorDayModalData.isOpen && honorDayModalData.date && (
+        <HonorDayDetailsModal
+          isOpen={honorDayModalData.isOpen}
+          onClose={() => setHonorDayModalData({ ...honorDayModalData, isOpen: false })}
+          date={honorDayModalData.date}
+          events={honorDayModalData.events}
+          onSelectEvent={(event) => handleSelectEvent(null, event)}
+          role={session.role}
         />
       )}
 

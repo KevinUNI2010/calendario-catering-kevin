@@ -21,6 +21,7 @@ interface NavbarProps {
   onSearchChange: (q: string) => void;
   onToggleSidebar: () => void;
   onWeeklySummary: () => void;
+  role?: string;
 }
 
 export const HonorNavbar: React.FC<NavbarProps> = ({
@@ -34,6 +35,7 @@ export const HonorNavbar: React.FC<NavbarProps> = ({
   onSearchChange,
   onToggleSidebar,
   onWeeklySummary,
+  role
 }) => {
   const monthName = MONTH_NAMES_ES[currentDate.getMonth()];
   const year = currentDate.getFullYear();
@@ -119,14 +121,16 @@ export const HonorNavbar: React.FC<NavbarProps> = ({
       {/* Right section: View Mode, Create Button */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         
-        <button
-          type="button"
-          onClick={onWeeklySummary}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:hover:bg-orange-900/60 transition cursor-pointer"
-        >
-          <BarChart2 className="w-4 h-4" />
-          <span className="hidden sm:inline">Resumen Semanal</span>
-        </button>
+        {(role === 'admin' || role === 'dueño') && (
+          <button
+            type="button"
+            onClick={onWeeklySummary}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:hover:bg-orange-900/60 transition cursor-pointer"
+          >
+            <BarChart2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Resumen Mensual</span>
+          </button>
+        )}
 
         {/* View Mode Dropdown */}
         <select
@@ -136,8 +140,6 @@ export const HonorNavbar: React.FC<NavbarProps> = ({
           className="px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-full bg-white dark:bg-[#1a1a1a] shadow-[0_2px_8px_rgba(0,0,0,0.04)] border-none text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2b6de3]/30 cursor-pointer transition-all"
         >
           <option value="month">Mes</option>
-          <option value="week">Semana</option>
-          <option value="day">Día</option>
           <option value="agenda">Agenda</option>
         </select>
 

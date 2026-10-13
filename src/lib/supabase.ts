@@ -46,6 +46,7 @@ export function mapRowToEvent(row: any): CalendarEvent {
     reminders: Array.isArray(row.reminders) ? row.reminders : [],
     notes: row.notes || '',
     dish: row.dish || undefined,
+    evidencePhoto: row.dish?.evidencePhoto || undefined,
     status: row.status || 'confirmed',
     createdBy: row.created_by || 'kevin.zambrano.inteligencia@gmail.com',
     updatedAt: row.updated_at || new Date().toISOString(),
@@ -54,6 +55,11 @@ export function mapRowToEvent(row: any): CalendarEvent {
 
 // Convert CalendarEvent to DB snake_case row
 export function mapEventToRow(event: CalendarEvent): any {
+  const dishData = event.dish ? {
+    ...event.dish,
+    evidencePhoto: event.evidencePhoto || event.dish.evidencePhoto || undefined,
+  } : (event.evidencePhoto ? { evidencePhoto: event.evidencePhoto } : null);
+
   return {
     id: event.id,
     title: event.title,
@@ -67,7 +73,7 @@ export function mapEventToRow(event: CalendarEvent): any {
     attendees: event.attendees,
     reminders: event.reminders,
     notes: event.notes,
-    dish: event.dish,
+    dish: dishData,
     status: event.status,
     created_by: event.createdBy,
     updated_at: new Date().toISOString(),
@@ -113,9 +119,27 @@ export async function fetchSupabaseLocales(): Promise<Local[] | null> {
 export async function fetchSupabaseClientByPin(pin: string): Promise<any | null> {
   const sb = getSupabase();
   if (!sb) return null;
+  const cleanPin = pin.trim();
+  if (!cleanPin || cleanPin.length < 4) return null;
+
   try {
-    const { data, error } = await sb.from('clients').select('*').eq('pin', pin).single();
-    if (error) throw error;
+    // 1. Método Seguro: RPC con SECURITY DEFINER (no expone la tabla clients al público ni devuelve el PIN)
+    const { data: rpcData, error: rpcError } = await sb.rpc('verify_client_pin', { p_pin: cleanPin });
+    if (!rpcError && rpcData) {
+      return rpcData;
+    }
+
+    // 2. Fallback de compatibilidad si el RPC aún no fue ejecutado en el SQL Editor
+    const { data, error } = await sb
+      .from('clients')
+      .select('id, name, role, allowed_locales')
+      .eq('pin', cleanPin)
+      .maybeSingle();
+
+    if (error) {
+      console.warn('Verificación de cliente fallback falló:', error.message);
+      return null;
+    }
     return data;
   } catch (err) {
     console.warn('Supabase fetch client failed:', err);
@@ -296,7 +320,8 @@ export async function upsertSupabaseClient(client: any) {
       id: client.id,
       name: client.name,
       pin: client.pin,
-      allowed_locales: client.allowed_locales
+      allowed_locales: client.allowed_locales,
+      role: client.role || 'dueño'
     });
     if (error) throw error;
     return true;

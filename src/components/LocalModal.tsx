@@ -1,3 +1,4 @@
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import React, { useState, useEffect } from 'react';
 import { Local, GOOGLE_CALENDAR_COLORS } from '../types';
 import { getEventColor } from '../utils/colorUtils';
@@ -11,6 +12,8 @@ interface LocalModalProps {
 }
 
 export const LocalModal: React.FC<LocalModalProps> = ({ isOpen, initialLocal, onClose, onSave }) => {
+  useEscapeKey(onClose, isOpen);
+
   const [name, setName] = useState('');
   const [colorId, setColorId] = useState(GOOGLE_CALENDAR_COLORS[0].id);
 
@@ -45,10 +48,10 @@ export const LocalModal: React.FC<LocalModalProps> = ({ isOpen, initialLocal, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200" onClick={onClose}>
       <div 
         className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col"
-      >
+       onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40">
           <div className="flex items-center gap-3">

@@ -98,10 +98,7 @@ export const AgendaView: React.FC<AgendaViewProps> = ({
                                 {event.localName}
                               </button>
 
-                              <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 font-mono">
-                                <Clock className="w-3 h-3" />
-                                {formatTimeHM(event.startDate)} - {formatTimeHM(event.endDate)}
-                              </span>
+
                             </div>
 
                             <h3 className="text-sm font-semibold text-gray-900 dark:text-white mt-1.5 truncate">
@@ -125,7 +122,7 @@ export const AgendaView: React.FC<AgendaViewProps> = ({
                           >
                             Resumen Rápido
                           </button>
-                          {role !== 'viewer' && (
+                          {role === 'admin' && (
                             <>
                               <button
                                 type="button"

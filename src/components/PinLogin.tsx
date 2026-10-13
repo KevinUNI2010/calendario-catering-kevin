@@ -12,7 +12,21 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+
+  // Timer countdown for brute-force lockout
+  React.useEffect(() => {
+    if (lockoutSeconds <= 0) return;
+    const interval = setInterval(() => {
+      setLockoutSeconds((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockoutSeconds]);
+
   const processLogin = async (currentPin: string) => {
+    if (lockoutSeconds > 0) return;
+
     setError(false);
     setIsLoading(true);
 
@@ -22,28 +36,32 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
       if (isSupabaseConfigured()) {
         const client = await fetchSupabaseClientByPin(currentPin);
         if (client) {
-          onLogin({ role: 'viewer', allowedLocales: client.allowed_locales || [], name: client.name });
+          setFailedAttempts(0);
+          onLogin({ role: client.role || 'dueño', allowedLocales: client.allowed_locales || [], name: client.name });
           setIsLoading(false);
           return;
         }
-      } else {
-        // Fallback mock validation
+      } else if ((import.meta as any).env?.DEV) {
+        // Fallback mock validation ONLY in local dev environment without Supabase
         if (currentPin === '1111') {
-          onLogin({ role: 'viewer', allowedLocales: ['loc-1', 'loc-2'], name: 'Pepe' });
+          setFailedAttempts(0);
+          onLogin({ role: 'viewer', allowedLocales: ['loc-1', 'loc-2'], name: 'Pepe (Dev)' });
           setIsLoading(false);
           return;
         } else if (currentPin === '2222') {
-          onLogin({ role: 'viewer', allowedLocales: ['loc-4'], name: 'José' });
+          setFailedAttempts(0);
+          onLogin({ role: 'viewer', allowedLocales: ['loc-4'], name: 'José (Dev)' });
           setIsLoading(false);
           return;
         }
       }
       
-      // Admin backdoor for testing
-      if (currentPin === '9999') {
-        onLogin({ role: 'admin', name: 'Admin Test' });
-        setIsLoading(false);
-        return;
+      // Incrementar intentos fallidos y bloquear temporalmente si se superan 5 intentos
+      const nextFailures = failedAttempts + 1;
+      setFailedAttempts(nextFailures);
+      if (nextFailures >= 5) {
+        setLockoutSeconds(30);
+        setFailedAttempts(0);
       }
 
       setError(true);
@@ -93,8 +111,9 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
               inputMode="numeric"
               pattern="[0-9]*"
               value={pin}
-              disabled={isLoading}
+              disabled={isLoading || lockoutSeconds > 0}
               onChange={(e) => {
+                if (lockoutSeconds > 0) return;
                 const val = e.target.value.replace(/\D/g, '');
                 setPin(val);
                 setError(false);
@@ -105,7 +124,9 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
               placeholder="••••"
               maxLength={4}
               className={`w-full text-center text-3xl tracking-[1em] font-mono py-4 rounded-xl border-2 bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white transition-all outline-hidden ${
-                error 
+                lockoutSeconds > 0
+                  ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/20 opacity-60'
+                  : error 
                   ? 'border-red-500 bg-red-50 dark:bg-red-900/20' 
                   : 'border-gray-200 dark:border-gray-800 focus:border-blue-500'
               } disabled:opacity-50`}
@@ -113,12 +134,17 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
             />
           </div>
 
-          {error && (
+          {lockoutSeconds > 0 ? (
+            <div className="flex items-center justify-center gap-1.5 text-amber-600 dark:text-amber-400 text-xs font-semibold animate-in slide-in-from-top-1">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>Demasiados intentos. Espera {lockoutSeconds}s por seguridad.</span>
+            </div>
+          ) : error ? (
             <div className="flex items-center justify-center gap-1.5 text-red-500 text-xs font-semibold animate-in slide-in-from-top-1">
-              <AlertCircle className="w-4 h-4" />
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>PIN incorrecto. Inténtalo de nuevo.</span>
             </div>
-          )}
+          ) : null}
         </form>
         
       </div>
