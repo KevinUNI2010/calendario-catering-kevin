@@ -127,21 +127,8 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#fcfaf8] dark:bg-[#0c0c0c]">
           
           {/* Eventos del Día */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4">
              <h3 className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Eventos del Día</h3>
-             {role === 'admin' && onCreateEvent && events.length > 0 && (
-               <button
-                 type="button"
-                 onClick={() => {
-                   onClose();
-                   onCreateEvent(date);
-                 }}
-                 className="sm:hidden flex items-center gap-1 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs"
-               >
-                 <Plus className="w-3.5 h-3.5" />
-                 <span>Crear Evento</span>
-               </button>
-             )}
           </div>
 
           {sortedEvents.length === 0 ? (
