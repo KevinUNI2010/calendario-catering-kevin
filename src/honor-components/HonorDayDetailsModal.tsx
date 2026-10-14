@@ -5,6 +5,7 @@ import { formatDateShort } from '../utils/dateUtils';
 import { getEventColor } from '../utils/colorUtils';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { getEffectivePlateCount, parsePlateFormula } from '../utils/plateMath';
+import { getSelectedServilletas } from '../utils/servilletaUtils';
 import { EvidenceLightboxModal } from '../components/EvidenceLightboxModal';
 
 interface HonorDayDetailsModalProps {
@@ -61,10 +62,11 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
       if (dish.carbohidrato) totals['Carbohidratos'][dish.carbohidrato] = (totals['Carbohidratos'][dish.carbohidrato] || 0) + platos;
       if (dish.guarnicion) totals['Guarniciones'][dish.guarnicion] = (totals['Guarniciones'][dish.guarnicion] || 0) + platos;
       if (dish.ensalada) totals['Ensaladas'][dish.ensalada] = (totals['Ensaladas'][dish.ensalada] || 0) + platos;
-      if (dish.servilleta) {
-        const servName = dish.servilleta.split('|')[0];
-        totals['Servilletas'][servName] = (totals['Servilletas'][servName] || 0) + platos;
-      }
+      
+      const servList = getSelectedServilletas(dish);
+      servList.forEach(s => {
+        totals['Servilletas'][s.name] = (totals['Servilletas'][s.name] || 0) + platos;
+      });
     });
 
     const localesList = Array.from(localesAtendidosMap.entries()).map(([name, colorId]) => ({
@@ -220,18 +222,22 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         {/* Footer Event Card */}
                         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center text-sm gap-2">
                           <div className="min-w-0 flex-1">
-                            {event.dish.servilleta ? (() => {
-                              const [servName, servColor] = event.dish.servilleta.split('|');
+                            {(() => {
+                              const servList = getSelectedServilletas(event.dish);
+                              if (servList.length === 0) return <span></span>;
                               return (
                                 <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className="text-gray-400">Servilleta:</span>
-                                  {servColor && <span className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/10 shrink-0" style={{ backgroundColor: servColor }} />}
-                                  <span className="font-bold text-gray-800 dark:text-gray-200">{servName}</span>
+                                  <span className="text-gray-400">{servList.length > 1 ? 'Servilletas:' : 'Servilleta:'}</span>
+                                  {servList.map((s, idx) => (
+                                    <span key={idx} className="inline-flex items-center gap-1 font-bold text-gray-800 dark:text-gray-200">
+                                      {s.color && <span className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/10 shrink-0" style={{ backgroundColor: s.color }} />}
+                                      <span>{s.name}</span>
+                                      {idx < servList.length - 1 && <span className="text-gray-400 font-normal">/</span>}
+                                    </span>
+                                  ))}
                                 </div>
                               );
-                            })() : (
-                              <span></span>
-                            )}
+                            })()}
                           </div>
                           {(() => {
                             const contratadosFormula = event.dish.platosContratadosFormula;

@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CalendarEvent, Local, ReminderConfig, DishSelection, MenuOptions } from '../types';
 import { getEventColor } from '../utils/colorUtils';
 import { parsePlateFormula } from '../utils/plateMath';
+import { getSelectedServilletas, formatServilletasForSave } from '../utils/servilletaUtils';
+import { notify } from '../utils/toastHelper';
 import { ImageCropperModal } from './ImageCropperModal';
 import { EvidenceLightboxModal } from './EvidenceLightboxModal';
 import { 
@@ -74,6 +76,7 @@ export const EventModal: React.FC<EventModalProps> = ({
     guarnicion: '',
     carbohidrato: '',
     servilleta: '',
+    servilletas: [],
     cantidadPlatos: 0,
   });
 
@@ -127,6 +130,7 @@ export const EventModal: React.FC<EventModalProps> = ({
         guarnicion: '',
         carbohidrato: '',
         servilleta: '',
+        servilletas: [],
         cantidadPlatos: 0,
       });
       setContratadosFormula(
@@ -170,6 +174,29 @@ export const EventModal: React.FC<EventModalProps> = ({
   const handleTimeChange = (newTime: string) => {
     const curDate = eventDate || getFormattedNow().substring(0, 10);
     setStartDate(`${curDate}T${newTime}`);
+  };
+
+  const selectedServilletas = getSelectedServilletas(dish);
+
+  const handleToggleServilleta = (opt: string) => {
+    const optName = opt.split('|')[0].trim();
+    const isAlreadySelected = selectedServilletas.some(s => s.name === optName);
+
+    if (isAlreadySelected) {
+      const remaining = selectedServilletas
+        .filter(s => s.name !== optName)
+        .map(s => s.raw);
+      const formatted = formatServilletasForSave(remaining);
+      setDish({ ...dish, ...formatted });
+    } else {
+      if (selectedServilletas.length >= 2) {
+        notify.warning('Máximo 2 servilletas', 'Puedes elegir hasta 2 servilletas diferentes. Deselecciona una primero si deseas cambiarla.');
+        return;
+      }
+      const updated = [...selectedServilletas.map(s => s.raw), opt];
+      const formatted = formatServilletasForSave(updated);
+      setDish({ ...dish, ...formatted });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -607,41 +634,76 @@ export const EventModal: React.FC<EventModalProps> = ({
                 DETALLES
               </label>
 
-              {/* Servilletas with explicit color coding */}
+              {/* Servilletas with explicit color coding (Soporta hasta 2 diferentes) */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Servilletas</span>
-                  {dish.servilleta && (() => {
-                    const [selName, selColor] = dish.servilleta.split('|');
-                    return (
-                      <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 flex items-center gap-1.5 animate-in fade-in duration-150">
-                        {selColor && (
-                          <span
-                            className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/20 shrink-0"
-                            style={{ backgroundColor: selColor }}
-                          />
-                        )}
-                        <span>✓ {selName}</span>
-                      </span>
-                    );
-                  })()}
+                <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Servilletas
+                    </span>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                      selectedServilletas.length === 2
+                        ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
+                        : selectedServilletas.length === 1
+                          ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                          : 'text-gray-400 dark:text-gray-500'
+                    }`}>
+                      {selectedServilletas.length}/2
+                    </span>
+                  </div>
+
+                  {/* Badges de servilletas seleccionadas con botón para remover */}
+                  {selectedServilletas.length > 0 && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {selectedServilletas.map((sel) => (
+                        <span
+                          key={sel.name}
+                          className="text-[11px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/70 pl-2 pr-1 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 flex items-center gap-1 animate-in fade-in duration-150"
+                        >
+                          {sel.color && (
+                            <span
+                              className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/20 shrink-0"
+                              style={{ backgroundColor: sel.color }}
+                            />
+                          )}
+                          <span>{sel.name}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleServilleta(sel.raw);
+                            }}
+                            className="hover:bg-blue-200 dark:hover:bg-blue-800 rounded-full p-0.5 text-blue-600 dark:text-blue-300 transition-colors cursor-pointer"
+                            title={`Quitar ${sel.name}`}
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
                 <div className="flex flex-wrap gap-2">
                   {menuOptions.servilletas?.map(opt => {
                     const [name, colorHex] = opt.split('|');
-                    const storedName = dish.servilleta ? dish.servilleta.split('|')[0] : '';
-                    const isSelected = storedName === name;
+                    const isSelected = selectedServilletas.some(s => s.name === name);
+                    const selectedIndex = selectedServilletas.findIndex(s => s.name === name);
                     const isWhite = colorHex?.toLowerCase() === '#ffffff' || colorHex?.toLowerCase() === '#fff' || name.toLowerCase() === 'blanco';
+
                     return (
                       <button
                         key={opt}
                         type="button"
-                        onClick={() => setDish({ ...dish, servilleta: isSelected ? '' : opt })}
+                        onClick={() => handleToggleServilleta(opt)}
                         className={`flex items-stretch overflow-hidden rounded-full border transition-all duration-150 cursor-pointer ${
                           isSelected
                             ? 'border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/70 ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900 shadow-md text-blue-900 dark:text-blue-100 font-bold scale-105 z-10'
-                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 opacity-80 hover:opacity-100'
+                            : selectedServilletas.length >= 2
+                              ? 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-500 hover:border-gray-300 opacity-60 hover:opacity-90'
+                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1a1a] text-gray-700 dark:text-gray-300 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 opacity-80 hover:opacity-100'
                         }`}
+                        title={isSelected ? `Deseleccionar ${name}` : selectedServilletas.length >= 2 ? 'Máximo 2 servilletas seleccionadas' : `Seleccionar ${name}`}
                       >
                         {colorHex && (
                           <div
@@ -655,8 +717,13 @@ export const EventModal: React.FC<EventModalProps> = ({
                             )}
                           </div>
                         )}
-                        <span className="px-3 py-1.5 text-xs font-semibold flex items-center gap-1">
+                        <span className="px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5">
                           {name}
+                          {isSelected && selectedServilletas.length > 1 && (
+                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/60 w-4 h-4 rounded-full flex items-center justify-center">
+                              {selectedIndex + 1}
+                            </span>
+                          )}
                         </span>
                       </button>
                     );

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CalendarEvent, Local } from '../types';
 import { getEventColor } from '../utils/colorUtils';
 import { parsePlateFormula } from '../utils/plateMath';
+import { getSelectedServilletas } from '../utils/servilletaUtils';
 import { EvidenceLightboxModal } from './EvidenceLightboxModal';
 import {
   Calendar,
@@ -137,23 +138,27 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                 {/* Footer Event Card: Servilleta + Control de Platos */}
                 <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center text-sm gap-2 flex-wrap">
                   <div className="min-w-0 flex-1">
-                    {event.dish.servilleta ? (() => {
-                      const [servName, servColor] = event.dish.servilleta.split('|');
+                    {(() => {
+                      const servList = getSelectedServilletas(event.dish);
+                      if (servList.length === 0) return <span />;
                       return (
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-gray-400">Servilleta:</span>
-                          {servColor && (
-                            <span 
-                              className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/10 shrink-0" 
-                              style={{ backgroundColor: servColor }} 
-                            />
-                          )}
-                          <span className="font-bold text-gray-800 dark:text-gray-200">{servName}</span>
+                          <span className="text-gray-400">{servList.length > 1 ? 'Servilletas:' : 'Servilleta:'}</span>
+                          {servList.map((s, idx) => (
+                            <span key={idx} className="inline-flex items-center gap-1 font-bold text-gray-800 dark:text-gray-200">
+                              {s.color && (
+                                <span 
+                                  className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/10 shrink-0" 
+                                  style={{ backgroundColor: s.color }} 
+                                />
+                              )}
+                              <span>{s.name}</span>
+                              {idx < servList.length - 1 && <span className="text-gray-400 font-normal">/</span>}
+                            </span>
+                          ))}
                         </div>
                       );
-                    })() : (
-                      <span />
-                    )}
+                    })()}
                   </div>
 
                   <div>

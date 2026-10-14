@@ -40,6 +40,7 @@ export interface DishSelection {
   guarnicion: string;
   carbohidrato: string;
   servilleta: string;
+  servilletas?: string[]; // Soporta selección de hasta 2 servilletas (ej: ["Lila|#803c64", "Rojo|#e53e3e"])
   cantidadPlatos: number; // Conteo efectivo / activo
   platosContratadosFormula?: string; // ej: "23x8" o "150"
   platosContratados?: number; // Total calculado de la fórmula (ej: 184)

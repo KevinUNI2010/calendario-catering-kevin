@@ -7,6 +7,7 @@ import { CalendarEvent } from '../types';
 import { getEventColor } from '../utils/colorUtils';
 import { formatDateShort } from '../utils/dateUtils';
 import { getEffectivePlateCount } from '../utils/plateMath';
+import { getSelectedServilletas } from '../utils/servilletaUtils';
 
 interface DailyMenuSummaryModalProps {
   isOpen: boolean;
@@ -98,10 +99,11 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
       if (dish.carbohidrato) totals['Carbohidratos'][dish.carbohidrato] = (totals['Carbohidratos'][dish.carbohidrato] || 0) + platos;
       if (dish.guarnicion) totals['Guarniciones'][dish.guarnicion] = (totals['Guarniciones'][dish.guarnicion] || 0) + platos;
       if (dish.ensalada) totals['Ensaladas'][dish.ensalada] = (totals['Ensaladas'][dish.ensalada] || 0) + platos;
-      if (dish.servilleta) {
-        const servName = dish.servilleta.split('|')[0];
-        totals['Servilletas'][servName] = (totals['Servilletas'][servName] || 0) + platos;
-      }
+      
+      const servList = getSelectedServilletas(dish);
+      servList.forEach(s => {
+        totals['Servilletas'][s.name] = (totals['Servilletas'][s.name] || 0) + platos;
+      });
     });
 
     const localesList = Array.from(localesAtendidosMap.entries()).map(([name, colorId]) => ({
