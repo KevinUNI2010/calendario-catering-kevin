@@ -22,8 +22,8 @@ import { soundManager } from './utils/soundEffects';
 import { formatISO, MONTH_NAMES_ES } from './utils/dateUtils';
 import { notify } from './utils/toastHelper';
 
-import { Navbar } from './components/Navbar';
-import { Sidebar } from './components/Sidebar';
+import { HonorNavbar } from './honor-components/HonorNavbar';
+import { HonorSidebar } from './honor-components/HonorSidebar';
 import { HonorMonthView } from './honor-components/HonorMonthView';
 import { MonthView } from './components/MonthView';
 import { WeekView } from './components/WeekView';
@@ -535,7 +535,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
     <div className="flex flex-col h-screen h-[100dvh] w-screen overflow-hidden bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-200">
       
       {/* Top Navbar */}
-      <Navbar
+      <HonorNavbar
         currentDate={currentDate}
         onPrevDate={handlePrevDate}
         onNextDate={handleNextDate}
@@ -546,13 +546,14 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
         onSearchChange={setSearchQuery}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         onWeeklySummary={() => setIsSummaryConfigOpen(true)}
+        role={session.role}
       />
 
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden relative">
         
         {/* Sidebar */}
-        <Sidebar
+        <HonorSidebar
           isOpen={isSidebarOpen}
           currentDate={currentDate}
           onSelectDate={(d) => setCurrentDate(d)}
@@ -581,7 +582,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
         />
 
         {/* View Component */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-gray-900">
+        <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#f7f8fa] dark:bg-[#0c0c0c]">
           {viewMode === 'month' && (
             <HonorMonthView
               currentDate={currentDate}

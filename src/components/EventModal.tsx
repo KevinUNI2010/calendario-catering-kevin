@@ -149,8 +149,28 @@ export const EventModal: React.FC<EventModalProps> = ({
   const attendees = event.attendees || [];
   const reminders = event.reminders || [];
 
-  const selectedColor = getEventColor(event.colorId || 'peacock');
   const selectedLocal = locales.find(l => l.id === localId);
+  const selectedColor = getEventColor(selectedLocal ? selectedLocal.colorId : (event.colorId || 'peacock'));
+
+  const TIME_OPTIONS = Array.from({ length: 48 }).map((_, i) => {
+    const h = String(Math.floor(i / 2)).padStart(2, '0');
+    const m = i % 2 === 0 ? '00' : '30';
+    return `${h}:${m}`;
+  });
+
+  const eventDate = startDate ? startDate.substring(0, 10) : '';
+  const eventTime = startDate && startDate.length >= 16 ? startDate.substring(11, 16) : '09:00';
+
+  const handleDateChange = (newDate: string) => {
+    if (newDate) {
+      setStartDate(`${newDate}T${eventTime}`);
+    }
+  };
+
+  const handleTimeChange = (newTime: string) => {
+    const curDate = eventDate || getFormattedNow().substring(0, 10);
+    setStartDate(`${curDate}T${newTime}`);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -215,62 +235,22 @@ export const EventModal: React.FC<EventModalProps> = ({
         id="event-form-modal"
         className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col max-h-[92vh]"
        onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40">
-          <div className="flex items-center gap-3">
+        {/* Header: Nuevo Evento en [ Aryes v ] */}
+        <div className="flex items-center justify-between px-6 py-3.5 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <span 
-              className="w-4 h-4 rounded-full shadow-xs"
+              className="w-3.5 h-3.5 rounded-full shadow-xs shrink-0 transition-colors"
               style={{ backgroundColor: selectedColor.bg }}
             />
-            <h3 className="font-semibold text-gray-900 dark:text-white text-base">
-              {event.id ? 'Editar Evento de Local' : 'Nuevo Evento de Local'}
-            </h3>
-          </div>
-          <button
-            type="button"
-            id="modal-close-btn"
-            onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5 text-sm">
-          
-          {/* 2x2 Grid for main fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            {/* Título del Evento */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 flex items-center gap-1.5">
-                <AlignLeft className="w-3.5 h-3.5 text-blue-500" />
-                Título del Evento
-              </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Opcional. Ej: Boda de Pérez"
-                className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-shadow"
-              />
-            </div>
-
-            {/* Local Selection */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 flex items-center gap-1.5">
-                <Store className="w-3.5 h-3.5 text-blue-500" />
-                Local Responsable
-              </label>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold text-gray-900 dark:text-white text-base">
+                {event.id ? 'Editar Evento en' : 'Nuevo Evento en'}
+              </h3>
               <select
                 id="event-local-select"
                 value={localId}
-                onChange={(e) => {
-                  setLocalId(e.target.value);
-                  const loc = locales.find(l => l.id === e.target.value);
-                }}
-                className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-shadow"
+                onChange={(e) => setLocalId(e.target.value)}
+                className="px-2.5 py-1 text-sm font-bold rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-2xs hover:border-blue-400 transition"
               >
                 {locales.map((loc) => (
                   <option key={loc.id} value={loc.id}>
@@ -279,70 +259,103 @@ export const EventModal: React.FC<EventModalProps> = ({
                 ))}
               </select>
             </div>
+          </div>
+          <button
+            type="button"
+            id="modal-close-btn"
+            onClick={onClose}
+            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-            {/* Time Picker */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 flex items-center gap-1.5">
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+          <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-sm flex-1">
+          
+          {/* Row with 3 fields: [ Titulo ] [ DIA ] [ HORA ] */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            
+            {/* Título del Evento */}
+            <div className="sm:col-span-6">
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1.5">
+                <AlignLeft className="w-3.5 h-3.5 text-blue-500" />
+                Título
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Opcional. Ej: Boda de Pérez"
+                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-shadow"
+              />
+            </div>
+
+            {/* Día (Date Picker) */}
+            <div className="sm:col-span-3">
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1.5">
+                <CalendarIcon className="w-3.5 h-3.5 text-blue-500" />
+                Día
+              </label>
+              <input
+                type="date"
+                id="event-start-date"
+                value={eventDate}
+                onChange={(e) => handleDateChange(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-shadow cursor-pointer"
+                required
+              />
+            </div>
+
+            {/* Hora (Time Picker) */}
+            <div className="sm:col-span-3">
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-blue-500" />
-                Hora del Evento
+                Hora
               </label>
               <select
                 id="event-start-time"
-                value={startDate.substring(11, 13) + ':00'}
-                onChange={(e) => setStartDate(startDate.substring(0, 11) + e.target.value)}
-                className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-shadow"
+                value={eventTime}
+                onChange={(e) => handleTimeChange(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-shadow cursor-pointer"
                 required
               >
-                {Array.from({ length: 24 }).map((_, i) => {
-                  const hour = String(i).padStart(2, '0');
-                  return (
-                    <option key={hour} value={`${hour}:00`}>
-                      {hour}:00
-                    </option>
-                  );
-                })}
+                {!TIME_OPTIONS.includes(eventTime) && eventTime && (
+                  <option value={eventTime}>{eventTime}</option>
+                )}
+                {TIME_OPTIONS.map((time) => (
+                  <option key={time} value={time}>
+                    {time}
+                  </option>
+                ))}
               </select>
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 flex items-center gap-1.5">
-                <AlignLeft className="w-3.5 h-3.5 text-blue-500" />
-                Descripción operativa
-              </label>
-              <textarea
-                id="event-description-input"
-                rows={1}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Requerimientos de sala..."
-                className="w-full px-3 py-2.5 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 resize-none transition-shadow"
-              />
             </div>
 
           </div>
 
           {/* Split Layout: Menu Builder (Left) & Details (Right) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-1">
             
-            {/* Left: MENU BUILDER */}
-            <div className="md:col-span-2 bg-gray-50/50 dark:bg-gray-800/20 p-5 rounded-2xl border border-gray-200 dark:border-gray-700">
-              <label className="text-xs font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
-                <Utensils className="w-4 h-4 text-orange-500" />
-                CONSTRUCTOR DE MENÚ
-              </label>
+            {/* Left: MENÚ */}
+            <div className="md:col-span-2 bg-gray-50/50 dark:bg-gray-800/20 p-4 sm:p-5 rounded-2xl border border-gray-200 dark:border-gray-700 flex flex-col gap-3">
+              <div>
+                <label className="text-xs font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200 flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 pb-2.5 mb-3">
+                  <Utensils className="w-4 h-4 text-orange-500" />
+                  MENÚ
+                </label>
               
-              <div className="space-y-4">
+              <div className="space-y-2.5">
                 {/* Proteinas */}
                 <div>
-                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">Proteínas</span>
-                  <div className="flex flex-wrap gap-2">
+                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Proteínas</span>
+                  <div className="flex flex-wrap gap-1.5">
                     {menuOptions.proteinas.map(opt => (
                       <button
                         key={opt}
                         type="button"
                         onClick={() => setDish({ ...dish, proteina: dish.proteina === opt ? '' : opt })}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
+                        className={`px-2.5 py-1 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
                           dish.proteina === opt 
                             ? 'bg-orange-100 border-orange-300 text-orange-800 dark:bg-orange-900/40 dark:border-orange-700 dark:text-orange-300' 
                             : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
@@ -356,14 +369,14 @@ export const EventModal: React.FC<EventModalProps> = ({
 
                 {/* Salsas */}
                 <div>
-                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">Salsas</span>
-                  <div className="flex flex-wrap gap-2">
+                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Salsas</span>
+                  <div className="flex flex-wrap gap-1.5">
                     {menuOptions.salsas.map(opt => (
                       <button
                         key={opt}
                         type="button"
                         onClick={() => setDish({ ...dish, salsa: dish.salsa === opt ? '' : opt })}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
+                        className={`px-2.5 py-1 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
                           dish.salsa === opt 
                             ? 'bg-yellow-100 border-yellow-300 text-yellow-800 dark:bg-yellow-900/40 dark:border-yellow-700 dark:text-yellow-300' 
                             : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
@@ -377,14 +390,14 @@ export const EventModal: React.FC<EventModalProps> = ({
 
                 {/* Carbohidratos */}
                 <div>
-                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">Carbohidratos</span>
-                  <div className="flex flex-wrap gap-2">
+                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Carbohidratos</span>
+                  <div className="flex flex-wrap gap-1.5">
                     {menuOptions.carbohidratos.map(opt => (
                       <button
                         key={opt}
                         type="button"
                         onClick={() => setDish({ ...dish, carbohidrato: dish.carbohidrato === opt ? '' : opt })}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
+                        className={`px-2.5 py-1 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
                           dish.carbohidrato === opt 
                             ? 'bg-blue-100 border-blue-300 text-blue-800 dark:bg-blue-900/40 dark:border-blue-700 dark:text-blue-300' 
                             : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
@@ -398,14 +411,14 @@ export const EventModal: React.FC<EventModalProps> = ({
 
                 {/* Guarniciones */}
                 <div>
-                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">Guarniciones</span>
-                  <div className="flex flex-wrap gap-2">
+                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Guarniciones</span>
+                  <div className="flex flex-wrap gap-1.5">
                     {menuOptions.guarniciones.map(opt => (
                       <button
                         key={opt}
                         type="button"
                         onClick={() => setDish({ ...dish, guarnicion: dish.guarnicion === opt ? '' : opt })}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
+                        className={`px-2.5 py-1 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
                           dish.guarnicion === opt 
                             ? 'bg-purple-100 border-purple-300 text-purple-800 dark:bg-purple-900/40 dark:border-purple-700 dark:text-purple-300' 
                             : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
@@ -419,14 +432,14 @@ export const EventModal: React.FC<EventModalProps> = ({
 
                 {/* Ensaladas */}
                 <div>
-                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">Ensaladas</span>
-                  <div className="flex flex-wrap gap-2">
+                  <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider">Ensaladas</span>
+                  <div className="flex flex-wrap gap-1.5">
                     {menuOptions.ensaladas.map(opt => (
                       <button
                         key={opt}
                         type="button"
                         onClick={() => setDish({ ...dish, ensalada: dish.ensalada === opt ? '' : opt })}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
+                        className={`px-2.5 py-1 text-xs font-medium rounded-full border transition cursor-pointer shadow-xs ${
                           dish.ensalada === opt 
                             ? 'bg-green-100 border-green-300 text-green-800 dark:bg-green-900/40 dark:border-green-700 dark:text-green-300' 
                             : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
@@ -439,6 +452,23 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Descripción / Requerimientos de sala (dentro del panel MENÚ) */}
+            <div className="pt-3 border-t border-gray-200 dark:border-gray-700/60 mt-3">
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
+                <AlignLeft className="w-3.5 h-3.5 text-blue-500" />
+                Descripción
+              </label>
+              <textarea
+                id="event-description-input"
+                rows={2}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Requerimientos de sala, observaciones operativas..."
+                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 resize-none transition-shadow"
+              />
+            </div>
+          </div>
 
             {/* Right: DETAILS */}
             <div className="md:col-span-1 bg-gray-50/50 dark:bg-gray-800/20 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 space-y-6">
@@ -744,10 +774,11 @@ export const EventModal: React.FC<EventModalProps> = ({
                 )}
               </div>
             </div>
+            </div>
           </div>
 
-          {/* Modal Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-800">
+          {/* Modal Actions (Sticky/Pinned Footer) */}
+          <div className="flex items-center justify-between px-6 py-3.5 border-t border-gray-200 dark:border-gray-800 bg-gray-50/90 dark:bg-gray-800/80 backdrop-blur-xs shrink-0">
             {event.id && onDelete ? (
               <button
                 type="button"
@@ -769,7 +800,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition cursor-pointer"
+                className="px-4 py-2 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer"
               >
                 Cancelar
               </button>

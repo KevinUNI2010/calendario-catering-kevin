@@ -41,38 +41,38 @@ export const HonorNavbar: React.FC<NavbarProps> = ({
   const year = currentDate.getFullYear();
 
   return (
-    <header className="h-16 bg-[#f7f8fa] dark:bg-[#0c0c0c] px-3 sm:px-6 flex items-center justify-between gap-3 shrink-0 select-none z-30 pt-2 pb-1 overflow-x-auto scrollbar-none">
+    <header className="h-16 bg-[#f7f8fa] dark:bg-[#0c0c0c] px-2 sm:px-6 flex items-center justify-between gap-1.5 sm:gap-3 shrink-0 select-none z-30 pt-2 pb-1 overflow-x-auto scrollbar-none">
       
       {/* Left section: Hamburger, Logo, Title, Navigation */}
-      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+      <div className="flex items-center gap-1 sm:gap-4 shrink-0">
         <button
           type="button"
           id="sidebar-toggle-btn"
           onClick={onToggleSidebar}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition"
+          className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition shrink-0 cursor-pointer"
           title="Menú principal"
         >
           <Menu className="w-5 h-5" />
         </button>
 
         {/* Brand */}
-        <div className="flex items-center">
+        <div className="flex items-center shrink-0">
           <div className="rounded-xl dark:bg-white dark:px-2 dark:py-0.5 dark:shadow-sm flex items-center justify-center transition-transform hover:scale-105 shrink-0">
             <img
               src="/logo-catering-kevin.svg"
               alt="Catering Kevin"
-              className="h-9 sm:h-10 md:h-11 w-auto object-contain select-none cursor-pointer"
+              className="h-8 sm:h-10 md:h-11 w-auto object-contain select-none cursor-pointer"
             />
           </div>
         </div>
 
         {/* Today & Date Changers */}
-        <div className="flex items-center gap-1 sm:gap-2 ml-0 sm:ml-4">
+        <div className="flex items-center gap-0.5 sm:gap-2 ml-0.5 sm:ml-4 shrink-0">
           <button
             type="button"
             id="today-btn"
             onClick={onToday}
-            className="px-2.5 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-full bg-white dark:bg-[#1a1a1a] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] text-gray-700 dark:text-gray-200 transition-all cursor-pointer"
+            className="px-2 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-sm font-medium rounded-full bg-white dark:bg-[#1a1a1a] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] text-gray-700 dark:text-gray-200 transition-all cursor-pointer"
           >
             Hoy
           </button>
@@ -81,22 +81,22 @@ export const HonorNavbar: React.FC<NavbarProps> = ({
               type="button"
               id="prev-date-btn"
               onClick={onPrevDate}
-              className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition"
+              className="p-1 sm:p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition cursor-pointer"
               title="Anterior"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               type="button"
               id="next-date-btn"
               onClick={onNextDate}
-              className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition"
+              className="p-1 sm:p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition cursor-pointer"
               title="Siguiente"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
-          <h1 className="text-base sm:text-lg lg:text-[20px] font-bold text-gray-900 dark:text-white capitalize whitespace-nowrap ml-1 sm:ml-2">
+          <h1 className="text-xs sm:text-lg lg:text-[20px] font-bold text-gray-900 dark:text-white capitalize whitespace-nowrap ml-0.5 sm:ml-2">
             {monthName} {year}
           </h1>
         </div>
@@ -118,13 +118,14 @@ export const HonorNavbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Right section: View Mode, Create Button */}
-      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+      <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
         
         {(role === 'admin' || role === 'dueño') && (
           <button
             type="button"
             onClick={onWeeklySummary}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:hover:bg-orange-900/60 transition cursor-pointer"
+            className="flex items-center justify-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 text-xs font-semibold rounded-full sm:rounded-lg bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-300 dark:hover:bg-orange-900/60 transition cursor-pointer shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.04)] sm:shadow-none"
+            title="Resumen Mensual"
           >
             <BarChart2 className="w-4 h-4" />
             <span className="hidden sm:inline">Resumen Mensual</span>
@@ -136,7 +137,7 @@ export const HonorNavbar: React.FC<NavbarProps> = ({
           id="view-mode-selector"
           value={viewMode}
           onChange={(e) => onChangeViewMode(e.target.value as ViewMode)}
-          className="px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-full bg-white dark:bg-[#1a1a1a] shadow-[0_2px_8px_rgba(0,0,0,0.04)] border-none text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2b6de3]/30 cursor-pointer transition-all"
+          className="px-2 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-sm font-medium rounded-full bg-white dark:bg-[#1a1a1a] shadow-[0_2px_8px_rgba(0,0,0,0.04)] border-none text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#2b6de3]/30 cursor-pointer transition-all shrink-0"
         >
           <option value="month">Mes</option>
           <option value="agenda">Agenda</option>
