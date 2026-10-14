@@ -1,9 +1,9 @@
 // Service Worker for Calendario de Locales
-const CACHE_NAME = 'calendario-locales-v1';
+const CACHE_NAME = 'calendario-locales-v2';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
   '/manifest.json',
+  '/favicon.svg',
+  '/favicon.ico',
   '/calendar-icon.svg'
 ];
 
@@ -19,29 +19,62 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.filter((key) => key !== CACHE_NAME).map((key) => {
+          console.log('[SW] Eliminando caché antigua:', key);
+          return caches.delete(key);
+        })
       );
     }).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
+  // Solo manejar peticiones GET
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // WebSocket or non-http requests skip
-  if (!url.protocol.startsWith('http')) return;
+  // Ignorar protocolos no soportados y solicitudes cross-origin (Supabase, Google Fonts, etc.)
+  // para que el navegador las maneje de forma nativa sin interferencias
+  if (!url.protocol.startsWith('http') || url.origin !== self.location.origin) {
+    return;
+  }
 
-  // For API endpoints, try network first, fallback to cached or empty
+  // 1. Peticiones de navegación SPA (HTML): Network-First, fallback a Caché offline
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+          const rootCached = await caches.match('/');
+          if (rootCached) return rootCached;
+          const indexCached = await caches.match('/index.html');
+          if (indexCached) return indexCached;
+          return new Response('<!doctype html><html><body><h1>Sin conexión</h1><p>Por favor revise su conexión a internet.</p></body></html>', {
+            headers: { 'Content-Type': 'text/html; charset=utf-8' },
+            status: 503
+          });
+        })
+    );
+    return;
+  }
+
+  // 2. Endpoints de API internos: Network-First, fallback a caché o JSON de error
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          if (response.status === 200) {
+          if (response && response.status === 200) {
             const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
           }
           return response;
         })
@@ -57,35 +90,28 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For static assets, try cache first, fallback to network
+  // 3. Recursos estáticos y chunks hasheados (/assets/*): Cache-First, fallback a Network
+  // Siempre devuelve un Response válido para evitar "Failed to convert value to 'Response'"
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
+    caches.match(event.request).then(async (cachedResponse) => {
       if (cachedResponse) {
-        // Fetch in background to update cache (stale-while-revalidate)
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {});
         return cachedResponse;
       }
-      return fetch(event.request).then((networkResponse) => {
+      try {
+        const networkResponse = await fetch(event.request);
         if (networkResponse && networkResponse.status === 200) {
           const clone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
         }
         return networkResponse;
-      }).catch(() => {
-        // Fallback to root index.html for SPA routes
-        if (event.request.headers.get('accept')?.includes('text/html')) {
-          return caches.match('/');
-        }
-      });
+      } catch (err) {
+        return new Response('', { status: 503, statusText: 'Recurso offline no disponible' });
+      }
     })
   );
 });
 
-// Listen for notifications triggered from clients or server
+// Listener para notificaciones push
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
