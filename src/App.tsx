@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { CalendarApp } from './CalendarApp';
-import { HonorCalendarApp } from './HonorCalendarApp';
-import { PinLogin } from './components/PinLogin';
-import { AdminLogin } from './components/AdminLogin';
 import { UserSession } from './types';
 import { getSupabase } from './lib/supabase';
 import toast from 'react-hot-toast';
+
+// Route-level code splitting for fast initial load
+const CalendarApp = lazy(() => import('./CalendarApp').then(m => ({ default: m.CalendarApp })));
+const HonorCalendarApp = lazy(() => import('./HonorCalendarApp').then(m => ({ default: m.HonorCalendarApp })));
+const PinLogin = lazy(() => import('./components/PinLogin').then(m => ({ default: m.PinLogin })));
+const AdminLogin = lazy(() => import('./components/AdminLogin').then(m => ({ default: m.AdminLogin })));
 
 export default function App() {
   const [session, setSession] = useState<UserSession | null>(null);
@@ -124,52 +126,58 @@ export default function App() {
   return (
     <>
       <Toaster position="top-right" />
-      <Routes>
-        {/* PUBLIC / VIEWER ROUTE */}
-        <Route 
-          path="/" 
-          element={
-            session && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(session.role) ? (
-              <HonorCalendarApp session={session} onLogout={handleLogout} />
-            ) : session && session.role === 'admin' ? (
-              <Navigate to="/admin" replace />
-            ) : (
-              <PinLogin onLogin={handlePinLogin} />
-            )
-          } 
-        />
-        
-        {/* ADMIN ROUTE */}
-        <Route 
-          path="/admin" 
-          element={
-            session && session.role === 'admin' ? (
-              <CalendarApp session={session} onLogout={handleLogout} />
-            ) : session && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(session.role) ? (
-              <Navigate to="/" replace />
-            ) : (
-              <AdminLogin />
-            )
-          } 
-        />
-        
-        {/* HONOR CALENDAR ROUTE (EXPERIMENTAL) */}
-        <Route 
-          path="/calendario-honor" 
-          element={
-            session && session.role === 'admin' ? (
-              <HonorCalendarApp session={session} onLogout={handleLogout} />
-            ) : session && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(session.role) ? (
-              <Navigate to="/" replace />
-            ) : (
-              <AdminLogin />
-            )
-          } 
-        />
-        
-        {/* Fallback route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      }>
+        <Routes>
+          {/* PUBLIC / VIEWER ROUTE */}
+          <Route 
+            path="/" 
+            element={
+              session && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(session.role) ? (
+                <HonorCalendarApp session={session} onLogout={handleLogout} />
+              ) : session && session.role === 'admin' ? (
+                <Navigate to="/admin" replace />
+              ) : (
+                <PinLogin onLogin={handlePinLogin} />
+              )
+            } 
+          />
+          
+          {/* ADMIN ROUTE */}
+          <Route 
+            path="/admin" 
+            element={
+              session && session.role === 'admin' ? (
+                <CalendarApp session={session} onLogout={handleLogout} />
+              ) : session && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(session.role) ? (
+                <Navigate to="/" replace />
+              ) : (
+                <AdminLogin />
+              )
+            } 
+          />
+          
+          {/* HONOR CALENDAR ROUTE (EXPERIMENTAL) */}
+          <Route 
+            path="/calendario-honor" 
+            element={
+              session && session.role === 'admin' ? (
+                <HonorCalendarApp session={session} onLogout={handleLogout} />
+              ) : session && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(session.role) ? (
+                <Navigate to="/" replace />
+              ) : (
+                <AdminLogin />
+              )
+            } 
+          />
+          
+          {/* Fallback route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }
