@@ -255,13 +255,13 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                             if (hasPlates) {
                               return (
                                 <div className="flex flex-col items-end gap-1 text-[11px] shrink-0">
-                                  <span className="min-w-[105px] text-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap" title="Platos contratados / fórmula">
-                                    Pactado: {displayPactado || contratadosNum}
+                                  <span className="min-w-[115px] text-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap" title="Platos contratados / fórmula">
+                                    Contratados: {displayPactado || contratadosNum}
                                   </span>
-                                  <span className="min-w-[105px] text-center px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 whitespace-nowrap" title="Ajuste para cocina">
-                                    Cocina: {cocinaNum}
+                                  <span className="min-w-[115px] text-center px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 whitespace-nowrap" title="Platos confirmados">
+                                    Confirmados: {cocinaNum}
                                   </span>
-                                  <span className="min-w-[105px] text-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 whitespace-nowrap" title="Platos servidos en sala">
+                                  <span className="min-w-[115px] text-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 whitespace-nowrap" title="Platos servidos en sala">
                                     Servidos: {servidosNum}
                                   </span>
                                 </div>

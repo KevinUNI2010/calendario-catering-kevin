@@ -544,7 +544,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                     return (
                       <div className="mt-1.5 text-[10px] flex flex-col gap-0.5 leading-tight">
                         <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                          ✓ Cocina: <strong>{parsed.total}</strong>
+                          ✓ Confirmados: <strong>{parsed.total}</strong>
                         </span>
                         {parsedContr.isValid && (
                           diff > 0 ? (
