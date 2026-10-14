@@ -230,7 +230,8 @@ export const EventModal: React.FC<EventModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200" onClick={onClose}>
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200" onClick={onClose}>
       <div 
         id="event-form-modal"
         className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden flex flex-col max-h-[92vh]"
@@ -816,6 +817,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         </form>
       </div>
+    </div>
 
       {/* Modal de Recorte y Rotación */}
       <ImageCropperModal
@@ -839,6 +841,6 @@ export const EventModal: React.FC<EventModalProps> = ({
         eventTitle={title || 'Evidencia de Evento'}
         onClose={() => setLightboxOpen(false)}
       />
-    </div>
+    </>
   );
 };

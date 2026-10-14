@@ -229,6 +229,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
   return (
     <div 
       className="fixed inset-0 z-60 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={e => e.stopPropagation()}
     >
       <div 
         className="w-full max-w-4xl bg-gray-900 border border-gray-700/80 rounded-2xl shadow-2xl flex flex-col max-h-[94vh] overflow-hidden text-gray-100"
