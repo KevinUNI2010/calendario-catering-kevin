@@ -90,6 +90,25 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
   // Filters State
   const [selectedLocalIds, setSelectedLocalIds] = useState<string[]>(() => locales.map(l => l.id));
 
+  // Initial loading state: if cache is empty, display a non-blocking loading indicator
+  const [isLoadingData, setIsLoadingData] = useState(() => {
+    const cachedEvts = getCachedEvents();
+    const cachedLocs = getCachedLocales();
+    return !(cachedEvts && cachedEvts.length > 0 && cachedLocs && cachedLocs.length > 0);
+  });
+
+  // Auto-sync selectedLocalIds whenever locales become available on first load
+  useEffect(() => {
+    if (locales.length > 0) {
+      setSelectedLocalIds((prev) => {
+        if (prev.length === 0) {
+          return locales.map(l => l.id);
+        }
+        return prev;
+      });
+    }
+  }, [locales]);
+
   // Notifications State
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
@@ -124,29 +143,42 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
 
   // Sync with Supabase Database and Realtime if credentials are provided (Vercel-ready)
   useEffect(() => {
-    if (!isSupabaseConfigured()) return;
+    if (!isSupabaseConfigured()) {
+      setIsLoadingData(false);
+      return;
+    }
 
-    // Initial load from Supabase
-    fetchSupabaseLocales().then((supaLocales) => {
+    // Coordinated initial load from Supabase
+    Promise.all([
+      fetchSupabaseLocales(),
+      fetchSupabaseMenuOptions(),
+      fetchSupabaseEvents()
+    ]).then(([supaLocales, supaMenu, supaEvents]) => {
       if (supaLocales !== null) {
         setAllLocales(supaLocales);
         saveCachedLocales(supaLocales);
+        setSelectedLocalIds((prev) => {
+          if (prev.length === 0) {
+            const valid = session.role === 'admin' 
+              ? supaLocales 
+              : supaLocales.filter(l => session.allowedLocales?.includes(l.id));
+            return valid.map(l => l.id);
+          }
+          return prev;
+        });
       }
-    });
-    
-    // Initial load Menu Options from Supabase
-    fetchSupabaseMenuOptions().then((supaMenu) => {
       if (supaMenu) {
         setMenuOptions(supaMenu);
         saveCachedMenuOptions(supaMenu);
       }
-    });
-
-    fetchSupabaseEvents().then((supaEvents) => {
       if (supaEvents !== null) {
         setEvents(supaEvents);
         saveCachedEvents(supaEvents);
       }
+      setIsLoadingData(false);
+    }).catch((err) => {
+      console.warn('Error fetching Supabase data on first load:', err);
+      setIsLoadingData(false);
     });
 
     // Realtime subscriptions
@@ -258,12 +290,11 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
   // Filtered events
   const filteredEvents = useMemo(() => {
     return events.filter((evt) => {
-      // Local filter
-      if (selectedLocalIds.length === 0) {
-        return false;
-      }
-      if (!selectedLocalIds.includes(evt.localId)) {
-        return false;
+      // Local filter: only filter if locales are loaded and user has an active selection
+      if (locales.length > 0 && selectedLocalIds.length > 0) {
+        if (!selectedLocalIds.includes(evt.localId)) {
+          return false;
+        }
       }
       // Search query
       if (searchQuery.trim()) {
@@ -276,7 +307,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
       }
       return true;
     });
-  }, [events, selectedLocalIds, searchQuery]);
+  }, [events, selectedLocalIds, searchQuery, locales.length]);
 
   // Date Navigation Handlers
   const handlePrevDate = () => {
@@ -582,7 +613,13 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
         />
 
         {/* View Component */}
-        <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#f7f8fa] dark:bg-[#0c0c0c]">
+        <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#f7f8fa] dark:bg-[#0c0c0c] relative">
+          {isLoadingData && (
+            <div className="absolute inset-0 z-20 bg-white/70 dark:bg-black/70 backdrop-blur-2xs flex flex-col items-center justify-center gap-3 animate-in fade-in duration-150">
+              <div className="w-9 h-9 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Cargando eventos...</span>
+            </div>
+          )}
           {viewMode === 'month' && (
             <HonorMonthView
               currentDate={currentDate}
