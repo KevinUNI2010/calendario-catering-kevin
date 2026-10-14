@@ -484,9 +484,9 @@ export const EventModal: React.FC<EventModalProps> = ({
                 {/* 1. Platos Contratados (Fórmula o número) */}
                 <div className="bg-white dark:bg-gray-800/90 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
                   <div>
-                    <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1">
+                    <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1 whitespace-nowrap">
                       <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-                      1. Contratados <span className="text-[10px] font-normal text-gray-500 dark:text-gray-400">(Preventa)</span>
+                      1. Contratados
                     </label>
                     <input
                       type="text"
@@ -517,9 +517,9 @@ export const EventModal: React.FC<EventModalProps> = ({
                 {/* 2. Platos Confirmados (Día del evento - Cocina) */}
                 <div className="bg-white dark:bg-gray-800/90 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
                   <div>
-                    <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1">
+                    <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1 whitespace-nowrap">
                       <span className="w-2 h-2 rounded-full bg-orange-500 shrink-0"></span>
-                      2. Confirmados <span className="text-[10px] font-normal text-gray-500 dark:text-gray-400">(Cocina)</span>
+                      2. Confirmados
                     </label>
                     <input
                       type="text"
@@ -566,9 +566,9 @@ export const EventModal: React.FC<EventModalProps> = ({
                 {/* 3. Platos Servidos (Final en sala - Cobro) */}
                 <div className="bg-white dark:bg-gray-800/90 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
                   <div>
-                    <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1">
+                    <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1 whitespace-nowrap">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                      3. Servidos <span className="text-[10px] font-normal text-gray-500 dark:text-gray-400">(Final)</span>
+                      3. Servidos
                     </label>
                     <input
                       type="text"
