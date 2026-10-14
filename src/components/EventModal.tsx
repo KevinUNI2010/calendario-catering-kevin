@@ -467,134 +467,134 @@ export const EventModal: React.FC<EventModalProps> = ({
               />
             </div>
 
-            {/* CONTROL DE PLATOS Y RACIONES (3 ESTADOS) */}
-            <div className="pt-3 border-t border-gray-200 dark:border-gray-700/60 mt-3 space-y-3">
+            {/* CONTROL DE PLATOS Y RACIONES (3 ESTADOS EN UNA FILA) */}
+            <div className="pt-3 border-t border-gray-200 dark:border-gray-700/60 mt-3 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
                   <Utensils className="w-3.5 h-3.5 text-blue-500" />
                   Control de Platos
                 </span>
-                <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                  3 Estados
+                <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
+                  Acepta fórmulas (ej. 23×8) o números
                 </span>
               </div>
 
-              {/* 1. Platos Contratados (Fórmula o número) */}
-              <div className="bg-white dark:bg-gray-800/90 p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                    1. Contratados (Preventa)
-                  </label>
-                  <span className="text-[10px] text-gray-400">Acepta "23x8" o "23*8"</span>
-                </div>
-                <input
-                  type="text"
-                  value={contratadosFormula}
-                  onChange={(e) => setContratadosFormula(e.target.value)}
-                  placeholder="Ej. 23x8, 23*8 o 150"
-                  className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                />
-                {contratadosFormula.trim() && (() => {
-                  const parsed = parsePlateFormula(contratadosFormula);
-                  return (
-                    <div className="mt-1.5 text-[11px]">
-                      {parsed.isValid ? (
-                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                          ✓ Total: <strong>{parsed.total} platos</strong> ({parsed.explanation})
-                        </span>
-                      ) : (
-                        <span className="text-amber-500 dark:text-amber-400 font-medium">
-                          {parsed.explanation}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* 2. Platos Confirmados (Día del evento - Cocina) */}
-              <div className="bg-white dark:bg-gray-800/90 p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                    2. Confirmados (Cocina)
-                  </label>
-                  <span className="text-[10px] text-gray-400">Acepta "23x8", "23*8" o número</span>
-                </div>
-                <input
-                  type="text"
-                  value={confirmadosFormula}
-                  onChange={(e) => setConfirmadosFormula(e.target.value)}
-                  placeholder="Ej. 198 o 24*8 (Ajuste para cocina)"
-                  className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-orange-500"
-                />
-                {confirmadosFormula.trim() && (() => {
-                  const parsed = parsePlateFormula(confirmadosFormula);
-                  if (!parsed.isValid) {
+              {/* 3 Estados en una sola fila */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {/* 1. Platos Contratados (Fórmula o número) */}
+                <div className="bg-white dark:bg-gray-800/90 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                  <div>
+                    <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+                      1. Contratados <span className="text-[10px] font-normal text-gray-500 dark:text-gray-400">(Preventa)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={contratadosFormula}
+                      onChange={(e) => setContratadosFormula(e.target.value)}
+                      placeholder="Ej. 23x8 o 150"
+                      className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  {contratadosFormula.trim() && (() => {
+                    const parsed = parsePlateFormula(contratadosFormula);
                     return (
-                      <div className="mt-1 text-[11px] text-amber-500 dark:text-amber-400 font-medium">
-                        {parsed.explanation}
-                      </div>
-                    );
-                  }
-                  const parsedContr = parsePlateFormula(contratadosFormula);
-                  const diff = parsedContr.isValid ? parsed.total - parsedContr.total : 0;
-                  return (
-                    <div className="mt-1 text-[11px] flex flex-col gap-0.5">
-                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                        ✓ Cocina: <strong>{parsed.total} platos</strong> {parsed.explanation.includes('=') && `(${parsed.explanation})`}
-                      </span>
-                      {parsedContr.isValid && (
-                        diff > 0 ? (
-                          <span className="text-orange-600 dark:text-orange-400 font-medium">
-                            ▲ +{diff} platos adicionales vs contratados
-                          </span>
-                        ) : diff < 0 ? (
-                          <span className="text-gray-500 dark:text-gray-400">
-                            ▼ {diff} platos menos que lo contratado
+                      <div className="mt-1.5 text-[10px] leading-tight">
+                        {parsed.isValid ? (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                            ✓ Total: <strong>{parsed.total}</strong> {parsed.explanation.includes('=') && `(${parsed.explanation})`}
                           </span>
                         ) : (
-                          <span className="text-gray-500">Igual a contratados ({parsed.total})</span>
-                        )
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* 3. Platos Servidos (Final en sala - Cobro) */}
-              <div className="bg-white dark:bg-gray-800/90 p-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    3. Servidos (Final / Cobro)
-                  </label>
-                  <span className="text-[10px] text-gray-400">Acepta "23x8", "23*8" o número</span>
+                          <span className="text-amber-500 dark:text-amber-400 font-medium">
+                            {parsed.explanation}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
-                <input
-                  type="text"
-                  value={servidosFormula}
-                  onChange={(e) => setServidosFormula(e.target.value)}
-                  placeholder="Ej. 230 o 25*8 (Raciones servidas)"
-                  className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
-                />
-                {servidosFormula.trim() && (() => {
-                  const parsed = parsePlateFormula(servidosFormula);
-                  return (
-                    <div className="mt-1 text-[11px]">
-                      {parsed.isValid ? (
-                        <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                          ✓ Conteo final en sala: <strong>{parsed.total} platos</strong> {parsed.explanation.includes('=') && `(${parsed.explanation})`}
-                        </span>
-                      ) : (
-                        <span className="text-amber-500 dark:text-amber-400 font-medium">
+
+                {/* 2. Platos Confirmados (Día del evento - Cocina) */}
+                <div className="bg-white dark:bg-gray-800/90 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                  <div>
+                    <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-orange-500 shrink-0"></span>
+                      2. Confirmados <span className="text-[10px] font-normal text-gray-500 dark:text-gray-400">(Cocina)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={confirmadosFormula}
+                      onChange={(e) => setConfirmadosFormula(e.target.value)}
+                      placeholder="Ej. 198 o 24*8"
+                      className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+                  {confirmadosFormula.trim() && (() => {
+                    const parsed = parsePlateFormula(confirmadosFormula);
+                    if (!parsed.isValid) {
+                      return (
+                        <div className="mt-1.5 text-[10px] text-amber-500 dark:text-amber-400 font-medium leading-tight">
                           {parsed.explanation}
+                        </div>
+                      );
+                    }
+                    const parsedContr = parsePlateFormula(contratadosFormula);
+                    const diff = parsedContr.isValid ? parsed.total - parsedContr.total : 0;
+                    return (
+                      <div className="mt-1.5 text-[10px] flex flex-col gap-0.5 leading-tight">
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                          ✓ Cocina: <strong>{parsed.total}</strong>
                         </span>
-                      )}
-                    </div>
-                  );
-                })()}
+                        {parsedContr.isValid && (
+                          diff > 0 ? (
+                            <span className="text-orange-600 dark:text-orange-400 font-medium">
+                              ▲ +{diff} adicionales
+                            </span>
+                          ) : diff < 0 ? (
+                            <span className="text-gray-500 dark:text-gray-400">
+                              ▼ {diff} menos
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">Igual a contratados</span>
+                          )
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* 3. Platos Servidos (Final en sala - Cobro) */}
+                <div className="bg-white dark:bg-gray-800/90 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
+                  <div>
+                    <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                      3. Servidos <span className="text-[10px] font-normal text-gray-500 dark:text-gray-400">(Final)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={servidosFormula}
+                      onChange={(e) => setServidosFormula(e.target.value)}
+                      placeholder="Ej. 230 o 25*8"
+                      className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                  {servidosFormula.trim() && (() => {
+                    const parsed = parsePlateFormula(servidosFormula);
+                    return (
+                      <div className="mt-1.5 text-[10px] leading-tight">
+                        {parsed.isValid ? (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                            ✓ Servidos: <strong>{parsed.total}</strong>
+                          </span>
+                        ) : (
+                          <span className="text-amber-500 dark:text-amber-400 font-medium">
+                            {parsed.explanation}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           </div>
