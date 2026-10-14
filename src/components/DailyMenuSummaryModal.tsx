@@ -101,9 +101,13 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
       if (dish.ensalada) totals['Ensaladas'][dish.ensalada] = (totals['Ensaladas'][dish.ensalada] || 0) + platos;
       
       const servList = getSelectedServilletas(dish);
-      servList.forEach(s => {
-        totals['Servilletas'][s.name] = (totals['Servilletas'][s.name] || 0) + platos;
-      });
+      if (servList.length > 0) {
+        servList.forEach(s => {
+          totals['Servilletas'][s.name] = (totals['Servilletas'][s.name] || 0) + platos;
+        });
+      } else {
+        totals['Servilletas']['Por confirmar'] = (totals['Servilletas']['Por confirmar'] || 0) + platos;
+      }
     });
 
     const localesList = Array.from(localesAtendidosMap.entries()).map(([name, colorId]) => ({

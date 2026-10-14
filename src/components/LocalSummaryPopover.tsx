@@ -140,7 +140,16 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                   <div className="min-w-0 flex-1">
                     {(() => {
                       const servList = getSelectedServilletas(event.dish);
-                      if (servList.length === 0) return <span />;
+                      if (servList.length === 0) {
+                        return (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-gray-400">Servilleta:</span>
+                            <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                              Por confirmar
+                            </span>
+                          </div>
+                        );
+                      }
                       return (
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-gray-400">{servList.length > 1 ? 'Servilletas:' : 'Servilleta:'}</span>

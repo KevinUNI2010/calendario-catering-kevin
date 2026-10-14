@@ -652,8 +652,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                     </span>
                   </div>
 
-                  {/* Badges de servilletas seleccionadas con botón para remover */}
-                  {selectedServilletas.length > 0 && (
+                  {/* Badges de servilletas seleccionadas o Por confirmar si no hay ninguna */}
+                  {selectedServilletas.length > 0 ? (
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {selectedServilletas.map((sel) => (
                         <span
@@ -681,6 +681,10 @@ export const EventModal: React.FC<EventModalProps> = ({
                         </span>
                       ))}
                     </div>
+                  ) : (
+                    <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 animate-in fade-in duration-150">
+                      Por confirmar
+                    </span>
                   )}
                 </div>
 

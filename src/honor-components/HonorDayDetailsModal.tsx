@@ -64,9 +64,13 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
       if (dish.ensalada) totals['Ensaladas'][dish.ensalada] = (totals['Ensaladas'][dish.ensalada] || 0) + platos;
       
       const servList = getSelectedServilletas(dish);
-      servList.forEach(s => {
-        totals['Servilletas'][s.name] = (totals['Servilletas'][s.name] || 0) + platos;
-      });
+      if (servList.length > 0) {
+        servList.forEach(s => {
+          totals['Servilletas'][s.name] = (totals['Servilletas'][s.name] || 0) + platos;
+        });
+      } else {
+        totals['Servilletas']['Por confirmar'] = (totals['Servilletas']['Por confirmar'] || 0) + platos;
+      }
     });
 
     const localesList = Array.from(localesAtendidosMap.entries()).map(([name, colorId]) => ({
@@ -224,7 +228,16 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                           <div className="min-w-0 flex-1">
                             {(() => {
                               const servList = getSelectedServilletas(event.dish);
-                              if (servList.length === 0) return <span></span>;
+                              if (servList.length === 0) {
+                                return (
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-gray-400">Servilleta:</span>
+                                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                                      Por confirmar
+                                    </span>
+                                  </div>
+                                );
+                              }
                               return (
                                 <div className="flex items-center gap-1.5 flex-wrap">
                                   <span className="text-gray-400">{servList.length > 1 ? 'Servilletas:' : 'Servilleta:'}</span>
