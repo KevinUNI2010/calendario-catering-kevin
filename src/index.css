@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* El modo oscuro solo se activará si se añade la clase .dark explícitamente, evitando que el modo incógnito lo fuerce */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   button, 
   [role="button"] {
