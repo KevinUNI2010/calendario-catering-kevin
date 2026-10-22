@@ -108,9 +108,11 @@ export interface ConnectedUser {
 export type UserRole = 'admin' | 'dueño' | 'cocinero' | 'mozo';
 
 export interface UserSession {
+  id?: string;
   role: UserRole;
   allowedLocales?: string[];
   name?: string;
+  pin?: string;
 }
 
 export interface MenuOptions {

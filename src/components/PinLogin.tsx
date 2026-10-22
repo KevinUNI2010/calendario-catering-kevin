@@ -37,7 +37,13 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
         const client = await fetchSupabaseClientByPin(currentPin);
         if (client) {
           setFailedAttempts(0);
-          onLogin({ role: client.role || 'dueño', allowedLocales: client.allowed_locales || [], name: client.name });
+          onLogin({
+            id: client.id,
+            role: client.role || 'dueño',
+            allowedLocales: client.allowed_locales || [],
+            name: client.name,
+            pin: currentPin.trim(),
+          });
           setIsLoading(false);
           return;
         }
@@ -45,12 +51,12 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
         // Fallback mock validation ONLY in local dev environment without Supabase
         if (currentPin === '1111') {
           setFailedAttempts(0);
-          onLogin({ role: 'viewer', allowedLocales: ['loc-1', 'loc-2'], name: 'Pepe (Dev)' });
+          onLogin({ id: 'mock-1', role: 'viewer', allowedLocales: ['loc-1', 'loc-2'], name: 'Pepe (Dev)', pin: '1111' });
           setIsLoading(false);
           return;
         } else if (currentPin === '2222') {
           setFailedAttempts(0);
-          onLogin({ role: 'viewer', allowedLocales: ['loc-4'], name: 'José (Dev)' });
+          onLogin({ id: 'mock-2', role: 'viewer', allowedLocales: ['loc-4'], name: 'José (Dev)', pin: '2222' });
           setIsLoading(false);
           return;
         }

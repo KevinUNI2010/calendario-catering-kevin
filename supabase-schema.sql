@@ -90,23 +90,20 @@ CREATE TABLE IF NOT EXISTS public.email_logs (
 );
 
 -- 7. Funciones de Seguridad y Helper RLS
--- Verifica si el usuario actual autenticado con Google es administrador
+-- Verifica si el usuario actual autenticado con Google es administrador mediante la tabla protegida
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS BOOLEAN
 LANGUAGE sql
 SECURITY DEFINER
 STABLE
 AS $$
-  SELECT (
-    LOWER(COALESCE(auth.jwt() ->> 'email', '')) = 'kevin.zambrano.inteligencia@gmail.com'
-    OR EXISTS (
-      SELECT 1 FROM public.admin_emails
-      WHERE LOWER(email) = LOWER(COALESCE(auth.jwt() ->> 'email', ''))
-    )
+  SELECT EXISTS (
+    SELECT 1 FROM public.admin_emails
+    WHERE LOWER(email) = LOWER(COALESCE(auth.jwt() ->> 'email', ''))
   );
 $$;
 
--- RPC Seguro para Validar PIN sin exponer la tabla clients al público
+-- RPC Seguro para Validar PIN con protección anti-fuerza bruta
 CREATE OR REPLACE FUNCTION public.verify_client_pin(p_pin TEXT)
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -118,7 +115,8 @@ DECLARE
   v_clean_pin TEXT;
 BEGIN
   v_clean_pin := trim(COALESCE(p_pin, ''));
-  IF length(v_clean_pin) < 4 THEN
+  IF length(v_clean_pin) < 4 OR length(v_clean_pin) > 12 THEN
+    PERFORM pg_sleep(0.3); -- Retardo intencional contra escaneo automatizado
     RETURN NULL;
   END IF;
 
@@ -137,12 +135,52 @@ BEGIN
       'allowed_locales', COALESCE(v_client.allowed_locales, '[]'::jsonb)
     )::jsonb;
   ELSE
+    PERFORM pg_sleep(0.3); -- Retardo intencional ante intento fallido
     RETURN NULL;
   END IF;
 END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.verify_client_pin(TEXT) TO anon, authenticated;
+
+-- RPC Seguro Multi-inquilino: Retorna ÚNICAMENTE los eventos de los locales asignados al cliente
+CREATE OR REPLACE FUNCTION public.get_events_for_client(p_pin TEXT)
+RETURNS SETOF public.events
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_client RECORD;
+  v_clean_pin TEXT;
+BEGIN
+  v_clean_pin := trim(COALESCE(p_pin, ''));
+  IF length(v_clean_pin) < 4 THEN
+    PERFORM pg_sleep(0.2);
+    RETURN;
+  END IF;
+
+  SELECT id, allowed_locales
+  INTO v_client
+  FROM public.clients
+  WHERE pin = v_clean_pin
+     OR pin = encode(digest(v_clean_pin, 'sha256'), 'hex')
+  LIMIT 1;
+
+  IF NOT FOUND THEN
+    PERFORM pg_sleep(0.3);
+    RETURN;
+  END IF;
+
+  -- Devolver únicamente los eventos de los locales permitidos
+  RETURN QUERY
+  SELECT * FROM public.events
+  WHERE local_id = ANY(ARRAY(SELECT jsonb_array_elements_text(v_client.allowed_locales)))
+  ORDER BY start_date ASC;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_events_for_client(TEXT) TO anon, authenticated;
 
 -- 8. Habilitar Row Level Security (RLS) en todas las tablas
 ALTER TABLE public.locales ENABLE ROW LEVEL SECURITY;
@@ -162,13 +200,15 @@ DROP POLICY IF EXISTS "locales_admin_modify" ON public.locales;
 CREATE POLICY "locales_select_all" ON public.locales FOR SELECT USING (true);
 CREATE POLICY "locales_admin_modify" ON public.locales FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
 
--- Eventos: lectura pública; creación, edición y borrado exclusivo de administradores
+-- Eventos: administradores tienen acceso completo directo.
+-- Los clientes con PIN obtienen sus eventos filtrados mediante la función RPC segura get_events_for_client(p_pin).
+-- Esto previene la fuga masiva de datos (BOLA / OWASP API1) entre locales diferentes.
 DROP POLICY IF EXISTS "Permitir lectura publica de eventos" ON public.events;
 DROP POLICY IF EXISTS "Permitir escritura publica de eventos" ON public.events;
 DROP POLICY IF EXISTS "events_select_all" ON public.events;
 DROP POLICY IF EXISTS "events_admin_modify" ON public.events;
-CREATE POLICY "events_select_all" ON public.events FOR SELECT USING (true);
-CREATE POLICY "events_admin_modify" ON public.events FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
+DROP POLICY IF EXISTS "events_admin_all" ON public.events;
+CREATE POLICY "events_admin_all" ON public.events FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- Menú: lectura pública; modificación exclusiva de administradores
 DROP POLICY IF EXISTS "menu_items_select_all" ON public.menu_items;

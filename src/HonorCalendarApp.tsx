@@ -151,7 +151,7 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
     Promise.all([
       fetchSupabaseLocales(),
       fetchSupabaseMenuOptions(),
-      fetchSupabaseEvents()
+      fetchSupabaseEvents(session)
     ]).then(([supaLocales, supaMenu, supaEvents]) => {
       if (supaLocales !== null) {
         setAllLocales(supaLocales);

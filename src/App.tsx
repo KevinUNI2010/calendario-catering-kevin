@@ -18,17 +18,23 @@ export default function App() {
 
   useEffect(() => {
     const initSession = async () => {
-      // 1. Check local storage for PIN session (Viewer)
+      // 1. Check local storage for PIN session (Viewer, Dueño, Cocinero, Mozo)
+      // SEGURIDAD: 'admin' NUNCA se restaura desde localStorage. Requiere Google OAuth / Supabase Auth.
       const savedPin = localStorage.getItem('calendario_session');
       if (savedPin) {
         try {
           const parsed = JSON.parse(savedPin);
-          if (parsed && ['admin', 'viewer', 'dueño', 'cocinero', 'mozo'].includes(parsed.role)) {
+          if (parsed && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(parsed.role)) {
             setSession(parsed);
             setLoading(false);
             return;
+          } else if (parsed && parsed.role === 'admin') {
+            // Limpiar clave manipulada o sesión caducada
+            localStorage.removeItem('calendario_session');
           }
-        } catch (e) {}
+        } catch (e) {
+          localStorage.removeItem('calendario_session');
+        }
       }
 
       // 2. Check Supabase Auth for Google Admin
@@ -99,6 +105,10 @@ export default function App() {
   }, [navigate]);
 
   const handlePinLogin = (newSession: UserSession) => {
+    if (newSession.role === 'admin') {
+      toast.error('Acceso de administrador requiere inicio de sesión con Google.');
+      return;
+    }
     setSession(newSession);
     localStorage.setItem('calendario_session', JSON.stringify(newSession));
     navigate('/');
@@ -108,9 +118,8 @@ export default function App() {
     const supabase = getSupabase();
     if (session?.role === 'admin' && supabase) {
       await supabase.auth.signOut();
-    } else {
-      localStorage.removeItem('calendario_session');
     }
+    localStorage.removeItem('calendario_session');
     setSession(null);
     navigate('/');
   };

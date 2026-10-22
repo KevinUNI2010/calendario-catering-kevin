@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { CalendarEvent, Local } from '../types';
+import { CalendarEvent, Local, UserSession } from '../types';
 
 // Supabase Client and Sync helpers for Vercel & Supabase
 const env = (import.meta as any).env || {};
@@ -88,11 +88,29 @@ export function mapRowToLocal(row: any): Local {
   };
 }
 
-export async function fetchSupabaseEvents(): Promise<CalendarEvent[] | null> {
+export async function fetchSupabaseEvents(session?: UserSession): Promise<CalendarEvent[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    const { data, error } = await sb.from('events').select('*').order('start_date', { ascending: true });
+    // 1. Si el usuario tiene PIN (dueño/visor), intentar función RPC segura multi-inquilino
+    if (session?.pin) {
+      const { data: rpcData, error: rpcError } = await sb.rpc('get_events_for_client', {
+        p_pin: session.pin.trim()
+      });
+      if (!rpcError && Array.isArray(rpcData)) {
+        return rpcData.map(mapRowToEvent);
+      }
+    }
+
+    // 2. Si es admin o fallback de compatibilidad:
+    let query = sb.from('events').select('*').order('start_date', { ascending: true });
+    
+    // Si la sesión no es admin y tiene locales restringidos, filtrar por local_id
+    if (session && session.role !== 'admin' && session.allowedLocales && session.allowedLocales.length > 0) {
+      query = query.in('local_id', session.allowedLocales);
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
     if (!data) return [];
     return data.map(mapRowToEvent);
