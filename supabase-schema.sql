@@ -258,3 +258,102 @@ SELECT 'kevin.zambrano.inteligencia@gmail.com'
 WHERE NOT EXISTS (
   SELECT 1 FROM public.admin_emails WHERE LOWER(email) = 'kevin.zambrano.inteligencia@gmail.com'
 );
+
+-- 12. Tabla de Auditoría y Cuotas para Asistente IA (RAG)
+CREATE TABLE IF NOT EXISTS public.rag_query_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_identifier TEXT NOT NULL,
+  user_name TEXT NOT NULL,
+  user_role TEXT NOT NULL DEFAULT 'dueño',
+  prompt TEXT NOT NULL,
+  response TEXT NOT NULL,
+  has_chart BOOLEAN DEFAULT false,
+  chart_data JSONB DEFAULT NULL,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.rag_query_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "rag_logs_admin_all" ON public.rag_query_logs;
+CREATE POLICY "rag_logs_admin_all" ON public.rag_query_logs 
+  FOR ALL 
+  USING (public.is_admin()) 
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "rag_logs_insert_all" ON public.rag_query_logs;
+CREATE POLICY "rag_logs_insert_all" ON public.rag_query_logs 
+  FOR INSERT 
+  WITH CHECK (true);
+
+-- Función para consultar cuántas consultas le quedan al usuario hoy (Límite: 10/día para no-admins)
+CREATE OR REPLACE FUNCTION public.get_rag_remaining_quota(p_user_id TEXT, p_role TEXT)
+RETURNS INT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_count INT;
+  v_limit INT := 10;
+BEGIN
+  IF p_role = 'admin' THEN
+    RETURN 999999; -- Consultas ilimitadas para administradores
+  END IF;
+
+  SELECT COUNT(*) INTO v_count
+  FROM public.rag_query_logs
+  WHERE user_identifier = p_user_id
+    AND created_at >= (now() AT TIME ZONE 'utc')::date;
+
+  RETURN GREATEST(0, v_limit - v_count);
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_rag_remaining_quota(TEXT, TEXT) TO anon, authenticated;
+
+-- Función segura para registrar la consulta de RAG verificando cuota
+CREATE OR REPLACE FUNCTION public.log_rag_query(
+  p_user_id TEXT,
+  p_user_name TEXT,
+  p_user_role TEXT,
+  p_prompt TEXT,
+  p_response TEXT,
+  p_has_chart BOOLEAN DEFAULT false,
+  p_chart_data JSONB DEFAULT NULL
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_remaining INT;
+BEGIN
+  v_remaining := public.get_rag_remaining_quota(p_user_id, p_user_role);
+
+  IF p_user_role != 'admin' AND v_remaining <= 0 THEN
+    RETURN json_build_object(
+      'allowed', false,
+      'remaining', 0,
+      'error', 'Has alcanzado tu límite de 10 consultas diarias. Tu cuota se renovará mañana.'
+    )::jsonb;
+  END IF;
+
+  INSERT INTO public.rag_query_logs (
+    user_identifier, user_name, user_role, prompt, response, has_chart, chart_data
+  ) VALUES (
+    p_user_id, p_user_name, p_user_role, p_prompt, p_response, p_has_chart, p_chart_data
+  );
+
+  IF p_user_role != 'admin' THEN
+    v_remaining := v_remaining - 1;
+  END IF;
+
+  RETURN json_build_object(
+    'allowed', true,
+    'remaining', v_remaining
+  )::jsonb;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.log_rag_query(TEXT, TEXT, TEXT, TEXT, TEXT, BOOLEAN, JSONB) TO anon, authenticated;

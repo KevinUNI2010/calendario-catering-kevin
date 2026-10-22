@@ -123,3 +123,28 @@ export interface MenuOptions {
   carbohidratos: string[];
   servilletas: string[];
 }
+
+export interface RagChartItem {
+  label: string;
+  value: number;
+  secondaryLabel?: string;
+  color?: string;
+}
+
+export interface RagChartData {
+  type: 'bar';
+  title: string;
+  subtitle?: string;
+  unit?: string;
+  data: RagChartItem[];
+}
+
+export interface RagMessage {
+  id: string;
+  sender: 'user' | 'assistant';
+  text: string;
+  chart?: RagChartData;
+  audioUrl?: string;
+  imageUrl?: string;
+  timestamp: string;
+}

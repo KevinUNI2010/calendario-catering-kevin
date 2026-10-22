@@ -7,6 +7,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { createServer as createViteServer } from 'vite';
 import { INITIAL_EVENTS, DEFAULT_LOCALES } from './src/data/seedData';
 import { CalendarEvent, Local, EmailLog } from './src/types';
+import { processRagQuery } from './src/server/ragHandler';
 
 const app = express();
 const PORT = 3000;
@@ -236,14 +237,35 @@ const strictLimiter = rateLimit({
   message: { error: 'Límite de envíos excedido por seguridad. Inténtalo más tarde.' },
 });
 
-// JSON body parser with strict size limit to prevent memory exhaustion
-app.use(express.json({ limit: '1mb' }));
+// JSON body parser with limit to support audio/photo uploads
+app.use(express.json({ limit: '10mb' }));
 app.use('/api/', apiLimiter);
 app.use(['/api/emails/send-test', '/api/share'], strictLimiter);
 
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// POST RAG AI Query (Local Dev)
+app.post('/api/rag', async (req, res) => {
+  try {
+    const { prompt, audioBase64, audioMimeType, imageBase64, imageMimeType, session, events: clientEvents } = req.body || {};
+    const effectiveEvents = clientEvents && clientEvents.length > 0 ? clientEvents : events;
+    const result = await processRagQuery({
+      prompt,
+      audioBase64,
+      audioMimeType,
+      imageBase64,
+      imageMimeType,
+      session,
+      events: effectiveEvents
+    });
+    res.json(result);
+  } catch (err: any) {
+    console.error('Error in /api/rag dev endpoint:', err);
+    res.status(500).json({ error: err.message || 'Error procesando consulta RAG' });
+  }
 });
 
 // GET Events

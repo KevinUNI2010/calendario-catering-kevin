@@ -40,6 +40,8 @@ import { DailyMenuSummaryModal } from './components/DailyMenuSummaryModal';
 import { SummaryConfigModal } from './components/SummaryConfigModal';
 import { AccessManagementModal } from './components/AccessManagementModal';
 import { HonorDayDetailsModal } from './honor-components/HonorDayDetailsModal';
+import { RagFloatingButton } from './components/rag/RagFloatingButton';
+import { RagChatModal } from './components/rag/RagChatModal';
 import { 
   isSupabaseConfigured, 
   fetchSupabaseEvents, 
@@ -139,6 +141,7 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
     events: []
   });
   const [isSummaryConfigOpen, setIsSummaryConfigOpen] = useState(false);
+  const [isRagChatOpen, setIsRagChatOpen] = useState(false);
 
   // Sync with Supabase Database and Realtime if credentials are provided (Vercel-ready)
   useEffect(() => {
@@ -766,6 +769,22 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
           onSelectEvent={(event) => handleSelectEvent(null, event)}
           onCreateEvent={(date) => handleCreateEventOnDate(date)}
           role={session.role}
+        />
+      )}
+
+      {/* Asistente Inteligente Kevin AI (RAG) */}
+      <RagFloatingButton
+        isOpen={isRagChatOpen}
+        onClick={() => setIsRagChatOpen(true)}
+        role={session.role}
+      />
+
+      {isRagChatOpen && (
+        <RagChatModal
+          isOpen={isRagChatOpen}
+          onClose={() => setIsRagChatOpen(false)}
+          session={session}
+          events={events}
         />
       )}
 
