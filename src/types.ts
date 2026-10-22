@@ -139,11 +139,36 @@ export interface RagChartData {
   data: RagChartItem[];
 }
 
+export interface RagEventCardItem {
+  id?: string;
+  title: string;
+  localName: string;
+  timeString: string;
+  dateString?: string;
+  proteina?: string;
+  salsa?: string;
+  carbohidrato?: string;
+  guarnicion?: string;
+  ensalada?: string;
+  servilletas?: string[];
+  platosContratados?: number | string;
+  platosConfirmados?: number | string;
+  platosServidos?: number | string;
+  notes?: string;
+}
+
+export interface RagCardsContainer {
+  dateTitle: string;
+  subtitle?: string;
+  cards: RagEventCardItem[];
+}
+
 export interface RagMessage {
   id: string;
   sender: 'user' | 'assistant';
   text: string;
   chart?: RagChartData;
+  cards?: RagCardsContainer;
   audioUrl?: string;
   imageUrl?: string;
   timestamp: string;

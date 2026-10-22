@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { UserSession, CalendarEvent, RagMessage, RagChartData } from '../../types';
 import { RagBarChart } from './RagBarChart';
+import { RagEventCards } from './RagEventCards';
 import { notify } from '../../utils/toastHelper';
 
 interface RagChatModalProps {
@@ -236,6 +237,7 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
         sender: 'assistant',
         text: data.answer || 'No obtuve una respuesta adecuada.',
         chart: data.chart || null,
+        cards: data.cards || null,
         timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
       };
 
@@ -362,6 +364,11 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
                     {/* Render Chart if available */}
                     {msg.chart && (
                       <RagBarChart chart={msg.chart} />
+                    )}
+
+                    {/* Render Event Cards (Ficha de Cocina) if available */}
+                    {msg.cards && msg.cards.cards && msg.cards.cards.length > 0 && (
+                      <RagEventCards cardsData={msg.cards} />
                     )}
                   </div>
 

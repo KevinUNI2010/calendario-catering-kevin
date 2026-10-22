@@ -50,6 +50,30 @@ interface RagChartData {
   data: RagChartItem[];
 }
 
+interface RagEventCardItem {
+  id?: string;
+  title: string;
+  localName: string;
+  timeString: string;
+  dateString?: string;
+  proteina?: string;
+  salsa?: string;
+  carbohidrato?: string;
+  guarnicion?: string;
+  ensalada?: string;
+  servilletas?: string[];
+  platosContratados?: number | string;
+  platosConfirmados?: number | string;
+  platosServidos?: number | string;
+  notes?: string;
+}
+
+interface RagCardsContainer {
+  dateTitle: string;
+  subtitle?: string;
+  cards: RagEventCardItem[];
+}
+
 interface RagRequestParams {
   prompt?: string;
   audioBase64?: string;
@@ -63,6 +87,7 @@ interface RagRequestParams {
 interface RagResponseResult {
   answer: string;
   chart?: RagChartData | null;
+  cards?: RagCardsContainer | null;
   remainingQuota?: number;
   createdEvent?: CalendarEvent | null;
   error?: string;
@@ -142,7 +167,8 @@ INSTRUCCIONES DE FORMATO DE RESPUESTA:
 - Debes responder OBLIGATORIAMENTE en formato JSON con la siguiente estructura:
 {
   "answer": "Texto de la respuesta en español claro y conciso, usando formato Markdown para resaltar fechas, locales o platos en negrita.",
-  "chart": null
+  "chart": null, // O un objeto de gráfica si el usuario preguntó por cantidades, comparativas de días o totales
+  "cards": null // O un objeto con las tarjetas estructuradas de los eventos
 }
 
 CUÁNDO GENERAR EL OBJETO "chart":
@@ -156,8 +182,31 @@ CUÁNDO GENERAR EL OBJETO "chart":
     { "label": "Nombre/Fecha", "value": 450, "secondaryLabel": "Local" }
   ]
 }
-- Si la pregunta es solo informativa o descriptiva (ej: "¿Qué eventos tengo para el 30 de octubre?"), "chart" debe ser null.
-- Si no hay eventos para la fecha o local solicitado, indícalo amablemente.
+
+CUÁNDO GENERAR EL OBJETO "cards":
+- Si el usuario pide ver eventos de una fecha o rango (ej: "¿Qué eventos tengo para el 3 de octubre?", "¿Qué hay para el 1 de octubre?"), O SI EL USUARIO PIDE EXPLÍCITAMENTE "cards", "tarjetas", "imagen", "como la imagen", "ficha de cocina", "resumen visual", DEBES OBLIGATORIAMENTE generar el objeto "cards" con los eventos correspondientes estructurados así:
+{
+  "dateTitle": "Sábado, 3 de Octubre de 2026", // Día de la semana y fecha legible
+  "subtitle": "1 evento programado", // Conteo de eventos en texto
+  "cards": [
+    {
+      "title": "Evento en CRISTALES",
+      "localName": "CRISTALES",
+      "timeString": "09:00 a. m.",
+      "proteina": "Pollo Enrollado",
+      "salsa": "Salsa de Maracuyá",
+      "carbohidrato": "Arroz Árabe",
+      "guarnicion": "Puré de papas",
+      "ensalada": "Ensalada Rusa",
+      "servilletas": ["Amarillo"],
+      "platosContratados": 208,
+      "platosConfirmados": 250,
+      "platosServidos": 321,
+      "notes": "Notas del evento"
+    }
+  ]
+}
+- Si no hay eventos para la fecha o local solicitado, "cards" debe ser null, e indícalo claramente con amabilidad.
 `;
 
   try {
@@ -257,6 +306,7 @@ CUÁNDO GENERAR EL OBJETO "chart":
     return {
       answer: parsed.answer || 'No pude procesar la respuesta adecuadamente.',
       chart: parsed.chart || null,
+      cards: parsed.cards || null,
     };
   } catch (err: any) {
     console.error('Error llamando a Gemini RAG:', err);
@@ -358,6 +408,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({
       answer: result.answer,
       chart: result.chart || null,
+      cards: result.cards || null,
       remainingQuota: userRole === 'admin' ? 999999 : Math.max(0, remainingQuota),
       error: result.error
     });
