@@ -102,9 +102,13 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
       timerIntervalRef.current = setInterval(() => {
         setRecordingSeconds((prev) => prev + 1);
       }, 1000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error al acceder al micrófono:', err);
-      notify.error('Micrófono no disponible', 'Verifica los permisos de micrófono de tu navegador.');
+      if (err?.name === 'NotAllowedError' || err?.name === 'PermissionDeniedError') {
+        notify.error('Permiso de micrófono bloqueado', 'Haz clic en el ícono de ajustes/candado a la izquierda del enlace para permitir el micrófono.');
+      } else {
+        notify.error('Micrófono no disponible', 'Verifica que tu dispositivo tenga un micrófono conectado y activo.');
+      }
     }
   };
 
