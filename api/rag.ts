@@ -6,13 +6,30 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Manejo de CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   // Solo permitir solicitudes POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido. Se requiere POST.' });
   }
 
   try {
-    const { prompt, audioBase64, audioMimeType, imageBase64, imageMimeType, session, events } = req.body || {};
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch {
+        body = {};
+      }
+    }
+    const { prompt, audioBase64, audioMimeType, imageBase64, imageMimeType, session, events } = body || {};
 
     if (!session) {
       return res.status(401).json({ error: 'No autorizado. Se requiere sesión.' });

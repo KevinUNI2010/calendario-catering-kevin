@@ -220,7 +220,12 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
         }),
       });
 
-      const data = await response.json();
+      let data: any = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = { answer: 'Hubo un error de conexión con el servidor (código ' + response.status + ').' };
+      }
 
       if (data.remainingQuota !== undefined) {
         setRemainingQuota(data.remainingQuota);

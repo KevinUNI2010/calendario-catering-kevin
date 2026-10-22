@@ -1,4 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
 import { CalendarEvent, UserSession, RagChartData, DishSelection } from '../types';
 
 export interface RagRequestParams {
@@ -109,17 +108,16 @@ CUÁNDO GENERAR EL OBJETO "chart":
 `;
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const contents: any[] = [];
+    const parts: any[] = [];
 
     // Prompt en texto
     if (prompt && prompt.trim()) {
-      contents.push({ text: prompt.trim() });
+      parts.push({ text: prompt.trim() });
     }
 
     // Audio de voz
     if (audioBase64) {
-      contents.push({
+      parts.push({
         inlineData: {
           mimeType: audioMimeType || 'audio/webm',
           data: audioBase64
@@ -129,7 +127,7 @@ CUÁNDO GENERAR EL OBJETO "chart":
 
     // Imagen adjunta (comanda, libreta o foto)
     if (imageBase64) {
-      contents.push({
+      parts.push({
         inlineData: {
           mimeType: imageMimeType || 'image/jpeg',
           data: imageBase64
@@ -137,45 +135,68 @@ CUÁNDO GENERAR EL OBJETO "chart":
       });
     }
 
-    if (contents.length === 0) {
+    if (parts.length === 0) {
       return { answer: 'Por favor envía un mensaje de texto, nota de voz o imagen para consultar.' };
     }
 
-    let response: any = null;
+    const payload = {
+      systemInstruction: {
+        parts: [{ text: systemInstruction }]
+      },
+      contents: [
+        {
+          role: 'user',
+          parts
+        }
+      ],
+      generationConfig: {
+        responseMimeType: 'application/json',
+      }
+    };
+
+    let rawText = '';
     let lastError: any = null;
     const modelCandidates = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash'];
 
     for (const modelName of modelCandidates) {
       for (let attempt = 1; attempt <= 2; attempt++) {
         try {
-          response = await ai.models.generateContent({
-            model: modelName,
-            config: {
-              systemInstruction,
-              responseMimeType: 'application/json',
-            },
-            contents,
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
           });
-          if (response?.text) break;
-        } catch (genErr: any) {
-          lastError = genErr;
-          const isTransient = genErr.status === 503 || genErr.status === 429 || String(genErr?.message || '').includes('demand');
-          if (isTransient && attempt < 2) {
-            await new Promise(resolve => setTimeout(resolve, 800));
+
+          if (res.ok) {
+            const json: any = await res.json();
+            rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            if (rawText) break;
+          } else {
+            const errData: any = await res.json().catch(() => ({}));
+            lastError = errData?.error || new Error(`HTTP ${res.status}`);
+            if ((res.status === 503 || res.status === 429) && attempt < 2) {
+              await new Promise(r => setTimeout(r, 800));
+              continue;
+            }
+            break;
+          }
+        } catch (e: any) {
+          lastError = e;
+          if (attempt < 2) {
+            await new Promise(r => setTimeout(r, 800));
             continue;
           }
-          // Si falló este modelo, salimos al siguiente candidato
           break;
         }
       }
-      if (response?.text) break;
+      if (rawText) break;
     }
 
-    if (!response?.text) {
+    if (!rawText) {
       throw lastError || new Error('No se pudo obtener respuesta de ningún modelo de IA');
     }
 
-    const rawText = response.text || '{}';
     let parsed: any = {};
     try {
       parsed = JSON.parse(rawText);
