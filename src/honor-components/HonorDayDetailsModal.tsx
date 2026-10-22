@@ -45,7 +45,12 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
 
     let totalPlates = 0;
     let totalEventsWithFood = 0;
-    const localesAtendidosMap = new Map<string, string>();
+    const localesMap = new Map<string, {
+      name: string;
+      colorId: string;
+      earliestTime: number;
+      eventsList: { timeFormatted: string; timestamp: number }[];
+    }>();
 
     events.forEach((event) => {
       const dish = event.dish;
@@ -55,7 +60,28 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
       const platos = getEffectivePlateCount(dish);
       totalPlates += platos;
       totalEventsWithFood++;
-      if (event.localName) localesAtendidosMap.set(event.localName, event.colorId || 'peacock');
+
+      const localName = (event.localName || 'Sin Local').trim();
+      const startDate = new Date(event.startDate);
+      const timestamp = isNaN(startDate.getTime()) ? 0 : startDate.getTime();
+      const timeFormatted = isNaN(startDate.getTime())
+        ? ''
+        : startDate.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+      if (!localesMap.has(localName)) {
+        localesMap.set(localName, {
+          name: localName,
+          colorId: event.colorId || 'peacock',
+          earliestTime: timestamp,
+          eventsList: []
+        });
+      }
+
+      const entry = localesMap.get(localName)!;
+      if (timestamp < entry.earliestTime) {
+        entry.earliestTime = timestamp;
+      }
+      entry.eventsList.push({ timeFormatted, timestamp });
 
       if (dish.proteina) totals['Proteínas'][dish.proteina] = (totals['Proteínas'][dish.proteina] || 0) + platos;
       if (dish.salsa) totals['Salsas'][dish.salsa] = (totals['Salsas'][dish.salsa] || 0) + platos;
@@ -73,12 +99,38 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
       }
     });
 
-    const localesList = Array.from(localesAtendidosMap.entries()).map(([name, colorId]) => ({
-      name,
-      colorDef: getEventColor(colorId)
-    }));
+    const localesWithHours = Array.from(localesMap.values())
+      .sort((a, b) => a.earliestTime - b.earliestTime || a.name.localeCompare(b.name))
+      .map((loc) => {
+        const sortedHours = loc.eventsList
+          .sort((a, b) => a.timestamp - b.timestamp)
+          .map((e) => e.timeFormatted);
 
-    return { totals, totalPlates, totalEventsWithFood, localesList };
+        // Agrupar horas repetidas: ej. si hay 2 eventos a las 4:00 a. m. -> "4:00 a. m. (x2)"
+        const hourGroups: { time: string; count: number }[] = [];
+        sortedHours.forEach((time) => {
+          const last = hourGroups[hourGroups.length - 1];
+          if (last && last.time === time) {
+            last.count++;
+          } else {
+            hourGroups.push({ time, count: 1 });
+          }
+        });
+
+        const hoursString = hourGroups
+          .map((h) => (h.count > 1 ? `${h.time} (x${h.count})` : h.time))
+          .join(', ');
+
+        return {
+          name: loc.name,
+          colorDef: getEventColor(loc.colorId),
+          earliestTime: loc.earliestTime,
+          hoursString,
+          eventsCount: loc.eventsList.length,
+        };
+      });
+
+    return { totals, totalPlates, totalEventsWithFood, localesList: localesWithHours, localesWithHours };
   }, [events]);
 
   if (!isOpen || !date) return null;
@@ -354,18 +406,24 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         {summary.totalEventsWithFood === 1 ? 'evento' : 'eventos'}
                       </span>
                     </div>
-                    {summary.localesList.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {summary.localesList.map((loc, idx) => (
+                    {summary.localesWithHours.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {summary.localesWithHours.map((loc, idx) => (
                           <span
                             key={idx}
-                            className="px-2 py-0.5 text-[10px] font-bold rounded-full shadow-sm"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] sm:text-[11px] font-bold rounded-xl border shadow-2xs transition-all hover:scale-[1.02]"
                             style={{ 
-                              backgroundColor: `${loc.colorDef.bg}20`,
+                              backgroundColor: `${loc.colorDef.bg}18`,
                               color: loc.colorDef.bg,
+                              borderColor: `${loc.colorDef.bg}35`
                             }}
                           >
-                            {loc.name.toUpperCase()}
+                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: loc.colorDef.bg }} />
+                            <span>{loc.name.toUpperCase()}</span>
+                            <span className="text-[10px] font-semibold opacity-90 border-l border-current/30 pl-1.5 flex items-center gap-1">
+                              <Clock className="w-3 h-3 shrink-0 opacity-70" />
+                              {loc.hoursString}
+                            </span>
                           </span>
                         ))}
                       </div>
