@@ -381,8 +381,8 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
               })}
             </div>
           )}
-          {/* Resumen de Producción */}
-          {role !== 'mozo' && summary.totalPlates > 0 && (
+          {/* Resumen de Producción (Solo visible para Admin y Cocineros; oculto para Dueños y Mozos) */}
+          {(role === 'admin' || role === 'cocinero') && summary.totalPlates > 0 && (
             <div className="mt-8 pt-6 sm:pt-8 border-t border-gray-200 dark:border-gray-800">
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-2">
                 <div className="flex-1 bg-[#c04514] dark:bg-orange-800 p-5 rounded-2xl shadow-md overflow-hidden text-white flex flex-col justify-center">
@@ -434,8 +434,8 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
             </div>
           )}
 
-          {/* Breakdown by Category */}
-          {role !== 'mozo' && summary.totalPlates > 0 && (
+          {/* Breakdown by Category (Solo visible para Admin y Cocineros; oculto para Dueños y Mozos) */}
+          {(role === 'admin' || role === 'cocinero') && summary.totalPlates > 0 && (
             <div className="mt-8 pt-6 sm:pt-8 border-t border-gray-200 dark:border-gray-800">
               <div className="mb-4">
                 <h3 className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Detalle de Producción</h3>
