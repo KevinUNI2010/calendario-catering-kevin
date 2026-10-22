@@ -31,14 +31,53 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
   session,
   events,
 }) => {
-  const [messages, setMessages] = useState<RagMessage[]>([
-    {
-      id: 'welcome-msg',
-      sender: 'assistant',
-      text: `¡Hola **${session.name || 'amigo'}**! Soy **Kevin AI**, tu asistente inteligente del calendario.\n\nPuedes preguntarme por texto o nota de voz sobre eventos, horarios, menús o comparativas con gráficas.`,
-      timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+  const storageKey = `kevin_ai_chat_history_${session.id || session.name || session.role || 'default'}`;
+
+  const [messages, setMessages] = useState<RagMessage[]>(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Error recuperando historial de chat:', e);
     }
-  ]);
+    return [
+      {
+        id: 'welcome-msg',
+        sender: 'assistant',
+        text: `¡Hola **${session.name || 'amigo'}**! Soy **Kevin AI**, tu asistente inteligente del calendario.\n\nPuedes preguntarme por texto o nota de voz sobre eventos, horarios, menús o comparativas con gráficas.`,
+        timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+      }
+    ];
+  });
+
+  // Guardar mensajes automáticamente en localStorage al actualizarse
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(messages));
+    } catch (e) {
+      console.warn('Error guardando historial de chat:', e);
+    }
+  }, [messages, storageKey]);
+
+  const handleClearHistory = () => {
+    const welcomeMsg: RagMessage = {
+      id: 'welcome-msg-' + Date.now(),
+      sender: 'assistant',
+      text: `¡Historial limpiado! Soy **Kevin AI**, ¿en qué te puedo ayudar hoy?`,
+      timestamp: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+    };
+    setMessages([welcomeMsg]);
+    try {
+      localStorage.removeItem(storageKey);
+    } catch {}
+    notify.success('Historial limpiado', 'Se ha iniciado una nueva conversación.');
+  };
+
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [remainingQuota, setRemainingQuota] = useState<number>(session.role === 'admin' ? 999999 : 10);
@@ -305,6 +344,15 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 shadow-xs">
               {session.role === 'admin' ? '👑 Ilimitado' : `💡 ${remainingQuota}/10 hoy`}
             </span>
+
+            {/* Limpiar Historial */}
+            <button 
+              onClick={handleClearHistory}
+              className="p-1.5 rounded-full hover:bg-white/20 transition cursor-pointer text-white/80 hover:text-white"
+              title="Limpiar conversación"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
 
             <button 
               onClick={onClose}
