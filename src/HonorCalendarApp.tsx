@@ -19,7 +19,7 @@ import {
 } from './utils/offlineStorage';
 import { NotificationItem, notificationService } from './utils/notifications';
 import { soundManager } from './utils/soundEffects';
-import { formatISO, MONTH_NAMES_ES } from './utils/dateUtils';
+import { formatISO, MONTH_NAMES_ES, isSameDay } from './utils/dateUtils';
 import { notify } from './utils/toastHelper';
 
 import { HonorNavbar } from './honor-components/HonorNavbar';
@@ -365,6 +365,14 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
     if (e && e.stopPropagation) {
       e.stopPropagation();
     }
+    // Si no es admin, NUNCA se abre el modal individual de un solo evento.
+    // Siempre se abre el modal del día con TODOS los eventos programados para esa fecha.
+    if (session.role !== 'admin') {
+      const eventDate = new Date(event.startDate);
+      const dayEvents = filteredEvents.filter((ev) => isSameDay(new Date(ev.startDate), eventDate));
+      setHonorDayModalData({ isOpen: true, date: eventDate, events: dayEvents });
+      return;
+    }
     setSelectedEventForSummary(event);
   };
 
@@ -672,8 +680,8 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
         </div>
       )}
 
-      {/* Local Summary & Quick Edit Popover */}
-      {selectedEventForSummary && (
+      {/* Local Summary & Quick Edit Popover (Solo administradores pueden abrir popover individual) */}
+      {selectedEventForSummary && session.role === 'admin' && (
         <LocalSummaryPopover
           event={selectedEventForSummary}
           local={locales.find(l => l.id === selectedEventForSummary.localId)}

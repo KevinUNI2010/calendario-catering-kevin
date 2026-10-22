@@ -91,7 +91,13 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                       key={event.id} 
                       onClick={(e) => {
                         e.stopPropagation();
-                        onSelectEvent(e, event);
+                        if (role !== 'admin') {
+                          if (onShowDaySummary) {
+                            onShowDaySummary(day, dayEvents);
+                          }
+                        } else {
+                          onSelectEvent(e, event);
+                        }
                       }}
                       className="w-full rounded py-[3px] px-0.5 text-[8px] sm:text-[10px] leading-none font-bold shadow-sm whitespace-nowrap overflow-hidden text-clip cursor-pointer hover:opacity-90 active:scale-[0.98] transition-transform"
                       style={{ backgroundColor: color.bg, color: color.text || '#fff' }}
