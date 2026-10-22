@@ -2,8 +2,7 @@ import React from 'react';
 import { CalendarEvent } from '../types';
 import { getMonthDays, isSameDay, isToday, DAY_NAMES_SHORT } from '../utils/dateUtils';
 import { LocalBadge } from './LocalBadge';
-import { Plus, Utensils } from 'lucide-react';
-import { getEffectivePlateCount } from '../utils/plateMath';
+import { Plus } from 'lucide-react';
 
 interface MonthViewProps {
   currentDate: Date;
@@ -51,9 +50,6 @@ export const MonthView: React.FC<MonthViewProps> = ({
             return isSameDay(start, day);
           });
           const today = isToday(day);
-          
-          // Calculate total plates for this day
-          const totalPlates = dayEvents.reduce((sum, e) => sum + getEffectivePlateCount(e.dish), 0);
 
           return (
             <div
@@ -85,23 +81,6 @@ export const MonthView: React.FC<MonthViewProps> = ({
                 >
                   {day.getDate()}
                 </span>
-                
-                {/* Total Plates Badge a su costado sin entrecortarse */}
-                {totalPlates > 0 && (
-                  <button 
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onShowDaySummary) onShowDaySummary(day, dayEvents);
-                    }}
-                    className="inline-flex items-center gap-0.5 text-[8px] sm:text-[9.5px] font-bold text-orange-700 bg-orange-100 hover:bg-orange-200 dark:bg-orange-950/60 dark:hover:bg-orange-900/60 dark:text-orange-400 px-1 sm:px-1.5 py-0.5 rounded border border-orange-200 dark:border-orange-800 transition cursor-pointer shrink-0 leading-none whitespace-nowrap"
-                    title={`Total de raciones: ${totalPlates}`}
-                  >
-                    <Utensils className="w-2 h-2 sm:w-2.5 sm:h-2.5 shrink-0" />
-                    <span>{totalPlates}</span>
-                  </button>
-                )}
-
               </div>
 
               {/* Event Badges (Boton de cada local) */}
