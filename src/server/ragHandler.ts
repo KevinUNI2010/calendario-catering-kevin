@@ -41,6 +41,12 @@ export async function processRagQuery(params: RagRequestParams): Promise<RagResp
   // 2. Resumir los eventos en un formato de contexto conciso para el LLM
   const eventsContext = accessibleEvents.map(e => {
     const dish: Partial<DishSelection> = e.dish || {};
+    const contratados = dish.platosContratados || dish.cantidadPlatos || 0;
+    const confirmados = dish.platosConfirmados || 0;
+    const servidos = dish.platosServidos || 0;
+    const rawServilletas = dish.servilletas || (dish.servilleta ? [dish.servilleta] : ['Por confirmar']);
+    const cleanServilletas = rawServilletas.map(s => s.split('|')[0].trim());
+
     return {
       id: e.id,
       titulo: e.title,
@@ -49,17 +55,22 @@ export async function processRagQuery(params: RagRequestParams): Promise<RagResp
       inicio: e.startDate,
       fin: e.endDate,
       estado: e.status,
-      platosContratados: dish.platosContratados || dish.cantidadPlatos || 0,
-      platosConfirmados: dish.platosConfirmados || 0,
-      platosServidos: dish.platosServidos || 0,
-      platosEfectivos: dish.platosServidos || dish.platosConfirmados || dish.platosContratados || dish.cantidadPlatos || 0,
+      platosContratados: contratados,
+      platosConfirmadosCocina: confirmados,
+      platosServidosSala: servidos,
+      platosEfectivos: confirmados > 0 ? confirmados : (contratados > 0 ? contratados : 0),
+      estadoConfirmacionPlatos: contratados === 0 && confirmados === 0
+        ? 'SIN_PLATOS (No tiene cantidad de platos ingresada aún)'
+        : confirmados > 0
+          ? `CONFIRMADO_COCINA (${confirmados} platos confirmados)`
+          : `CONTRATADO_BASE (${contratados} platos pactados en contrato; pendiente de reajuste final de cocina)`,
       menu: {
         proteina: dish.proteina || 'Sin definir',
         salsa: dish.salsa || 'Sin definir',
         carbohidrato: dish.carbohidrato || 'Sin definir',
         guarnicion: dish.guarnicion || 'Sin definir',
         ensalada: dish.ensalada || 'Sin definir',
-        servilletas: dish.servilletas || (dish.servilleta ? [dish.servilleta] : ['Por confirmar']),
+        servilletas: cleanServilletas,
       },
       notas: e.notes || e.description || '',
     };
@@ -81,6 +92,16 @@ REGLAS DE SEGURIDAD Y PERMISOS ESTRICTAS:
    - Si el rol actual NO es "admin" y pide crear, reprogramar, editar o borrar eventos, responde:
      "Lo siento, solo el Administrador tiene autorización para crear o modificar eventos en el sistema. Por favor comunícate con Kevin para programarlo."
    - Si el rol ES "admin" y solicita crear un evento, extrae la información y confirma los detalles en tu respuesta.
+
+REGLAS VITALES SOBRE PLATOS Y CONFIRMACIÓN:
+1. "platosContratados" representa los platos formalmente pactados en el contrato. Por ejemplo, si en ARYES hay 469 platos contratados, ¡ESE LOCAL SÍ TIENE 469 PLATOS ASIGNADOS!
+2. NUNCA digas: "ningún local ha confirmado aún la cantidad de platos" o "ningún local tiene platos" si existen platosContratados > 0.
+3. Si el usuario pregunta "¿qué locales falta confirmar platos?" o "¿a qué locales les falta confirmar la cantidad de platos?":
+   - Explica con precisión:
+     * Menciona los locales que ya cuentan con cantidad de platos contratados (ej: "En **ARYES** ya se tienen **469 platos contratados** base, pero está pendiente el reajuste final previo para cocina").
+     * Si algún evento tiene 0 contratados y 0 confirmados, indícalo como "Pendiente de ingresar cantidad de platos".
+     * Si un local ya tiene platosConfirmadosCocina > 0, indícalo como confirmado para cocina.
+   - Al generar tarjetas (cards), pon siempre el número de platosContratados (ej: 469) y en el subtítulo un texto claro como "Eventos del día y estado de platos".
 
 CONTEXTO DE EVENTOS DISPONIBLES EN BASE DE DATOS:
 ${JSON.stringify(eventsContext, null, 2)}

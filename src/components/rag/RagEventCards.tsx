@@ -172,25 +172,42 @@ export const RagEventCards: React.FC<RagEventCardsProps> = ({ cardsData }) => {
                 {card.servilletas && card.servilletas.length > 0 && (
                   <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
                     <span className="text-gray-400 dark:text-gray-500 font-medium">Servilletas</span>
-                    <span className="font-bold text-gray-800 dark:text-gray-200 text-right">{card.servilletas.join(' / ')}</span>
+                    <span className="font-bold text-gray-800 dark:text-gray-200 text-right flex items-center gap-1.5 flex-wrap justify-end">
+                      {card.servilletas.map((s, sIdx) => {
+                        const parts = s.split('|');
+                        const name = parts[0].trim();
+                        const color = parts[1]?.trim();
+                        return (
+                          <span key={sIdx} className="inline-flex items-center gap-1">
+                            {color && <span className="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: color }} />}
+                            <span>{name}</span>
+                            {sIdx < card.servilletas!.length - 1 && <span className="text-gray-400 font-normal">/</span>}
+                          </span>
+                        );
+                      })}
+                    </span>
                   </div>
                 )}
               </div>
 
               {/* Conteo de Platos */}
-              {(card.platosServidos || card.platosConfirmados || card.platosContratados) && (
+              {Boolean(
+                (card.platosContratados && String(card.platosContratados) !== '0') ||
+                (card.platosConfirmados && String(card.platosConfirmados) !== '0') ||
+                (card.platosServidos && String(card.platosServidos) !== '0')
+              ) && (
                 <div className="pt-2 border-t border-gray-100 dark:border-gray-800/80 flex flex-wrap gap-1.5 text-[10px]">
-                  {card.platosContratados && (
+                  {Boolean(card.platosContratados && String(card.platosContratados) !== '0') && (
                     <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200/50 dark:border-blue-800/50">
                       Contratados: {card.platosContratados}
                     </span>
                   )}
-                  {card.platosConfirmados && (
+                  {Boolean(card.platosConfirmados && String(card.platosConfirmados) !== '0') && (
                     <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 font-semibold border border-amber-200/50 dark:border-amber-800/50">
                       Confirmados: {card.platosConfirmados}
                     </span>
                   )}
-                  {card.platosServidos && (
+                  {Boolean(card.platosServidos && String(card.platosServidos) !== '0') && (
                     <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200/50 dark:border-emerald-800/50">
                       Servidos: {card.platosServidos}
                     </span>
