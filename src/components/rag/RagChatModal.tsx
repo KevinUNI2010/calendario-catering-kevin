@@ -11,11 +11,13 @@ import {
   Bot, 
   User, 
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  Shield
 } from 'lucide-react';
 import { UserSession, CalendarEvent, RagMessage, RagChartData } from '../../types';
 import { RagBarChart } from './RagBarChart';
 import { RagEventCards } from './RagEventCards';
+import { RagAuditModal } from './RagAuditModal';
 import { notify } from '../../utils/toastHelper';
 
 interface RagChatModalProps {
@@ -81,6 +83,7 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [remainingQuota, setRemainingQuota] = useState<number>(session.role === 'admin' ? 999999 : 10);
+  const [isAuditOpen, setIsAuditOpen] = useState(false);
 
   // Audio recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -345,6 +348,17 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
               {session.role === 'admin' ? '👑 Ilimitado' : `💡 ${remainingQuota}/10 hoy`}
             </span>
 
+            {/* Auditoría (Solo Admin) */}
+            {session.role === 'admin' && (
+              <button 
+                onClick={() => setIsAuditOpen(true)}
+                className="p-1.5 rounded-full hover:bg-white/20 transition cursor-pointer text-amber-200 hover:text-amber-100"
+                title="Auditoría de Consultas (Admin)"
+              >
+                <Shield className="w-4 h-4" />
+              </button>
+            )}
+
             {/* Limpiar Historial */}
             <button 
               onClick={handleClearHistory}
@@ -570,6 +584,14 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
           )}
         </div>
       </div>
+
+      {/* Modal de Auditoría de Consultas (Solo Admin) */}
+      {isAuditOpen && (
+        <RagAuditModal 
+          isOpen={isAuditOpen} 
+          onClose={() => setIsAuditOpen(false)} 
+        />
+      )}
     </div>
   );
 };

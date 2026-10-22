@@ -9,6 +9,10 @@ import { createServer as createViteServer } from 'vite';
 import { INITIAL_EVENTS, DEFAULT_LOCALES } from './src/data/seedData';
 import { CalendarEvent, Local, EmailLog } from './src/types';
 import { processRagQuery } from './src/server/ragHandler';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
 const app = express();
 const PORT = 3000;
@@ -262,6 +266,24 @@ app.post('/api/rag', async (req, res) => {
       session,
       events: effectiveEvents
     });
+
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const sb = createClient(supabaseUrl, supabaseKey);
+        await sb.rpc('log_rag_query', {
+          p_user_id: session?.id || session?.name || session?.role || 'anon',
+          p_user_name: session?.name || 'Usuario',
+          p_role: session?.role || 'dueño',
+          p_prompt: prompt || (audioBase64 ? '[Audio de voz]' : '[Imagen adjunta]'),
+          p_has_audio: Boolean(audioBase64),
+          p_has_image: Boolean(imageBase64),
+          p_tokens: 0
+        });
+      } catch (logErr) {
+        console.warn('Advertencia registrando log en dev:', logErr);
+      }
+    }
+
     res.json(result);
   } catch (err: any) {
     console.error('Error in /api/rag dev endpoint:', err);

@@ -415,11 +415,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await sb.rpc('log_rag_query', {
           p_user_id: userId,
           p_user_name: userName,
-          p_user_role: userRole,
+          p_role: userRole,
           p_prompt: prompt || (audioBase64 ? '[Audio de voz]' : '[Imagen adjunta]'),
-          p_response: result.answer,
-          p_has_chart: Boolean(result.chart),
-          p_chart_data: result.chart || null
+          p_has_audio: Boolean(audioBase64),
+          p_has_image: Boolean(imageBase64),
+          p_tokens: 0
         });
       } catch (logErr) {
         console.warn('Advertencia registrando log de auditoría:', logErr);
