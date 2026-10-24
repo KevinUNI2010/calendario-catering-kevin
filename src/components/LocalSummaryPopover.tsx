@@ -104,8 +104,10 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
             {event.dish && (
               <div className="flex-1 flex flex-col mt-2">
                 {event.dish.proteina && (
-                  <div className="py-2.5 border-t border-gray-100 dark:border-gray-800">
-                    <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.proteina}</span>
+                  <div className="my-1.5 py-2.5 px-3 rounded-xl border-2 border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 shadow-xs text-center">
+                    <span className="font-black text-sm text-blue-900 dark:text-blue-100 tracking-wide uppercase">
+                      {event.dish.proteina}
+                    </span>
                   </div>
                 )}
                 {event.dish.salsa && (

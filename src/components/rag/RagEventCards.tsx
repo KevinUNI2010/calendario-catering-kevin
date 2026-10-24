@@ -62,11 +62,11 @@ export const RagEventCards: React.FC<RagEventCardsProps> = ({ cardsData }) => {
     cards.forEach((card, idx) => {
       waText += `\n📍 *${card.localName.toUpperCase()}* ⏰ _${card.timeString}_\n`;
       waText += `🎉 *${card.title}*\n`;
-      if (card.proteina) waText += `🍖 Proteína: *${card.proteina}*\n`;
-      if (card.salsa) waText += `🥣 Salsa: *${card.salsa}*\n`;
-      if (card.carbohidrato) waText += `🍚 Carbohidrato: *${card.carbohidrato}*\n`;
-      if (card.guarnicion) waText += `🥗 Guarnición: *${card.guarnicion}*\n`;
-      if (card.ensalada) waText += `🥬 Ensalada: *${card.ensalada}*\n`;
+      if (card.proteina) waText += `🍗 *[ ${card.proteina.toUpperCase()} ]*\n`;
+      if (card.salsa) waText += `🥣 ${card.salsa}\n`;
+      if (card.carbohidrato) waText += `🍚 ${card.carbohidrato}\n`;
+      if (card.guarnicion) waText += `🥗 ${card.guarnicion}\n`;
+      if (card.ensalada) waText += `🥬 ${card.ensalada}\n`;
       if (card.servilletas && card.servilletas.length > 0) {
         waText += `🧻 Servilletas: *${card.servilletas.join(' / ')}*\n`;
       }
@@ -137,36 +137,33 @@ export const RagEventCards: React.FC<RagEventCardsProps> = ({ cardsData }) => {
                 {card.title}
               </h5>
 
-              {/* Filas del Menú con bordes limpios */}
+              {/* Filas del Menú con bordes limpios y proteína destacada */}
               <div className="pt-1 space-y-1.5 text-xs text-gray-700 dark:text-gray-300">
                 {card.proteina && (
-                  <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
-                    <span className="text-gray-400 dark:text-gray-500 font-medium">Proteína</span>
-                    <span className="font-bold text-gray-800 dark:text-gray-200 text-right">{card.proteina}</span>
+                  <div className="my-1 py-2 px-2.5 rounded-xl border-2 border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 shadow-xs text-center">
+                    <span className="font-black text-xs sm:text-sm text-blue-900 dark:text-blue-100 tracking-wide uppercase">
+                      {card.proteina}
+                    </span>
                   </div>
                 )}
                 {card.salsa && (
-                  <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
-                    <span className="text-gray-400 dark:text-gray-500 font-medium">Salsa</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300 text-right">{card.salsa}</span>
+                  <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 font-medium text-gray-700 dark:text-gray-300">
+                    {card.salsa}
                   </div>
                 )}
                 {card.carbohidrato && (
-                  <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
-                    <span className="text-gray-400 dark:text-gray-500 font-medium">Carbohidrato</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300 text-right">{card.carbohidrato}</span>
+                  <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 font-medium text-gray-700 dark:text-gray-300">
+                    {card.carbohidrato}
                   </div>
                 )}
                 {card.guarnicion && (
-                  <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
-                    <span className="text-gray-400 dark:text-gray-500 font-medium">Guarnición</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300 text-right">{card.guarnicion}</span>
+                  <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 font-medium text-gray-700 dark:text-gray-300">
+                    {card.guarnicion}
                   </div>
                 )}
                 {card.ensalada && (
-                  <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
-                    <span className="text-gray-400 dark:text-gray-500 font-medium">Ensalada</span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300 text-right">{card.ensalada}</span>
+                  <div className="py-1.5 border-t border-gray-100 dark:border-gray-800/80 font-medium text-gray-700 dark:text-gray-300">
+                    {card.ensalada}
                   </div>
                 )}
                 {card.servilletas && card.servilletas.length > 0 && (
