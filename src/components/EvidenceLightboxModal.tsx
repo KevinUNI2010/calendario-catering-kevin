@@ -46,17 +46,14 @@ export const EvidenceLightboxModal: React.FC<EvidenceLightboxModalProps> = ({
       >
         {/* Top Bar */}
         <div className="flex items-center justify-between text-white gap-2">
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="p-1.5 sm:p-2 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 shrink-0">
               <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h3 className="text-xs sm:text-sm font-bold text-white truncate">
-                Evidencia de Cuaderno
+                {eventTitle || 'Evidencia'}
               </h3>
-              {eventTitle && (
-                <p className="text-[10px] sm:text-xs text-gray-400 truncate max-w-[120px] sm:max-w-xs">{eventTitle}</p>
-              )}
             </div>
           </div>
 
