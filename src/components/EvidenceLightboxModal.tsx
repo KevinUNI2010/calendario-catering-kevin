@@ -5,13 +5,56 @@ import { useEscapeKey } from '../hooks/useEscapeKey';
 interface EvidenceLightboxModalProps {
   isOpen: boolean;
   imageSrc: string | null | undefined;
+  localName?: string;
+  eventDate?: string | Date;
   eventTitle?: string;
   onClose: () => void;
 }
 
+const formatDateSafe = (dateInput?: string | Date): string => {
+  if (!dateInput) return '';
+  const months = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
+  if (dateInput instanceof Date) {
+    if (isNaN(dateInput.getTime())) return '';
+    return `${dateInput.getDate()} de ${months[dateInput.getMonth()]}`;
+  }
+
+  const str = String(dateInput).trim();
+  if (str.includes('T')) {
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      return `${d.getDate()} de ${months[d.getMonth()]}`;
+    }
+  }
+
+  if (str.includes('-')) {
+    const parts = str.split('-');
+    if (parts.length >= 3) {
+      const day = parseInt(parts[2], 10);
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      if (!isNaN(day) && monthIdx >= 0 && monthIdx < 12) {
+        return `${day} de ${months[monthIdx]}`;
+      }
+    }
+  }
+
+  const d = new Date(str);
+  if (!isNaN(d.getTime())) {
+    return `${d.getDate()} de ${months[d.getMonth()]}`;
+  }
+
+  return '';
+};
+
 export const EvidenceLightboxModal: React.FC<EvidenceLightboxModalProps> = ({
   isOpen,
   imageSrc,
+  localName,
+  eventDate,
   eventTitle,
   onClose
 }) => {
@@ -24,12 +67,23 @@ export const EvidenceLightboxModal: React.FC<EvidenceLightboxModalProps> = ({
     }
   }, [isOpen, imageSrc]);
 
+  const formattedHeader = React.useMemo(() => {
+    if (localName || eventDate) {
+      const parts: string[] = [];
+      if (localName) parts.push(localName.toUpperCase().trim());
+      const dateStr = formatDateSafe(eventDate);
+      if (dateStr) parts.push(dateStr);
+      return parts.join(' • ');
+    }
+    return eventTitle || 'Evidencia';
+  }, [localName, eventDate, eventTitle]);
+
   if (!isOpen || !imageSrc) return null;
 
   const handleDownload = () => {
     const a = document.createElement('a');
     a.href = imageSrc;
-    a.download = `evidencia_${eventTitle ? eventTitle.replace(/\s+/g, '_') : 'evento'}.jpg`;
+    a.download = `evidencia_${formattedHeader.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -52,7 +106,7 @@ export const EvidenceLightboxModal: React.FC<EvidenceLightboxModalProps> = ({
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-xs sm:text-sm font-bold text-white truncate">
-                {eventTitle || 'Evidencia'}
+                {formattedHeader}
               </h3>
             </div>
           </div>

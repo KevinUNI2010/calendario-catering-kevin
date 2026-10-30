@@ -28,7 +28,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
   role,
 }) => {
   useEscapeKey(onClose, isOpen);
-  const [lightboxImage, setLightboxImage] = useState<{ src: string; title: string } | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<{ src: string; localName?: string; eventDate?: string | Date; title?: string } | null>(null);
 
   const sortedEvents = [...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
@@ -358,7 +358,8 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                                 e.stopPropagation();
                                 setLightboxImage({
                                   src: (event.dish?.evidencePhoto || event.evidencePhoto)!,
-                                  title: `${event.title} - ${event.localName}`,
+                                  localName: event.localName,
+                                  eventDate: event.startDate,
                                 });
                               }}
                               className="flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-medium transition cursor-pointer"
@@ -476,6 +477,8 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
         <EvidenceLightboxModal
           isOpen={Boolean(lightboxImage)}
           imageSrc={lightboxImage.src}
+          localName={lightboxImage.localName}
+          eventDate={lightboxImage.eventDate}
           eventTitle={lightboxImage.title}
           onClose={() => setLightboxImage(null)}
         />

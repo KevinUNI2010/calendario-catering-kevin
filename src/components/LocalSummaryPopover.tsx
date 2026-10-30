@@ -292,6 +292,8 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
         <EvidenceLightboxModal
           isOpen={lightboxOpen}
           imageSrc={evidencePhoto}
+          localName={event.localName}
+          eventDate={event.startDate}
           eventTitle={event.title || event.localName}
           onClose={() => setLightboxOpen(false)}
         />

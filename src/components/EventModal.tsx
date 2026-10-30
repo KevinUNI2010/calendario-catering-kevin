@@ -909,6 +909,8 @@ export const EventModal: React.FC<EventModalProps> = ({
       <EvidenceLightboxModal
         isOpen={lightboxOpen}
         imageSrc={evidencePhoto || ''}
+        localName={selectedLocal ? selectedLocal.name : (customLocalName || 'Local General')}
+        eventDate={startDate}
         eventTitle={title || 'Evidencia de Evento'}
         onClose={() => setLightboxOpen(false)}
       />
