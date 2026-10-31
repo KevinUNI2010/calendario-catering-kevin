@@ -772,20 +772,24 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
         />
       )}
 
-      {/* Asistente Inteligente Kevin AI (RAG) */}
-      <RagFloatingButton
-        isOpen={isRagChatOpen}
-        onClick={() => setIsRagChatOpen(true)}
-        role={session.role}
-      />
+      {/* Asistente Inteligente Kevin AI (RAG) - Solo Administradores */}
+      {session.role === 'admin' && (
+        <>
+          <RagFloatingButton
+            isOpen={isRagChatOpen}
+            onClick={() => setIsRagChatOpen(true)}
+            role={session.role}
+          />
 
-      {isRagChatOpen && (
-        <RagChatModal
-          isOpen={isRagChatOpen}
-          onClose={() => setIsRagChatOpen(false)}
-          session={session}
-          events={events}
-        />
+          {isRagChatOpen && (
+            <RagChatModal
+              isOpen={isRagChatOpen}
+              onClose={() => setIsRagChatOpen(false)}
+              session={session}
+              events={events}
+            />
+          )}
+        </>
       )}
 
     </div>

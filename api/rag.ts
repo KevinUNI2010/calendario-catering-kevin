@@ -372,6 +372,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const userName = session.name || 'Usuario';
     const userRole = session.role || 'dueño';
 
+    // Restringir el asistente Kevin AI exclusivamente al rol de Administrador
+    if (userRole !== 'admin') {
+      return res.status(403).json({
+        error: 'Acceso denegado. El asistente Kevin AI está habilitado exclusivamente para Administradores.',
+        answer: 'Lo siento, el asistente Kevin AI está habilitado exclusivamente para Administradores.'
+      });
+    }
+
     // 1. Verificar y descontar cuota en Supabase
     let remainingQuota = userRole === 'admin' ? 999999 : 10;
     if (supabaseUrl && supabaseKey) {

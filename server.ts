@@ -256,6 +256,15 @@ app.get('/api/health', (req, res) => {
 app.post('/api/rag', async (req, res) => {
   try {
     const { prompt, audioBase64, audioMimeType, imageBase64, imageMimeType, session, events: clientEvents } = req.body || {};
+
+    // Restringir el asistente Kevin AI exclusivamente al rol de Administrador
+    if (session?.role !== 'admin') {
+      return res.status(403).json({
+        error: 'Acceso denegado. El asistente Kevin AI está habilitado exclusivamente para Administradores.',
+        answer: 'Lo siento, el asistente Kevin AI está habilitado exclusivamente para Administradores.'
+      });
+    }
+
     const effectiveEvents = clientEvents && clientEvents.length > 0 ? clientEvents : events;
     const result = await processRagQuery({
       prompt,
