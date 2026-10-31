@@ -62,8 +62,8 @@ export async function processRagQuery(params: RagRequestParams): Promise<RagResp
       estadoConfirmacionPlatos: contratados === 0 && confirmados === 0
         ? 'SIN_PLATOS (No tiene cantidad de platos ingresada aún)'
         : confirmados > 0
-          ? `CONFIRMADO_COCINA (${confirmados} platos confirmados)`
-          : `CONTRATADO_BASE (${contratados} platos pactados en contrato; pendiente de reajuste final de cocina)`,
+          ? `CONFIRMADO_PEDIDOS (${confirmados} platos pedidos)`
+          : `DEGUSTACION_BASE (${contratados} platos en degustación; pendiente de ajuste de pedidos)`,
       menu: {
         proteina: dish.proteina || 'Sin definir',
         salsa: dish.salsa || 'Sin definir',
@@ -93,15 +93,16 @@ REGLAS DE SEGURIDAD Y PERMISOS ESTRICTAS:
      "Lo siento, solo el Administrador tiene autorización para crear o modificar eventos en el sistema. Por favor comunícate con Kevin para programarlo."
    - Si el rol ES "admin" y solicita crear un evento, extrae la información y confirma los detalles en tu respuesta.
 
-REGLAS VITALES SOBRE PLATOS Y CONFIRMACIÓN:
-1. "platosContratados" representa los platos formalmente pactados en el contrato. Por ejemplo, si en ARYES hay 469 platos contratados, ¡ESE LOCAL SÍ TIENE 469 PLATOS ASIGNADOS!
-2. NUNCA digas: "ningún local ha confirmado aún la cantidad de platos" o "ningún local tiene platos" si existen platosContratados > 0.
-3. Si el usuario pregunta "¿qué locales falta confirmar platos?" o "¿a qué locales les falta confirmar la cantidad de platos?":
+REGLAS VITALES SOBRE PLATOS Y ESTADOS (DEGUSTACIÓN, PEDIDOS, SERVIDOS):
+1. "platosContratados" representa los platos de "Degustación" iniciales. Por ejemplo, si en ARYES hay 469 platos de degustación, ¡ESE LOCAL SÍ TIENE 469 PLATOS ASIGNADOS!
+2. "platosConfirmadosCocina" representa los platos de "Pedidos" para cocina.
+3. NUNCA digas: "ningún local tiene platos" si existen platosContratados > 0.
+4. Si el usuario pregunta "¿qué locales falta confirmar platos o pedidos?":
    - Explica con precisión:
-     * Menciona los locales que ya cuentan con cantidad de platos contratados (ej: "En **ARYES** ya se tienen **469 platos contratados** base, pero está pendiente el reajuste final previo para cocina").
-     * Si algún evento tiene 0 contratados y 0 confirmados, indícalo como "Pendiente de ingresar cantidad de platos".
-     * Si un local ya tiene platosConfirmadosCocina > 0, indícalo como confirmado para cocina.
-   - Al generar tarjetas (cards), pon siempre el número de platosContratados (ej: 469) y en el subtítulo un texto claro como "Eventos del día y estado de platos".
+     * Menciona los locales que ya cuentan con cantidad de degustación (ej: "En **ARYES** ya se tienen **469 platos de degustación**, pero está pendiente el ajuste de pedidos para cocina").
+     * Si algún evento tiene 0 platos, indícalo como "Pendiente de ingresar cantidad de platos".
+     * Si un local ya tiene platosConfirmadosCocina > 0, indícalo con su cantidad de pedidos.
+   - Al generar tarjetas (cards), pon siempre el número de platosContratados (Degustación) o pedidos y en el subtítulo un texto claro como "Eventos del día y estado de platos".
 
 CONTEXTO DE EVENTOS DISPONIBLES EN BASE DE DATOS:
 ${JSON.stringify(eventsContext, null, 2)}

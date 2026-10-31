@@ -71,7 +71,7 @@ export const RagEventCards: React.FC<RagEventCardsProps> = ({ cardsData }) => {
         waText += `🧻 Servilletas: *${card.servilletas.join(' / ')}*\n`;
       }
       if (card.platosServidos || card.platosConfirmados || card.platosContratados) {
-        waText += `🍽️ Platos: Ctr: ${card.platosContratados || 0} | Conf: ${card.platosConfirmados || 0} | Serv: ${card.platosServidos || 0}\n`;
+        waText += `🍽️ Platos: Deg: ${card.platosContratados || 0} | Ped: ${card.platosConfirmados || 0} | Serv: ${card.platosServidos || 0}\n`;
       }
       if (card.notes) waText += `📝 Notas: _${card.notes}_\n`;
       if (idx < cards.length - 1) waText += `──────────────────\n`;
@@ -196,12 +196,12 @@ export const RagEventCards: React.FC<RagEventCardsProps> = ({ cardsData }) => {
                 <div className="pt-2 border-t border-gray-100 dark:border-gray-800/80 flex flex-wrap gap-1.5 text-[10px]">
                   {Boolean(card.platosContratados && String(card.platosContratados) !== '0') && (
                     <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200/50 dark:border-blue-800/50">
-                      Contratados: {card.platosContratados}
+                      Degustación: {card.platosContratados}
                     </span>
                   )}
                   {Boolean(card.platosConfirmados && String(card.platosConfirmados) !== '0') && (
                     <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 font-semibold border border-amber-200/50 dark:border-amber-800/50">
-                      Confirmados: {card.platosConfirmados}
+                      Pedidos: {card.platosConfirmados}
                     </span>
                   )}
                   {Boolean(card.platosServidos && String(card.platosServidos) !== '0') && (

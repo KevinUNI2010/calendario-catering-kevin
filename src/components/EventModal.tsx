@@ -509,12 +509,12 @@ export const EventModal: React.FC<EventModalProps> = ({
 
               {/* 3 Estados en una sola fila */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                {/* 1. Platos Contratados (Fórmula o número) */}
+                {/* 1. Platos Degustación (Fórmula o número) */}
                 <div className="bg-white dark:bg-gray-800/90 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
                   <div>
                     <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1 whitespace-nowrap">
                       <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-                      1. Contratados
+                      1. Degustación
                     </label>
                     <input
                       type="text"
@@ -542,12 +542,12 @@ export const EventModal: React.FC<EventModalProps> = ({
                   })()}
                 </div>
 
-                {/* 2. Platos Confirmados (Día del evento - Cocina) */}
+                {/* 2. Platos Pedidos (Día del evento - Cocina) */}
                 <div className="bg-white dark:bg-gray-800/90 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs flex flex-col justify-between">
                   <div>
                     <label className="text-[11px] font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 mb-1 whitespace-nowrap">
                       <span className="w-2 h-2 rounded-full bg-orange-500 shrink-0"></span>
-                      2. Confirmados
+                      2. Pedidos
                     </label>
                     <input
                       type="text"
@@ -571,7 +571,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                     return (
                       <div className="mt-1.5 text-[10px] flex flex-col gap-0.5 leading-tight">
                         <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                          ✓ Confirmados: <strong>{parsed.total}</strong>
+                          ✓ Pedidos: <strong>{parsed.total}</strong>
                         </span>
                         {parsedContr.isValid && (
                           diff > 0 ? (
@@ -583,7 +583,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                               ▼ {diff} menos
                             </span>
                           ) : (
-                            <span className="text-gray-500">Igual a contratados</span>
+                            <span className="text-gray-500">Igual a degustación</span>
                           )
                         )}
                       </div>
