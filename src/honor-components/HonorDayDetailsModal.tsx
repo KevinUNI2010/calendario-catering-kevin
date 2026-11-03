@@ -278,8 +278,8 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         )}
 
                         {/* Footer Event Card */}
-                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center text-sm gap-2">
-                          <div className="min-w-0 flex-1">
+                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-end text-sm gap-2">
+                          <div className="min-w-0 flex-1 pb-0.5">
                             {(() => {
                               const servList = getSelectedServilletas(event.dish);
                               if (servList.length === 0) {
@@ -312,15 +312,16 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                             const contratadosNum = event.dish.platosContratados ||
                               (parsedContr?.isValid ? parsedContr.total : (event.dish.cantidadPlatos || 0));
 
-                            // Formato Degustación: con fórmula y total (ej: "45X3 = 135" o "45x9 = 405")
+                            // Formato Degustación: con fórmula y total en minúscula (ej: "45x3 = 135" o "45x9 = 405")
                             let displayDegustacion = '';
                             if (contratadosFormula && parsedContr?.isValid) {
-                              if (contratadosFormula.includes('=')) {
-                                displayDegustacion = contratadosFormula;
-                              } else if (/[xX*×·+]/.test(contratadosFormula)) {
-                                displayDegustacion = `${contratadosFormula.trim()} = ${parsedContr.total}`;
+                              const cleanFormula = contratadosFormula.trim().toLowerCase();
+                              if (cleanFormula.includes('=')) {
+                                displayDegustacion = cleanFormula;
+                              } else if (/[x*×·+]/.test(cleanFormula)) {
+                                displayDegustacion = `${cleanFormula} = ${parsedContr.total}`;
                               } else {
-                                displayDegustacion = contratadosFormula;
+                                displayDegustacion = cleanFormula;
                               }
                             } else if (contratadosNum > 0) {
                               displayDegustacion = String(contratadosNum);
@@ -339,6 +340,11 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                             if (hasPlates) {
                               return (
                                 <div className="flex flex-col items-end gap-1 text-[11px] shrink-0">
+                                  {/* Título de sección: N.º DE PLATOS */}
+                                  <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase pr-1 select-none">
+                                    N.º DE PLATOS
+                                  </span>
+
                                   {/* Degustación */}
                                   <span 
                                     className="w-full text-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap" 
