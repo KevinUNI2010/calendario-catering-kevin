@@ -7,7 +7,8 @@ import {
   ChevronRight, 
   Search, 
   Plus,
-  BarChart2
+  BarChart2,
+  Sparkles
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -131,6 +132,15 @@ export const HonorNavbar: React.FC<NavbarProps> = ({
             <span className="hidden sm:inline">Resumen Mensual</span>
           </button>
         )}
+
+        <a
+          href="/laboratorio-cards"
+          className="flex items-center justify-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs font-bold rounded-full sm:rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900/60 transition cursor-pointer shrink-0 border border-blue-200 dark:border-blue-800"
+          title="Laboratorio de Cards (Nuevo Diseño Opción C)"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+          <span className="hidden sm:inline">🧪 Lab Cards</span>
+        </a>
 
         {/* View Mode Dropdown */}
         <select

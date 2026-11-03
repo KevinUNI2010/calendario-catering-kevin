@@ -10,6 +10,7 @@ const CalendarApp = lazy(() => import('./CalendarApp').then(m => ({ default: m.C
 const HonorCalendarApp = lazy(() => import('./HonorCalendarApp').then(m => ({ default: m.HonorCalendarApp })));
 const PinLogin = lazy(() => import('./components/PinLogin').then(m => ({ default: m.PinLogin })));
 const AdminLogin = lazy(() => import('./components/AdminLogin').then(m => ({ default: m.AdminLogin })));
+const ModernEventCardLab = lazy(() => import('./components/modern-cards/ModernEventCardLab').then(m => ({ default: m.ModernEventCardLab })));
 
 export default function App() {
   const [session, setSession] = useState<UserSession | null>(null);
@@ -184,6 +185,7 @@ export default function App() {
           />
           
           {/* Fallback route */}
+          <Route path="/laboratorio-cards" element={<ModernEventCardLab />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { CalendarEvent } from '../types';
-import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles } from 'lucide-react';
 import { formatDateShort } from '../utils/dateUtils';
 import { getEventColor } from '../utils/colorUtils';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { getEffectivePlateCount, parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas } from '../utils/servilletaUtils';
 import { EvidenceLightboxModal } from '../components/EvidenceLightboxModal';
+import { ModernEventCard } from '../components/modern-cards/ModernEventCard';
 
 interface HonorDayDetailsModalProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
 }) => {
   useEscapeKey(onClose, isOpen);
   const [lightboxImage, setLightboxImage] = useState<{ src: string; localName?: string; eventDate?: string | Date; title?: string } | null>(null);
+  const [cardStyle, setCardStyle] = useState<'classic' | 'modern'>('classic');
 
   const sortedEvents = [...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
@@ -185,8 +187,33 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#fcfaf8] dark:bg-[#0c0c0c]">
           
           {/* Eventos del Día */}
-          <div className="mb-4">
-             <h3 className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Eventos del Día</h3>
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Eventos del Día</h3>
+            <div className="inline-flex p-0.5 rounded-lg bg-gray-200 dark:bg-gray-800 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => setCardStyle('classic')}
+                className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
+                  cardStyle === 'classic'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-2xs'
+                    : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+              >
+                Clásico
+              </button>
+              <button
+                type="button"
+                onClick={() => setCardStyle('modern')}
+                className={`px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
+                  cardStyle === 'modern'
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                }`}
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>Moderno (Lab)</span>
+              </button>
+            </div>
           </div>
 
           {sortedEvents.length === 0 ? (
@@ -208,6 +235,32 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                   <span>Crear Primer Evento</span>
                 </button>
               )}
+            </div>
+          ) : cardStyle === 'modern' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 justify-items-center">
+              {sortedEvents.map(event => (
+                <div
+                  key={event.id}
+                  onClick={() => {
+                    if (role === 'admin') {
+                      onSelectEvent(event);
+                      onClose();
+                    }
+                  }}
+                  className={role === 'admin' ? 'cursor-pointer w-full flex justify-center' : 'w-full flex justify-center'}
+                >
+                  <ModernEventCard
+                    event={event}
+                    onOpenPhotoLightbox={(url) =>
+                      setLightboxImage({
+                        src: url,
+                        localName: event.localName,
+                        eventDate: event.startDate,
+                      })
+                    }
+                  />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-max">
