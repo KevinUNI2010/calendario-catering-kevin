@@ -98,7 +98,7 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
 
   return (
     <div
-      className={`relative w-full max-w-[380px] bg-white dark:bg-[#161a23] rounded-[32px] p-6 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.08),0_4px_16px_-4px_rgba(0,0,0,0.03)] border border-slate-100 dark:border-slate-800/80 overflow-hidden flex flex-col justify-between transition-all duration-200 hover:shadow-[0_20px_48px_-8px_rgba(0,0,0,0.12)] ${className}`}
+      className={`relative w-full max-w-[390px] bg-white dark:bg-[#161a23] rounded-[32px] p-6 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.08),0_4px_16px_-4px_rgba(0,0,0,0.03)] border border-slate-100 dark:border-slate-800/80 overflow-hidden flex flex-col justify-between transition-all duration-200 hover:shadow-[0_20px_48px_-8px_rgba(0,0,0,0.12)] ${className}`}
     >
       {/* 
         ========================================================================
@@ -140,7 +140,7 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
       {/* CONTENIDO SUPERIOR: Cabecera, Título y Platos */}
       <div className="relative z-10">
         {/* CABECERA: Badge del Local + Hora de Inicio */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           {/* Badge del local con su color dinámico */}
           <span
             className="px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase inline-flex items-center gap-1.5 shadow-2xs transition-all duration-300"
@@ -157,99 +157,104 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
             {event.localName.toUpperCase()}
           </span>
 
-          {/* Hora de inicio */}
-          <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-semibold text-xs tracking-tight">
-            <Clock className="w-3.5 h-3.5 opacity-80" strokeWidth={2.2} />
+          {/* Hora de inicio (Letra más grande) */}
+          <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-bold text-sm tracking-tight">
+            <Clock className="w-4 h-4 opacity-80" style={{ color: localColor }} strokeWidth={2.5} />
             <span>{timeFormatted}</span>
           </div>
         </div>
 
+        {/* Subtítulo del evento como se tenía */}
+        <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 mb-2 truncate">
+          {event.title ? (event.title.toLowerCase().includes('evento') ? event.title : `Evento: ${event.title}`) : `Evento en ${event.localName}`}
+        </p>
+
         {/* TÍTULO PRINCIPAL: Proteína en tipografía grande y destacada */}
-        <div className="min-h-[68px] flex flex-col justify-center">
-          <h2 className="text-[26px] sm:text-[28px] font-black text-slate-900 dark:text-white leading-[1.12] tracking-tight uppercase">
+        <div className="min-h-[64px] flex flex-col justify-center">
+          <h2 className="text-[28px] font-black text-slate-900 dark:text-white leading-[1.08] tracking-tight uppercase">
             {event.dish?.proteina || event.title || 'SIN PROTEÍNA'}
           </h2>
           {/* Barra de acento con el color del local */}
           <div
-            className="h-[5px] w-14 rounded-full mt-2.5 transition-all duration-300"
+            className="h-[5px] w-14 rounded-full mt-2 transition-all duration-300"
             style={{ backgroundColor: localColor }}
           />
         </div>
 
-        {/* LISTADO DE LOS 4 PLATOS CON BURBUJAS DE ÍCONOS TEMATIZADAS */}
-        <div className="mt-5 space-y-2.5">
+        {/* LISTADO DE LOS 4 PLATOS CON LETRAS GRANDES (20px) Y DIVISORES */}
+        <div className="mt-4 space-y-1">
           {/* 1. Salsa */}
-          <div className="flex items-center gap-3.5 min-h-[46px]">
+          <div className="flex items-center gap-3.5 py-2 border-b border-slate-100 dark:border-slate-800/60 min-h-[50px]">
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300"
+              className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-colors duration-300"
               style={{
                 backgroundColor: `${localColor}15`,
                 border: `1px solid ${localColor}25`,
                 color: localColor,
               }}
             >
-              <SalsaIcon size={24} color={localColor} />
+              <SalsaIcon size={26} color={localColor} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[15px] font-semibold text-slate-800 dark:text-slate-100 leading-snug truncate">
-                {event.dish?.salsa || <span className="text-slate-400 font-normal italic">Sin salsa</span>}
+              <p className="text-[19px] sm:text-[20px] font-semibold text-slate-800 dark:text-slate-100 leading-snug tracking-tight truncate">
+                {event.dish?.salsa || <span className="text-slate-400 font-normal italic text-sm">Sin salsa</span>}
               </p>
             </div>
           </div>
 
           {/* 2. Carbohidrato */}
-          <div className="flex items-center gap-3.5 min-h-[46px]">
+          <div className="flex items-center gap-3.5 py-2 border-b border-slate-100 dark:border-slate-800/60 min-h-[50px]">
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300"
+              className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-colors duration-300"
               style={{
                 backgroundColor: `${localColor}15`,
                 border: `1px solid ${localColor}25`,
                 color: localColor,
               }}
             >
-              <CarbohidratoIcon size={24} color={localColor} />
+              <CarbohidratoIcon size={26} color={localColor} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[15px] font-semibold text-slate-800 dark:text-slate-100 leading-snug truncate">
-                {event.dish?.carbohidrato || <span className="text-slate-400 font-normal italic">Sin carbohidrato</span>}
+              <p className="text-[19px] sm:text-[20px] font-semibold text-slate-800 dark:text-slate-100 leading-snug tracking-tight truncate">
+                {event.dish?.carbohidrato || <span className="text-slate-400 font-normal italic text-sm">Sin carbohidrato</span>}
               </p>
             </div>
           </div>
 
           {/* 3. Guarnición */}
-          <div className="flex items-center gap-3.5 min-h-[46px]">
+          <div className="flex items-center gap-3.5 py-2 border-b border-slate-100 dark:border-slate-800/60 min-h-[50px]">
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300"
+              className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-colors duration-300"
               style={{
                 backgroundColor: `${localColor}15`,
                 border: `1px solid ${localColor}25`,
                 color: localColor,
               }}
             >
-              <GuarnicionIcon size={24} color={localColor} />
+              <GuarnicionIcon size={26} color={localColor} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[15px] font-semibold text-slate-800 dark:text-slate-100 leading-snug truncate">
-                {event.dish?.guarnicion || <span className="text-slate-400 font-normal italic">Sin guarnición</span>}
+              <p className="text-[19px] sm:text-[20px] font-semibold text-slate-800 dark:text-slate-100 leading-snug tracking-tight truncate">
+                {event.dish?.guarnicion || <span className="text-slate-400 font-normal italic text-sm">Sin guarnición</span>}
               </p>
             </div>
           </div>
 
           {/* 4. Ensalada */}
-          <div className="flex items-center gap-3.5 min-h-[46px]">
+          <div className="flex items-center gap-3.5 py-2 border-b border-slate-100 dark:border-slate-800/60 min-h-[50px]">
             <div
-              className="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300"
+              className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-colors duration-300"
               style={{
                 backgroundColor: `${localColor}15`,
                 border: `1px solid ${localColor}25`,
                 color: localColor,
               }}
             >
-              <EnsaladaIcon size={24} color={localColor} />
+              <EnsaladaIcon size={26} color={localColor} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[15px] font-semibold text-slate-800 dark:text-slate-100 leading-snug truncate">
-                {event.dish?.ensalada || <span className="text-slate-400 font-normal italic">Sin ensalada</span>}
+              <p className="text-[19px] sm:text-[20px] font-semibold text-slate-800 dark:text-slate-100 leading-snug tracking-tight truncate">
+                {event.dish?.ensalada || <span className="text-slate-400 font-normal italic text-sm">Sin ensalada</span>}
               </p>
             </div>
           </div>
@@ -282,18 +287,18 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
             <div className="flex flex-col">
               <span className="text-[11px] font-medium text-slate-400">Servilleta:</span>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 shadow-2xs">
                   Por confirmar
                 </span>
-                {/* Recuadro para escribir a mano si aplica */}
-                <div className="w-12 h-5 rounded border border-amber-400/80 bg-white dark:bg-slate-900" />
+                {/* Recuadro para escribir a mano más amplio como se solicitó */}
+                <div className="w-14 h-6 rounded-md border-2 border-amber-400 bg-white dark:bg-slate-900 shadow-2xs" title="Espacio para escribir a mano" />
               </div>
             </div>
           ) : (
             <div className="flex items-center gap-2.5">
               {/* Ícono 3D enrollado con el color real de la servilleta */}
               <div className="shrink-0 drop-shadow-xs">
-                <RolledNapkinIcon color={napkinColor} size={36} />
+                <RolledNapkinIcon color={napkinColor} size={38} />
               </div>
               <div className="flex flex-col leading-tight min-w-0">
                 <span className="text-[11px] font-medium text-slate-400 dark:text-slate-400">
@@ -316,9 +321,9 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
         </div>
 
         {/* LADO DERECHO: N.º DE PLATOS (Degustación / Pedidos / Servidos) */}
-        <div className="flex flex-col items-end gap-1 shrink-0 text-right">
+        <div className="flex flex-col items-end gap-1.5 shrink-0 text-right">
           {/* Título de sección con punto de acento del local */}
-          <div className="flex items-center gap-1.5 pb-0.5">
+          <div className="flex items-center gap-1 pb-0.5">
             <span
               className="w-1.5 h-1.5 rounded-full"
               style={{ backgroundColor: localColor }}
@@ -329,53 +334,27 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
           </div>
 
           {/* Degustación */}
-          <div className="text-xs font-bold leading-tight flex items-center justify-end gap-1">
-            <span className="text-slate-500 font-medium">Degustación:</span>
-            {hasDegustacion ? (
-              <span
-                className="font-black"
-                style={{ color: localColor }}
-              >
-                {displayDegustacion || contratadosNum}
-              </span>
-            ) : (
-              <span className="inline-block w-8 h-4 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
-            )}
+          <div className="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-bold text-xs border border-blue-200 dark:border-blue-800">
+            Degustación: {displayDegustacion || contratadosNum}
           </div>
 
           {/* Pedidos */}
-          <div className="text-xs font-bold leading-tight flex items-center justify-end gap-1.5">
-            <span className="text-orange-600 dark:text-orange-400 font-bold flex items-center gap-1">
-              <ShoppingCart className="w-3 h-3" />
-              Pedidos:
-            </span>
+          <div className="px-2.5 py-1 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-bold text-xs border border-orange-200 dark:border-orange-800 flex items-center gap-2">
+            <span>Pedidos:</span>
             {hasPedidos ? (
-              <span className="text-orange-600 dark:text-orange-400 font-black">
-                {pedidosNum}
-              </span>
+              <span className="font-black">{pedidosNum}</span>
             ) : (
-              <span
-                className="inline-block w-10 h-4 rounded border-2 border-orange-400 bg-white dark:bg-slate-900 shadow-2xs"
-                title="Pendiente de pedidos"
-              />
+              <span className="inline-block w-8 h-3.5 rounded border border-orange-400 bg-white dark:bg-slate-900 shadow-2xs" />
             )}
           </div>
 
           {/* Servidos */}
-          <div className="text-xs font-bold leading-tight flex items-center justify-end gap-1.5">
-            <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" />
-              Servidos:
-            </span>
+          <div className="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold text-xs border border-emerald-200 dark:border-emerald-800 flex items-center gap-2">
+            <span>Servidos:</span>
             {hasServidos ? (
-              <span className="text-emerald-600 dark:text-emerald-400 font-black">
-                {servidosNum}
-              </span>
+              <span className="font-black">{servidosNum}</span>
             ) : (
-              <span
-                className="inline-block w-10 h-4 rounded border-2 border-emerald-400 bg-white dark:bg-slate-900 shadow-2xs"
-                title="Pendiente de servidos"
-              />
+              <span className="inline-block w-8 h-3.5 rounded border border-emerald-400 bg-white dark:bg-slate-900 shadow-2xs" />
             )}
           </div>
         </div>
