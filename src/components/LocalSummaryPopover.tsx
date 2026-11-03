@@ -94,48 +94,71 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
             </div>
 
             {/* Event Title */}
-            {event.title && (
-              <h3 className="font-normal text-gray-700 dark:text-gray-300 text-sm leading-snug mb-3">
-                {event.title}
-              </h3>
-            )}
+            <h3 className="font-normal text-gray-700 dark:text-gray-300 text-sm leading-snug mb-3 min-h-[20px]">
+              {event.title || <span className="text-transparent select-none">&nbsp;</span>}
+            </h3>
 
             {/* Menu details */}
             {event.dish && (
               <div className="flex-1 flex flex-col mt-2">
-                {event.dish.proteina && (
+                {event.dish.proteina ? (
                   <div className="my-1.5 py-2.5 px-3 rounded-xl border-2 border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 shadow-xs text-center">
                     <span className="font-black text-sm text-blue-900 dark:text-blue-100 tracking-wide uppercase">
                       {event.dish.proteina}
                     </span>
                   </div>
-                )}
-                {event.dish.salsa && (
-                  <div className="py-2.5 border-t border-gray-100 dark:border-gray-800">
-                    <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.salsa}</span>
-                  </div>
-                )}
-                {event.dish.carbohidrato && (
-                  <div className="py-2.5 border-t border-gray-100 dark:border-gray-800">
-                    <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.carbohidrato}</span>
-                  </div>
-                )}
-                {event.dish.guarnicion && (
-                  <div className="py-2.5 border-t border-gray-100 dark:border-gray-800">
-                    <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.guarnicion}</span>
-                  </div>
-                )}
-                {event.dish.ensalada && (
-                  <div className="py-2.5 border-t border-gray-100 dark:border-gray-800">
-                    <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.ensalada}</span>
+                ) : (
+                  <div className="my-1.5 py-2.5 px-3 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 text-center min-h-[46px] flex items-center justify-center">
+                    <span className="text-xs text-gray-400 italic">Sin proteína</span>
                   </div>
                 )}
 
-                {(event.description || event.notes) && (
-                  <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                    {event.description || event.notes}
-                  </div>
-                )}
+                {/* Salsa */}
+                <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center">
+                  {event.dish.salsa ? (
+                    <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.salsa}</span>
+                  ) : (
+                    <span className="text-transparent select-none">&nbsp;</span>
+                  )}
+                </div>
+
+                {/* Carbohidrato */}
+                <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center">
+                  {event.dish.carbohidrato ? (
+                    <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.carbohidrato}</span>
+                  ) : (
+                    <span className="text-transparent select-none">&nbsp;</span>
+                  )}
+                </div>
+
+                {/* Guarnición */}
+                <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center">
+                  {event.dish.guarnicion ? (
+                    <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.guarnicion}</span>
+                  ) : (
+                    <span className="text-transparent select-none">&nbsp;</span>
+                  )}
+                </div>
+
+                {/* Ensalada */}
+                <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center">
+                  {event.dish.ensalada ? (
+                    <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.ensalada}</span>
+                  ) : (
+                    <span className="text-transparent select-none">&nbsp;</span>
+                  )}
+                </div>
+
+                {/* Descripción / Notas: Deja el espacio reservado si no existe para mantener perfecta alineación */}
+                <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center text-sm">
+                  {(event.description || event.notes) ? (
+                    <span className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                      {event.description || event.notes}
+                    </span>
+                  ) : (
+                    <span className="text-transparent select-none">&nbsp;</span>
+                  )}
+                </div>
 
                 {/* Footer Event Card: Servilleta + Control de Platos */}
                 <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-end text-sm gap-2 flex-wrap">
