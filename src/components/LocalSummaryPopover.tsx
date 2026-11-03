@@ -175,33 +175,80 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                   <div>
                     {(() => {
                       const contratadosFormula = event.dish.platosContratadosFormula;
+                      const parsedContr = contratadosFormula ? parsePlateFormula(contratadosFormula) : null;
                       const contratadosNum = event.dish.platosContratados ||
-                        (contratadosFormula ? parsePlateFormula(contratadosFormula).total : (event.dish.cantidadPlatos || 0));
+                        (parsedContr?.isValid ? parsedContr.total : (event.dish.cantidadPlatos || 0));
 
-                      const displayPactado = contratadosFormula || (contratadosNum > 0 ? String(contratadosNum) : '');
+                      // Formato Degustación: con fórmula y total (ej: "45X3 = 135" o "45x9 = 405")
+                      let displayDegustacion = '';
+                      if (contratadosFormula && parsedContr?.isValid) {
+                        if (contratadosFormula.includes('=')) {
+                          displayDegustacion = contratadosFormula;
+                        } else if (/[xX*×·+]/.test(contratadosFormula)) {
+                          displayDegustacion = `${contratadosFormula.trim()} = ${parsedContr.total}`;
+                        } else {
+                          displayDegustacion = contratadosFormula;
+                        }
+                      } else if (contratadosNum > 0) {
+                        displayDegustacion = String(contratadosNum);
+                      }
 
-                      const cocinaNum = (event.dish.platosConfirmados !== undefined && event.dish.platosConfirmados > 0)
-                        ? event.dish.platosConfirmados
-                        : contratadosNum;
+                      // Estado de Pedidos (Cocina): si no se ingresó, queda pendiente con recuadro
+                      const hasPedidos = event.dish.platosConfirmados !== undefined && event.dish.platosConfirmados > 0;
+                      const pedidosNum = hasPedidos ? event.dish.platosConfirmados : undefined;
 
-                      const servidosNum = (event.dish.platosServidos !== undefined && event.dish.platosServidos > 0)
-                        ? event.dish.platosServidos
-                        : cocinaNum;
+                      // Estado de Servidos (Sala): si no se ingresó, queda pendiente con recuadro
+                      const hasServidos = event.dish.platosServidos !== undefined && event.dish.platosServidos > 0;
+                      const servidosNum = hasServidos ? event.dish.platosServidos : undefined;
 
-                      const hasPlates = Boolean(displayPactado || cocinaNum > 0 || servidosNum > 0);
+                      const hasPlates = Boolean(displayDegustacion || hasPedidos || hasServidos || contratadosNum > 0);
 
                       if (hasPlates) {
                         return (
                           <div className="flex flex-col items-end gap-1 text-[11px] shrink-0">
-                            <span className="min-w-[115px] text-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap" title="Platos degustación / fórmula">
-                              Degustación: {displayPactado || contratadosNum}
+                            {/* Degustación */}
+                            <span 
+                              className="w-full text-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap" 
+                              title="Platos degustación pactados"
+                            >
+                              Degustación: {displayDegustacion || contratadosNum}
                             </span>
-                            <span className="min-w-[115px] text-center px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 whitespace-nowrap" title="Platos pedidos">
-                              Pedidos: {cocinaNum}
-                            </span>
-                            <span className="min-w-[115px] text-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 whitespace-nowrap" title="Platos servidos en sala">
-                              Servidos: {servidosNum}
-                            </span>
+
+                            {/* Pedidos: muestra cantidad confirmada o recuadro para completar después */}
+                            {hasPedidos ? (
+                              <span 
+                                className="w-full text-center px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 whitespace-nowrap" 
+                                title="Platos pedidos para cocina"
+                              >
+                                Pedidos: {pedidosNum}
+                              </span>
+                            ) : (
+                              <span 
+                                className="w-full px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 flex items-center justify-between gap-2 whitespace-nowrap" 
+                                title="Pedidos pendientes de confirmar (completar después)"
+                              >
+                                <span>Pedidos:</span>
+                                <span className="inline-block w-8 h-3.5 rounded border border-orange-400/90 dark:border-orange-400 bg-white dark:bg-gray-900 shadow-2xs"></span>
+                              </span>
+                            )}
+
+                            {/* Servidos: muestra cantidad servida o recuadro para completar después */}
+                            {hasServidos ? (
+                              <span 
+                                className="w-full text-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 whitespace-nowrap" 
+                                title="Platos servidos en sala"
+                              >
+                                Servidos: {servidosNum}
+                              </span>
+                            ) : (
+                              <span 
+                                className="w-full px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-2 whitespace-nowrap" 
+                                title="Servidos pendientes de registrar"
+                              >
+                                <span>Servidos:</span>
+                                <span className="inline-block w-8 h-3.5 rounded border border-emerald-400/90 dark:border-emerald-400 bg-white dark:bg-gray-900 shadow-2xs"></span>
+                              </span>
+                            )}
                           </div>
                         );
                       }
