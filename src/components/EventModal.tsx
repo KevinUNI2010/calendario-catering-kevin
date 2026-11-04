@@ -188,11 +188,23 @@ export const EventModal: React.FC<EventModalProps> = ({
   const selectedLocal = locales.find(l => l.id === localId);
   const selectedColor = getEventColor(selectedLocal ? selectedLocal.colorId : (event.colorId || 'peacock'));
 
-  const TIME_OPTIONS = Array.from({ length: 48 }).map((_, i) => {
-    const h = String(Math.floor(i / 2)).padStart(2, '0');
-    const m = i % 2 === 0 ? '00' : '30';
-    return `${h}:${m}`;
-  });
+  // Lista de horarios comenzando desde las 09:00 a. m. (horarios habituales de eventos de catering)
+  const TIME_OPTIONS = [
+    // 09:00 a 23:30
+    ...Array.from({ length: 30 }, (_, i) => {
+      const tm = 9 * 60 + i * 30;
+      const h = String(Math.floor(tm / 60)).padStart(2, '0');
+      const m = tm % 60 === 0 ? '00' : '30';
+      return `${h}:${m}`;
+    }),
+    // 00:00 a 08:30 (madrugada al final para no entorpecer la selección rápida)
+    ...Array.from({ length: 18 }, (_, i) => {
+      const tm = i * 30;
+      const h = String(Math.floor(tm / 60)).padStart(2, '0');
+      const m = tm % 60 === 0 ? '00' : '30';
+      return `${h}:${m}`;
+    }),
+  ];
 
   const eventDate = startDate ? startDate.substring(0, 10) : '';
   const eventTime = startDate && startDate.length >= 16 ? startDate.substring(11, 16) : '09:00';
