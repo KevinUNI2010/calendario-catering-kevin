@@ -415,6 +415,7 @@ export const ModernEventCardLab: React.FC = () => {
             <ModernEventCard
               key={event.id}
               event={event}
+              className="w-full max-w-[390px]"
               onOpenPhotoLightbox={(url) => setSelectedPhoto(url)}
             />
           ))}

@@ -96,7 +96,7 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
 
   return (
     <div
-      className={`relative w-full max-w-[390px] bg-white dark:bg-[#161a23] rounded-[32px] p-6 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.08),0_4px_16px_-4px_rgba(0,0,0,0.03)] border border-slate-100 dark:border-slate-800/80 overflow-hidden flex flex-col justify-between transition-all duration-200 hover:shadow-[0_20px_48px_-8px_rgba(0,0,0,0.12)] ${className}`}
+      className={`relative w-full bg-white dark:bg-[#161a23] rounded-3xl p-5 sm:p-6 shadow-[0_10px_30px_-8px_rgba(0,0,0,0.07)] border border-slate-100 dark:border-slate-800/80 overflow-hidden flex flex-col justify-between transition-all duration-200 hover:shadow-[0_16px_36px_-6px_rgba(0,0,0,0.1)] ${className}`}
     >
       {/* 
         ========================================================================

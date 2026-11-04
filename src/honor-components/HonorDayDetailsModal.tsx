@@ -236,7 +236,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
               )}
             </div>
           ) : cardStyle === 'modern' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 justify-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-max">
               {sortedEvents.map(event => (
                 <div
                   key={event.id}
@@ -246,10 +246,11 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                       onClose();
                     }
                   }}
-                  className={role === 'admin' ? 'cursor-pointer w-full flex justify-center' : 'w-full flex justify-center'}
+                  className={`w-full ${role === 'admin' ? 'cursor-pointer hover:shadow-md transition-shadow rounded-3xl' : ''}`}
                 >
                   <ModernEventCard
                     event={event}
+                    className="w-full h-full"
                     onOpenPhotoLightbox={(url) =>
                       setLightboxImage({
                         src: url,
