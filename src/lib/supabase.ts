@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { CalendarEvent, Local, UserSession } from '../types';
+import { normalizeLocalDateString } from '../utils/dateUtils';
 
 // Supabase Client and Sync helpers for Vercel & Supabase
 const env = (import.meta as any).env || {};
@@ -32,6 +33,9 @@ export function isSupabaseConfigured(): boolean {
 
 // Convert DB snake_case row to CalendarEvent
 export function mapRowToEvent(row: any): CalendarEvent {
+  const cleanStartDate = normalizeLocalDateString(row.start_date);
+  const cleanEndDate = normalizeLocalDateString(row.end_date || row.start_date);
+
   return {
     id: row.id,
     title: row.title,
@@ -39,8 +43,8 @@ export function mapRowToEvent(row: any): CalendarEvent {
     localId: row.local_id,
     localName: row.local_name,
     colorId: row.color_id || 'peacock',
-    startDate: row.start_date,
-    endDate: row.end_date,
+    startDate: cleanStartDate,
+    endDate: cleanEndDate,
     allDay: Boolean(row.all_day),
     attendees: Array.isArray(row.attendees) ? row.attendees : [],
     reminders: Array.isArray(row.reminders) ? row.reminders : [],
@@ -77,8 +81,8 @@ export function mapEventToRow(event: CalendarEvent): any {
     local_id: (event.localId && event.localId.length === 36) ? event.localId : null,
     local_name: event.localName,
     color_id: event.colorId,
-    start_date: event.startDate,
-    end_date: event.endDate,
+    start_date: normalizeLocalDateString(event.startDate),
+    end_date: normalizeLocalDateString(event.endDate || event.startDate),
     all_day: event.allDay,
     attendees: event.attendees,
     reminders: event.reminders,

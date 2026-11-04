@@ -3,6 +3,7 @@ import { CalendarEvent, Local } from '../types';
 import { getEventColor } from '../utils/colorUtils';
 import { parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas } from '../utils/servilletaUtils';
+import { formatEventTime, parseEventDate } from '../utils/dateUtils';
 import { EvidenceLightboxModal } from './EvidenceLightboxModal';
 import {
   Calendar,
@@ -37,10 +38,10 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
 
   const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
   const isDatePending = Boolean(event.isDatePending || event.dish?.isDatePending);
-  const startDate = new Date(event.startDate);
+  const startDate = parseEventDate(event.startDate);
   const dateFormatted = startDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
   // Solo hora de inicio, sin hora final como fue solicitado
-  const timeFormatted = startDate.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const timeFormatted = formatEventTime(event.startDate);
 
   return (
     <div 

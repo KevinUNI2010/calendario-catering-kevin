@@ -5,7 +5,7 @@ import { toBlob } from 'html-to-image';
 import { notify } from '../utils/toastHelper';
 import { CalendarEvent } from '../types';
 import { getEventColor } from '../utils/colorUtils';
-import { formatDateShort } from '../utils/dateUtils';
+import { formatDateShort, formatEventTime, parseEventDate } from '../utils/dateUtils';
 import { getEffectivePlateCount } from '../utils/plateMath';
 import { getSelectedServilletas } from '../utils/servilletaUtils';
 
@@ -99,14 +99,10 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
       totalEventsWithFood++;
 
       const localName = (event.localName || 'Sin Local').trim();
-      const startDate = new Date(event.startDate);
+      const startDate = parseEventDate(event.startDate);
       const timestamp = isNaN(startDate.getTime()) ? 0 : startDate.getTime();
       const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
-      const timeFormatted = isTimePending
-        ? 'Por confirmar'
-        : (isNaN(startDate.getTime())
-            ? ''
-            : startDate.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true }));
+      const timeFormatted = isTimePending ? 'Por confirmar' : formatEventTime(event.startDate);
 
       if (!localesMap.has(localName)) {
         localesMap.set(localName, {

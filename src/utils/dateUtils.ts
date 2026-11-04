@@ -6,14 +6,65 @@ export const MONTH_NAMES_ES = [
 export const DAY_NAMES_SHORT = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 export const DAY_NAMES_FULL = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
+/**
+ * Normaliza cualquier string de fecha/hora eliminando sufijos de zona horaria UTC (+00:00 o Z)
+ * para que JavaScript siempre interprete la hora exactamente como hora local de pared (wall-clock)
+ * de Perú, evitando desfases de 5 horas (ej: 19:00 -> 14:00).
+ */
+export function normalizeLocalDateString(dateStr: string | null | undefined): string {
+  if (!dateStr || typeof dateStr !== 'string') return '';
+  return dateStr.replace(/(\+00:?00|Z)$/i, '').trim();
+}
+
+/**
+ * Crea un objeto Date a partir de un string de fecha/hora asegurando que se interprete
+ * como hora local de pared sin desfase UTC.
+ */
+export function parseEventDate(dateStr: string | null | undefined): Date {
+  if (!dateStr) return new Date();
+  const clean = normalizeLocalDateString(dateStr);
+  const d = new Date(clean);
+  if (isNaN(d.getTime())) return new Date();
+  return d;
+}
+
+/**
+ * Formatea la hora de un evento para mostrar en cards y resúmenes (ej: "7:00 p. m.")
+ * garantizando que 19:00 se muestre como 7:00 p. m. sin desfases de zona horaria.
+ */
+export function formatEventTime(dateStr: string | null | undefined): string {
+  if (!dateStr) return '';
+  const clean = normalizeLocalDateString(dateStr);
+  const d = new Date(clean);
+  if (isNaN(d.getTime())) {
+    if (clean.includes('T')) {
+      const timePart = clean.split('T')[1];
+      if (timePart) {
+        const [hStr, mStr] = timePart.split(':');
+        const h = parseInt(hStr, 10);
+        const ampm = h >= 12 ? 'p. m.' : 'a. m.';
+        const h12 = h % 12 || 12;
+        return `${h12}:${mStr} ${ampm}`;
+      }
+    }
+    return '';
+  }
+  return d.toLocaleTimeString('es-ES', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
 export function formatTimeHM(dateStr: string): string {
   try {
-    if (typeof dateStr === 'string' && dateStr.includes('T') && !dateStr.includes('Z') && !dateStr.includes('+')) {
-      const timePart = dateStr.split('T')[1];
+    const clean = normalizeLocalDateString(dateStr);
+    if (clean.includes('T')) {
+      const timePart = clean.split('T')[1];
       if (timePart) return timePart.substring(0, 5);
     }
-    const d = new Date(dateStr);
-    return d.toLocaleTimeString('es-PE', { timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit', hour12: false });
+    const d = new Date(clean);
+    return d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
   } catch {
     return dateStr;
   }

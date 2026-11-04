@@ -19,7 +19,7 @@ import {
 } from './utils/offlineStorage';
 import { NotificationItem, notificationService } from './utils/notifications';
 import { soundManager } from './utils/soundEffects';
-import { formatISO, MONTH_NAMES_ES } from './utils/dateUtils';
+import { formatISO, MONTH_NAMES_ES, formatEventTime, parseEventDate } from './utils/dateUtils';
 import { notify } from './utils/toastHelper';
 
 import { HonorNavbar } from './honor-components/HonorNavbar';
@@ -274,7 +274,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
               {
                 id: 'notif-' + Date.now(),
                 title: `Recordatorio: ${event.title}`,
-                body: `Inicia en ${event.localName} a las ${new Date(event.startDate).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}.`,
+                body: `Inicia en ${event.localName} a las ${formatEventTime(event.startDate)}.`,
                 timestamp: new Date().toISOString(),
                 read: false,
                 type: 'reminder',
@@ -490,7 +490,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
           eventId: event.id,
           recipient: event.attendees?.[0]?.email || 'kevin.zambrano.inteligencia@gmail.com',
           subject: `🔔 Recordatorio Inmediato: ${event.title} (${event.localName})`,
-          customBody: `Aviso inmediato para el personal del local ${event.localName}.\n\nEvento: ${event.title}\nHorario: ${new Date(event.startDate).toLocaleTimeString('es-ES')} - ${new Date(event.endDate).toLocaleTimeString('es-ES')}\n\nDespachado manualmente desde Calendario de Locales.`,
+          customBody: `Aviso inmediato para el personal del local ${event.localName}.\n\nEvento: ${event.title}\nHorario: ${formatEventTime(event.startDate)} - ${formatEventTime(event.endDate)}\n\nDespachado manualmente desde Calendario de Locales.`,
         }),
       });
       const data = await res.json();

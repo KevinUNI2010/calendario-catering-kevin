@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { CalendarEvent } from '../types';
 import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles } from 'lucide-react';
-import { formatDateShort } from '../utils/dateUtils';
+import { formatDateShort, formatEventTime, parseEventDate } from '../utils/dateUtils';
 import { getEventColor } from '../utils/colorUtils';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { getEffectivePlateCount, parsePlateFormula } from '../utils/plateMath';
@@ -64,11 +64,10 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
       totalEventsWithFood++;
 
       const localName = (event.localName || 'Sin Local').trim();
-      const startDate = new Date(event.startDate);
+      const startDate = parseEventDate(event.startDate);
       const timestamp = isNaN(startDate.getTime()) ? 0 : startDate.getTime();
-      const timeFormatted = isNaN(startDate.getTime())
-        ? ''
-        : startDate.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
+      const timeFormatted = isTimePending ? 'Por confirmar' : formatEventTime(event.startDate);
 
       if (!localesMap.has(localName)) {
         localesMap.set(localName, {
@@ -266,8 +265,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-max">
               {sortedEvents.map(event => {
               const color = getEventColor(event.colorId);
-              const startDate = new Date(event.startDate);
-              const timeString = startDate.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true });
+              const timeString = formatEventTime(event.startDate);
 
               return (
                 <div 

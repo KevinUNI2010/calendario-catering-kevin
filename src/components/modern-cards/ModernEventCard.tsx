@@ -3,6 +3,7 @@ import { CalendarEvent, Local } from '../../types';
 import { getEventColor } from '../../utils/colorUtils';
 import { parsePlateFormula } from '../../utils/plateMath';
 import { getSelectedServilletas } from '../../utils/servilletaUtils';
+import { formatEventTime } from '../../utils/dateUtils';
 import {
   SalsaIcon,
   CarbohidratoIcon,
@@ -56,12 +57,7 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
   // 2. Extraer fecha / hora de inicio
   const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
   const isDatePending = Boolean(event.isDatePending || event.dish?.isDatePending);
-  const startDate = new Date(event.startDate);
-  const timeFormatted = startDate.toLocaleTimeString('es-ES', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
+  const timeFormatted = formatEventTime(event.startDate);
 
   // 3. Servilletas y sus colores reales
   const servList = getSelectedServilletas(event.dish);

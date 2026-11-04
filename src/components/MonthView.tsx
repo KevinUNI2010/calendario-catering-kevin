@@ -1,6 +1,6 @@
 import React from 'react';
 import { CalendarEvent } from '../types';
-import { getMonthDays, isSameDay, isToday, DAY_NAMES_SHORT } from '../utils/dateUtils';
+import { getMonthDays, isSameDay, isToday, DAY_NAMES_SHORT, parseEventDate } from '../utils/dateUtils';
 import { LocalBadge } from './LocalBadge';
 import { Plus } from 'lucide-react';
 
@@ -46,7 +46,7 @@ export const MonthView: React.FC<MonthViewProps> = ({
         {days.map((day, idx) => {
           const isCurrMonth = day.getMonth() === currentMonth;
           const dayEvents = events.filter((e) => {
-            const start = new Date(e.startDate);
+            const start = parseEventDate(e.startDate);
             return isSameDay(start, day);
           });
           const today = isToday(day);

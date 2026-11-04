@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CalendarEvent, Local, EmailLog } from '../types';
+import { normalizeLocalDateString } from './dateUtils';
 
 const STORAGE_KEYS = {
   EVENTS: 'calendario_events_cache_v5',
@@ -28,7 +29,16 @@ export function saveCachedEvents(events: CalendarEvent[]): void {
 export function getCachedEvents(): CalendarEvent[] | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.EVENTS);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.map((e: CalendarEvent) => ({
+          ...e,
+          startDate: normalizeLocalDateString(e.startDate),
+          endDate: normalizeLocalDateString(e.endDate || e.startDate),
+        }));
+      }
+    }
   } catch (e) {
     console.warn('Could not read cached events', e);
   }
