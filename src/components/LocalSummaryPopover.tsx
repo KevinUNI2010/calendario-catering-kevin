@@ -185,29 +185,31 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                       const servList = getSelectedServilletas(event.dish);
                       if (servList.length === 0) {
                         return (
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-gray-400">Servilleta:</span>
-                            <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                          <div className="flex flex-col items-start gap-1">
+                            <span className="text-xs text-gray-400 dark:text-gray-500">Servilleta:</span>
+                            <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 whitespace-nowrap shadow-2xs">
                               Por confirmar
                             </span>
                           </div>
                         );
                       }
                       return (
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-gray-400">{servList.length > 1 ? 'Servilletas:' : 'Servilleta:'}</span>
-                          {servList.map((s, idx) => (
-                            <span key={idx} className="inline-flex items-center gap-1 font-bold text-gray-800 dark:text-gray-200">
-                              {s.color && (
-                                <span 
-                                  className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/10 shrink-0" 
-                                  style={{ backgroundColor: s.color }} 
-                                />
-                              )}
-                              <span>{s.name}</span>
-                              {idx < servList.length - 1 && <span className="text-gray-400 font-normal">/</span>}
-                            </span>
-                          ))}
+                        <div className="flex flex-col items-start gap-1">
+                          <span className="text-xs text-gray-400 dark:text-gray-500">{servList.length > 1 ? 'Servilletas:' : 'Servilleta:'}</span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {servList.map((s, idx) => (
+                              <span key={idx} className="inline-flex items-center gap-1 font-bold text-gray-800 dark:text-gray-200">
+                                {s.color && (
+                                  <span 
+                                    className="w-2.5 h-2.5 rounded-full border border-black/10 dark:border-white/10 shrink-0" 
+                                    style={{ backgroundColor: s.color }} 
+                                  />
+                                )}
+                                <span>{s.name}</span>
+                                {idx < servList.length - 1 && <span className="text-gray-400 font-normal">/</span>}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       );
                     })()}
