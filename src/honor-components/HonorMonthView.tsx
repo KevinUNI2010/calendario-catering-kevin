@@ -88,6 +88,8 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                   const color = getEventColor(event.colorId);
                   const isPostponed = event.status === 'postponed';
                   const isCancelled = event.status === 'cancelled';
+                  const stateColor = isPostponed ? '#f59e0b' : isCancelled ? '#ef4444' : null;
+
                   return (
                     <div 
                       key={event.id} 
@@ -101,21 +103,20 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                           onSelectEvent(e, event);
                         }
                       }}
-                      className={`w-full rounded py-[3px] px-1 text-[8px] sm:text-[10px] leading-none font-bold shadow-sm whitespace-nowrap overflow-hidden text-clip cursor-pointer hover:opacity-90 active:scale-[0.98] transition-transform flex items-center gap-1 ${
-                        isPostponed
-                          ? 'ring-1 ring-amber-400 opacity-90'
-                          : isCancelled
-                          ? 'ring-1 ring-rose-400 opacity-70 line-through'
-                          : ''
-                      }`}
+                      className="relative w-full rounded py-[3px] px-1 text-[8px] sm:text-[10px] leading-none font-bold shadow-sm whitespace-nowrap overflow-hidden text-clip cursor-pointer hover:opacity-90 active:scale-[0.98] transition-transform text-center flex items-center justify-center"
                       style={{ backgroundColor: color.bg, color: color.text || '#fff' }}
                       title={`${event.localName}${isPostponed ? ' (Postergado)' : isCancelled ? ' (Cancelado)' : ''}`}
                     >
-                      {isPostponed && <span className="font-black text-amber-200">✕</span>}
-                      {isCancelled && <span className="font-black text-rose-200">✕</span>}
-                      <span className="truncate">{event.localName || 'Evento'}</span>
-                      {isPostponed && <span className="text-[7px] sm:text-[8px] opacity-90 shrink-0 font-normal">(Post.)</span>}
-                      {isCancelled && <span className="text-[7px] sm:text-[8px] opacity-90 shrink-0 font-normal">(Canc.)</span>}
+                      <span className="truncate block w-full select-none">{event.localName || 'Evento'}</span>
+
+                      {(isPostponed || isCancelled) && (
+                        <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10 overflow-hidden select-none">
+                          <svg className="w-full h-full drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <line x1="4" y1="8" x2="96" y2="92" stroke={stateColor!} strokeWidth="7" strokeLinecap="round" />
+                            <line x1="96" y1="8" x2="4" y2="92" stroke={stateColor!} strokeWidth="7" strokeLinecap="round" />
+                          </svg>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

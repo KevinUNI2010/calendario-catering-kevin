@@ -14,6 +14,7 @@ export const LocalBadge: React.FC<LocalBadgeProps> = ({ event, onClick, compact 
   const colorDef = getEventColor(event.colorId);
   const isPostponed = event.status === 'postponed';
   const isCancelled = event.status === 'cancelled';
+  const stateColor = isPostponed ? '#f59e0b' : isCancelled ? '#ef4444' : null;
 
   if (compact) {
     return (
@@ -21,30 +22,25 @@ export const LocalBadge: React.FC<LocalBadgeProps> = ({ event, onClick, compact 
         id={`local-badge-${event.id}`}
         type="button"
         onClick={(e) => onClick(e, event)}
-        className={`w-full text-left group flex items-center justify-between gap-1 p-[2px] md:px-2 md:py-1 rounded-md text-[10px] md:text-xs font-medium transition-all shadow-xs hover:shadow-md hover:scale-[1.01] active:scale-[0.99] border cursor-pointer select-none ${
-          isPostponed ? 'ring-1 ring-amber-400 opacity-90' : isCancelled ? 'ring-1 ring-rose-400 opacity-70 line-through' : ''
-        }`}
+        className="relative w-full text-left group flex items-center p-[2px] md:px-2 md:py-1 rounded-md text-[10px] md:text-xs font-medium transition-all shadow-xs hover:shadow-md hover:scale-[1.01] active:scale-[0.99] border cursor-pointer select-none overflow-hidden"
         style={{
           backgroundColor: colorDef.bg,
           color: colorDef.text,
-          borderColor: isPostponed ? '#f59e0b' : isCancelled ? '#ef4444' : colorDef.border,
+          borderColor: colorDef.border,
         }}
         title={`${event.localName} - ${event.title}${isPostponed ? ' (Postergado)' : isCancelled ? ' (Cancelado)' : ''}`}
       >
         <span className="font-semibold truncate tracking-tight flex items-center gap-1 min-w-0">
-          {isPostponed && <span className="font-black text-amber-200 shrink-0">✕</span>}
-          {isCancelled && <span className="font-black text-rose-200 shrink-0">✕</span>}
           <span className="truncate">{event.localName}</span>
         </span>
-        {isPostponed && (
-          <span className="text-[8px] md:text-[9px] font-black uppercase bg-amber-500 text-white px-1 py-0.2 rounded shrink-0">
-            Post.
-          </span>
-        )}
-        {isCancelled && (
-          <span className="text-[8px] md:text-[9px] font-black uppercase bg-rose-600 text-white px-1 py-0.2 rounded shrink-0">
-            Canc.
-          </span>
+
+        {(isPostponed || isCancelled) && (
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10 overflow-hidden select-none">
+            <svg className="w-full h-full drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <line x1="4" y1="8" x2="96" y2="92" stroke={stateColor!} strokeWidth="6" strokeLinecap="round" />
+              <line x1="96" y1="8" x2="4" y2="92" stroke={stateColor!} strokeWidth="6" strokeLinecap="round" />
+            </svg>
+          </div>
         )}
       </button>
     );
@@ -55,32 +51,27 @@ export const LocalBadge: React.FC<LocalBadgeProps> = ({ event, onClick, compact 
       id={`local-badge-${event.id}`}
       type="button"
       onClick={(e) => onClick(e, event)}
-      className={`w-full text-left group flex flex-col gap-1 p-2 rounded-lg text-xs font-medium transition-all shadow-xs hover:shadow-md hover:ring-2 hover:ring-offset-1 hover:ring-blue-400 dark:hover:ring-offset-gray-900 border cursor-pointer select-none ${
-        isPostponed ? 'ring-2 ring-amber-400' : isCancelled ? 'ring-2 ring-rose-400 line-through opacity-80' : ''
-      }`}
+      className="relative w-full text-left group flex flex-col gap-1 p-2 rounded-lg text-xs font-medium transition-all shadow-xs hover:shadow-md hover:ring-2 hover:ring-offset-1 hover:ring-blue-400 dark:hover:ring-offset-gray-900 border cursor-pointer select-none overflow-hidden"
       style={{
         backgroundColor: colorDef.bg,
         color: colorDef.text,
-        borderColor: isPostponed ? '#f59e0b' : isCancelled ? '#ef4444' : colorDef.border,
+        borderColor: colorDef.border,
       }}
     >
       <div className="flex items-center justify-between gap-1 w-full">
         <div className="flex items-center gap-1.5 font-bold truncate">
-          {isPostponed && <span className="font-black text-amber-200">✕</span>}
-          {isCancelled && <span className="font-black text-rose-200">✕</span>}
           <span className="truncate">{event.localName}</span>
         </div>
-        {isPostponed && (
-          <span className="text-[10px] font-black bg-amber-500 text-white px-1.5 py-0.5 rounded shadow-2xs">
-            POSTERGADO
-          </span>
-        )}
-        {isCancelled && (
-          <span className="text-[10px] font-black bg-rose-600 text-white px-1.5 py-0.5 rounded shadow-2xs">
-            CANCELADO
-          </span>
-        )}
       </div>
+
+      {(isPostponed || isCancelled) && (
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10 overflow-hidden select-none">
+          <svg className="w-full h-full drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <line x1="4" y1="8" x2="96" y2="92" stroke={stateColor!} strokeWidth="5" strokeLinecap="round" />
+            <line x1="96" y1="8" x2="4" y2="92" stroke={stateColor!} strokeWidth="5" strokeLinecap="round" />
+          </svg>
+        </div>
+      )}
     </button>
   );
 };
