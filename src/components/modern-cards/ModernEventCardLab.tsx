@@ -68,6 +68,7 @@ const SAMPLE_DEMO_EVENTS: CalendarEvent[] = [
     localId: 'loc-villa',
     localName: 'VILLA SANTIAGO',
     status: 'confirmed',
+    isTimePending: true, // Hora por confirmar
     attendees: [],
     reminders: [],
     createdBy: 'admin',

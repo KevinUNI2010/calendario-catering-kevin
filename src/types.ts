@@ -47,6 +47,8 @@ export interface DishSelection {
   platosConfirmados?: number; // Numérico: ajuste del día para cocina (ej: 198)
   platosServidos?: number; // Numérico: conteo final servido en sala (ej: 230)
   evidencePhoto?: string; // Data URL o link a la foto del cuaderno recortada
+  isTimePending?: boolean; // Hora por confirmar
+  isDatePending?: boolean; // Fecha por confirmar / tentativa
 }
 
 export interface ReminderConfig {
@@ -74,6 +76,8 @@ export interface CalendarEvent {
   notes?: string;
   dish?: DishSelection;
   evidencePhoto?: string; // Foto de cuaderno recortada asociada al evento
+  isTimePending?: boolean; // Hora por confirmar
+  isDatePending?: boolean; // Fecha por confirmar / tentativa
 }
 
 export interface EmailLog {

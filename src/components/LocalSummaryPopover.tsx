@@ -6,6 +6,7 @@ import { getSelectedServilletas } from '../utils/servilletaUtils';
 import { EvidenceLightboxModal } from './EvidenceLightboxModal';
 import {
   Calendar,
+  Clock,
   X, 
   Edit3, 
   Trash2, 
@@ -34,6 +35,8 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const evidencePhoto = event.dish?.evidencePhoto || event.evidencePhoto;
 
+  const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
+  const isDatePending = Boolean(event.isDatePending || event.dish?.isDatePending);
   const startDate = new Date(event.startDate);
   const dateFormatted = startDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
   // Solo hora de inicio, sin hora final como fue solicitado
@@ -79,18 +82,32 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
         <div className="p-4 sm:p-6 overflow-y-auto bg-[#fcfaf8] dark:bg-[#0c0c0c]">
           <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-gray-800">
             {/* Header Event Card: Local pill a la izquierda y SOLO hora de inicio a la derecha */}
-            <div className="flex items-center justify-between mb-3">
-              <span 
-                className="px-3.5 py-1 text-[13px] font-bold rounded-full tracking-wide uppercase inline-flex items-center" 
-                style={{ backgroundColor: `${colorDef.bg}20`, color: colorDef.bg }}
-              >
-                {event.localName.toUpperCase()}
-                {local?.code && <span className="ml-1.5 opacity-70 text-[11px]">({local.code})</span>}
-              </span>
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span 
+                  className="px-3.5 py-1 text-[13px] font-bold rounded-full tracking-wide uppercase inline-flex items-center" 
+                  style={{ backgroundColor: `${colorDef.bg}20`, color: colorDef.bg }}
+                >
+                  {event.localName.toUpperCase()}
+                  {local?.code && <span className="ml-1.5 opacity-70 text-[11px]">({local.code})</span>}
+                </span>
+                {isDatePending && (
+                  <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
+                    Fecha por confirmar
+                  </span>
+                )}
+              </div>
               
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                {timeFormatted}
-              </span>
+              {isTimePending ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs">
+                  <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  Por confirmar
+                </span>
+              ) : (
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  {timeFormatted}
+                </span>
+              )}
             </div>
 
             {/* Event Title */}

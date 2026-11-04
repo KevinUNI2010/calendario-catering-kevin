@@ -101,9 +101,12 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
       const localName = (event.localName || 'Sin Local').trim();
       const startDate = new Date(event.startDate);
       const timestamp = isNaN(startDate.getTime()) ? 0 : startDate.getTime();
-      const timeFormatted = isNaN(startDate.getTime())
-        ? ''
-        : startDate.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true });
+      const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
+      const timeFormatted = isTimePending
+        ? 'Por confirmar'
+        : (isNaN(startDate.getTime())
+            ? ''
+            : startDate.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true }));
 
       if (!localesMap.has(localName)) {
         localesMap.set(localName, {

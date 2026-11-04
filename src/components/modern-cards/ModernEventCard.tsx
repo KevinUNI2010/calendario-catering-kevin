@@ -54,6 +54,8 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
   const localColor = colorDef.bg; // Hex primario del local (ej: #039be5 para Villa, #33b679 para Cristales, #256a4a para Aryes)
 
   // 2. Extraer fecha / hora de inicio
+  const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
+  const isDatePending = Boolean(event.isDatePending || event.dish?.isDatePending);
   const startDate = new Date(event.startDate);
   const timeFormatted = startDate.toLocaleTimeString('es-ES', {
     hour: 'numeric',
@@ -140,28 +142,43 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
       {/* CONTENIDO SUPERIOR: Cabecera, Título y Platos */}
       <div className="relative z-10">
         {/* CABECERA: Badge del Local + Hora de Inicio */}
-        <div className="flex items-center justify-between mb-2">
-          {/* Badge del local con su color dinámico */}
-          <span
-            className="px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase inline-flex items-center gap-1.5 shadow-2xs transition-all duration-300"
-            style={{
-              backgroundColor: `${localColor}18`,
-              color: localColor,
-              border: `1px solid ${localColor}35`,
-            }}
-          >
+        <div className="flex items-center justify-between gap-2 mb-2">
+          {/* Badge del local con su color dinámico y opcional fecha por confirmar */}
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: localColor }}
-            />
-            {event.localName.toUpperCase()}
-          </span>
+              className="px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase inline-flex items-center gap-1.5 shadow-2xs transition-all duration-300"
+              style={{
+                backgroundColor: `${localColor}18`,
+                color: localColor,
+                border: `1px solid ${localColor}35`,
+              }}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: localColor }}
+              />
+              {event.localName.toUpperCase()}
+            </span>
 
-          {/* Hora de inicio (Letra más grande) */}
-          <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-bold text-sm tracking-tight">
-            <Clock className="w-4 h-4 opacity-80" style={{ color: localColor }} strokeWidth={2.5} />
-            <span>{timeFormatted}</span>
+            {isDatePending && (
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-tight bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
+                Fecha por confirmar
+              </span>
+            )}
           </div>
+
+          {/* Hora de inicio o Badge Por confirmar */}
+          {isTimePending ? (
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs">
+              <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" strokeWidth={2.5} />
+              <span>Por confirmar</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-bold text-sm tracking-tight">
+              <Clock className="w-4 h-4 opacity-80" style={{ color: localColor }} strokeWidth={2.5} />
+              <span>{timeFormatted}</span>
+            </div>
+          )}
         </div>
 
         {/* Subtítulo del evento como se tenía */}

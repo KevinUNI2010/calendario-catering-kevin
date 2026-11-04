@@ -68,6 +68,17 @@ export const EventModal: React.FC<EventModalProps> = ({
     event?.startDate ? event.startDate.substring(0, 16) : getFormattedNow()
   );
   const [allDay, setAllDay] = useState(event?.allDay || false);
+  const [isTimePending, setIsTimePending] = useState<boolean>(() => {
+    if (event?.isTimePending !== undefined) return event.isTimePending;
+    if (event?.dish?.isTimePending !== undefined) return event.dish.isTimePending;
+    // Si no tiene id (es un evento nuevo), por defecto Por confirmar
+    return !event?.id;
+  });
+  const [isDatePending, setIsDatePending] = useState<boolean>(() => {
+    if (event?.isDatePending !== undefined) return event.isDatePending;
+    if (event?.dish?.isDatePending !== undefined) return event.dish.isDatePending;
+    return false;
+  });
   const [description, setDescription] = useState(event?.description || '');
   const [dish, setDish] = useState<DishSelection>(event?.dish || {
     proteina: '',
@@ -122,6 +133,18 @@ export const EventModal: React.FC<EventModalProps> = ({
       setCustomLocalName(event.localName || '');
       setStartDate(event.startDate ? event.startDate.substring(0, 16) : getFormattedNow());
       setAllDay(event.allDay || false);
+      const pendingTime = event.isTimePending !== undefined
+        ? event.isTimePending
+        : (event.dish?.isTimePending !== undefined
+            ? event.dish.isTimePending
+            : (!event.id ? true : false));
+      setIsTimePending(pendingTime);
+      const pendingDate = event.isDatePending !== undefined
+        ? event.isDatePending
+        : (event.dish?.isDatePending !== undefined
+            ? event.dish.isDatePending
+            : false);
+      setIsDatePending(pendingDate);
       setDescription(event.description || '');
       setDish(event.dish || {
         proteina: '',
@@ -230,14 +253,18 @@ export const EventModal: React.FC<EventModalProps> = ({
       platosConfirmados: finalConfirmados,
       platosServidos: finalServidos,
       evidencePhoto: evidencePhoto || undefined,
+      isTimePending,
+      isDatePending,
     };
+
+    const finalStartDate = isTimePending ? `${eventDate}T00:00:00` : startDate;
 
     const updatedEvent: CalendarEvent = {
       id: event.id || crypto.randomUUID(),
       title: title.trim() || `Evento en ${finalLocalName}`,
       description,
-      startDate,
-      endDate: event.endDate || startDate,
+      startDate: finalStartDate,
+      endDate: event.endDate || finalStartDate,
       allDay,
       colorId: selectedLocal ? selectedLocal.colorId : 'peacock',
       localId: selectedLocal ? selectedLocal.id : '',
@@ -250,6 +277,8 @@ export const EventModal: React.FC<EventModalProps> = ({
       notes: event.notes || '',
       dish: updatedDish,
       evidencePhoto: evidencePhoto || undefined,
+      isTimePending,
+      isDatePending,
     };
 
     onSave(updatedEvent);
@@ -320,41 +349,80 @@ export const EventModal: React.FC<EventModalProps> = ({
 
             {/* Día (Date Picker) */}
             <div className="sm:col-span-3">
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1.5">
-                <CalendarIcon className="w-3.5 h-3.5 text-blue-500" />
-                Día
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <CalendarIcon className="w-3.5 h-3.5 text-blue-500" />
+                  Día
+                </span>
+                {isDatePending && (
+                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200/60 dark:border-amber-800/40">
+                    Por confirmar
+                  </span>
+                )}
               </label>
-              <input
-                type="date"
-                id="event-start-date"
-                value={eventDate}
-                onChange={(e) => handleDateChange(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-shadow cursor-pointer"
-                required
-              />
+              <div className="space-y-1.5">
+                <input
+                  type="date"
+                  id="event-start-date"
+                  value={eventDate}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-shadow cursor-pointer"
+                  required
+                />
+                <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 select-none">
+                  <input
+                    type="checkbox"
+                    checked={isDatePending}
+                    onChange={(e) => setIsDatePending(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <span>Día por confirmar / tentativo</span>
+                </label>
+              </div>
             </div>
 
             {/* Hora (Time Picker) */}
             <div className="sm:col-span-3">
-              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-blue-500" />
-                Hora
+              <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-blue-500" />
+                  Hora
+                </span>
+                {isTimePending && (
+                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200/60 dark:border-amber-800/40">
+                    Por confirmar
+                  </span>
+                )}
               </label>
               <select
                 id="event-start-time"
-                value={eventTime}
-                onChange={(e) => handleTimeChange(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-shadow cursor-pointer"
+                value={isTimePending ? 'por_confirmar' : eventTime}
+                onChange={(e) => {
+                  if (e.target.value === 'por_confirmar') {
+                    setIsTimePending(true);
+                  } else {
+                    setIsTimePending(false);
+                    handleTimeChange(e.target.value);
+                  }
+                }}
+                className={`w-full px-3 py-2 text-sm rounded-xl border transition-all cursor-pointer ${
+                  isTimePending
+                    ? 'border-amber-400 dark:border-amber-600 bg-amber-50/50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-200 font-bold focus:ring-2 focus:ring-amber-400'
+                    : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500'
+                }`}
                 required
               >
-                {!TIME_OPTIONS.includes(eventTime) && eventTime && (
-                  <option value={eventTime}>{eventTime}</option>
-                )}
-                {TIME_OPTIONS.map((time) => (
-                  <option key={time} value={time}>
-                    {time}
-                  </option>
-                ))}
+                <option value="por_confirmar">🕒 Por confirmar</option>
+                <optgroup label="── Horarios disponibles ──">
+                  {!TIME_OPTIONS.includes(eventTime) && eventTime && (
+                    <option value={eventTime}>{eventTime}</option>
+                  )}
+                  {TIME_OPTIONS.map((time) => (
+                    <option key={time} value={time}>
+                      {time}
+                    </option>
+                  ))}
+                </optgroup>
               </select>
             </div>
 

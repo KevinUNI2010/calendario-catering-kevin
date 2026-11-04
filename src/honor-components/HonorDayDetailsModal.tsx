@@ -282,13 +282,27 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                 >
                   <div className="flex flex-col h-full">
                     {/* Header Event Card */}
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="px-3.5 py-1 text-[13px] font-bold rounded-full tracking-wide" style={{ backgroundColor: `${color.bg}20`, color: color.bg }}>
-                        {event.localName.toUpperCase()}
-                      </span>
-                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                        {timeString}
-                      </span>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="px-3.5 py-1 text-[13px] font-bold rounded-full tracking-wide uppercase" style={{ backgroundColor: `${color.bg}20`, color: color.bg }}>
+                          {event.localName.toUpperCase()}
+                        </span>
+                        {(event.isDatePending || event.dish?.isDatePending) && (
+                          <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
+                            Fecha por confirmar
+                          </span>
+                        )}
+                      </div>
+                      {(event.isTimePending || event.dish?.isTimePending) ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs">
+                          <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                          Por confirmar
+                        </span>
+                      ) : (
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                          {timeString}
+                        </span>
+                      )}
                     </div>
                     
                     <h3 className="font-normal text-gray-700 dark:text-gray-300 text-sm leading-snug mb-3 truncate min-h-[20px]">

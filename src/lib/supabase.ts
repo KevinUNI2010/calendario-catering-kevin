@@ -50,15 +50,25 @@ export function mapRowToEvent(row: any): CalendarEvent {
     status: row.status || 'confirmed',
     createdBy: row.created_by || 'kevin.zambrano.inteligencia@gmail.com',
     updatedAt: row.updated_at || new Date().toISOString(),
+    isTimePending: Boolean(row.is_time_pending ?? row.dish?.isTimePending),
+    isDatePending: Boolean(row.is_date_pending ?? row.dish?.isDatePending),
   };
 }
 
 // Convert CalendarEvent to DB snake_case row
 export function mapEventToRow(event: CalendarEvent): any {
+  const isTimePending = Boolean(event.isTimePending ?? event.dish?.isTimePending);
+  const isDatePending = Boolean(event.isDatePending ?? event.dish?.isDatePending);
   const dishData = event.dish ? {
     ...event.dish,
+    isTimePending,
+    isDatePending,
     evidencePhoto: event.evidencePhoto || event.dish.evidencePhoto || undefined,
-  } : (event.evidencePhoto ? { evidencePhoto: event.evidencePhoto } : null);
+  } : {
+    isTimePending,
+    isDatePending,
+    evidencePhoto: event.evidencePhoto || undefined,
+  };
 
   return {
     id: event.id,

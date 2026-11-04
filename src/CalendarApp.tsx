@@ -518,6 +518,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
       localId: locales[0]?.id || 'loc-1',
       localName: locales[0]?.name || 'Local Centro Histórico',
       colorId: 'peacock',
+      isTimePending: true, // Por defecto al crear nuevo evento: hora por confirmar
     });
   };
 
@@ -528,6 +529,7 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
       localId: locales[0]?.id || 'loc-1',
       localName: locales[0]?.name || 'Local Centro Histórico',
       colorId: 'peacock',
+      isTimePending: false, // Seleccionó un horario específico en la cuadrícula
     });
   };
 
