@@ -2,7 +2,7 @@ import React from 'react';
 import { CalendarEvent, GOOGLE_CALENDAR_COLORS } from '../types';
 import { getEventColor } from '../utils/colorUtils';
 import { DAY_NAMES_FULL, MONTH_NAMES_ES, formatTimeHM, isToday } from '../utils/dateUtils';
-import { Store, Clock, MapPin, Edit3, Trash2, Mail, Users } from 'lucide-react';
+import { Store, Clock, MapPin, Edit3, Trash2, Mail, Users, X, Ban } from 'lucide-react';
 
 interface AgendaViewProps {
   events: CalendarEvent[];
@@ -97,6 +97,17 @@ export const AgendaView: React.FC<AgendaViewProps> = ({
                                 <Store className="w-3 h-3" />
                                 {event.localName}
                               </button>
+
+                              {event.status === 'postponed' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                                  <X className="w-3 h-3 stroke-[3]" /> POSTERGADO
+                                </span>
+                              )}
+                              {event.status === 'cancelled' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
+                                  <Ban className="w-3 h-3" /> CANCELADO
+                                </span>
+                              )}
 
 
                             </div>

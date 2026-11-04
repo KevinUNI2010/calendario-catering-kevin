@@ -11,7 +11,8 @@ import {
   X, 
   Edit3, 
   Trash2, 
-  FileText
+  FileText,
+  Ban
 } from 'lucide-react';
 
 interface LocalSummaryPopoverProps {
@@ -38,6 +39,8 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
 
   const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
   const isDatePending = Boolean(event.isDatePending || event.dish?.isDatePending);
+  const isPostponed = event.status === 'postponed';
+  const isCancelled = event.status === 'cancelled';
   const startDate = parseEventDate(event.startDate);
   const dateFormatted = startDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
   // Solo hora de inicio, sin hora final como fue solicitado
@@ -63,9 +66,21 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
               <h2 className="text-lg sm:text-xl font-black text-gray-900 dark:text-white capitalize leading-tight">
                 {dateFormatted}
               </h2>
-              <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
-                1 evento programado
-              </span>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                  1 evento programado
+                </span>
+                {isPostponed && (
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                    Postergado
+                  </span>
+                )}
+                {isCancelled && (
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700">
+                    Cancelado
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -81,23 +96,69 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
 
         {/* Content Body - Tarjeta individual con estilo idéntico a Eventos del Día */}
         <div className="p-4 sm:p-6 overflow-y-auto bg-[#fcfaf8] dark:bg-[#0c0c0c]">
-          <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-gray-800">
-            {/* Header Event Card: Local pill a la izquierda y SOLO hora de inicio a la derecha */}
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span 
-                  className="px-3.5 py-1 text-[13px] font-bold rounded-full tracking-wide uppercase inline-flex items-center" 
-                  style={{ backgroundColor: `${colorDef.bg}20`, color: colorDef.bg }}
+          <div className={`relative bg-white dark:bg-[#1a1a1a] rounded-3xl p-5 shadow-sm border overflow-hidden ${
+            isPostponed
+              ? 'border-amber-400 dark:border-amber-500 ring-2 ring-amber-400/40 bg-amber-50/10'
+              : isCancelled
+              ? 'border-rose-400 dark:border-rose-500 ring-2 ring-rose-400/40 bg-rose-50/10'
+              : 'border-gray-100 dark:border-gray-800'
+          }`}>
+            {/* Marca de agua 'X' diagonal para evento postergado / cancelado */}
+            {isPostponed && (
+              <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center overflow-hidden select-none">
+                <svg
+                  className="w-full h-full p-4 sm:p-6 text-amber-500/25 dark:text-amber-400/30"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
                 >
-                  {event.localName.toUpperCase()}
-                  {local?.code && <span className="ml-1.5 opacity-70 text-[11px]">({local.code})</span>}
-                </span>
-                {isDatePending && (
-                  <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
-                    Fecha por confirmar
-                  </span>
-                )}
+                  <line x1="8" y1="8" x2="92" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+                  <line x1="92" y1="8" x2="8" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+                </svg>
               </div>
+            )}
+
+            {isCancelled && (
+              <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center overflow-hidden select-none">
+                <svg
+                  className="w-full h-full p-4 sm:p-6 text-rose-500/25 dark:text-rose-400/30"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                >
+                  <line x1="8" y1="8" x2="92" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+                  <line x1="92" y1="8" x2="8" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+                </svg>
+              </div>
+            )}
+
+            <div className="flex flex-col h-full relative z-10">
+              {/* Header Event Card: Local pill a la izquierda y SOLO hora de inicio a la derecha */}
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span 
+                    className="px-3.5 py-1 text-[13px] font-bold rounded-full tracking-wide uppercase inline-flex items-center" 
+                    style={{ backgroundColor: `${colorDef.bg}20`, color: colorDef.bg }}
+                  >
+                    {event.localName.toUpperCase()}
+                    {local?.code && <span className="ml-1.5 opacity-70 text-[11px]">({local.code})</span>}
+                  </span>
+                  {isPostponed && (
+                    <span className="px-3 py-1 text-xs font-black rounded-full bg-amber-500 text-white flex items-center gap-1 shadow-xs border border-amber-600 animate-pulse">
+                      <X className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>EVENTO POSTERGADO</span>
+                    </span>
+                  )}
+                  {isCancelled && (
+                    <span className="px-3 py-1 text-xs font-black rounded-full bg-rose-600 text-white flex items-center gap-1 shadow-xs border border-rose-700">
+                      <Ban className="w-3.5 h-3.5" />
+                      <span>EVENTO CANCELADO</span>
+                    </span>
+                  )}
+                  {isDatePending && (
+                    <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
+                      Fecha por confirmar
+                    </span>
+                  )}
+                </div>
               
               {isTimePending ? (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs">
@@ -120,10 +181,27 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
             {event.dish && (
               <div className="flex-1 flex flex-col mt-2">
                 {event.dish.proteina ? (
-                  <div className="my-1.5 py-2.5 px-3 rounded-xl border-2 border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 shadow-xs text-center">
-                    <span className="font-black text-sm text-blue-900 dark:text-blue-100 tracking-wide uppercase">
+                  <div className={`my-1.5 py-2.5 px-3 rounded-xl border-2 shadow-xs text-center ${
+                    isPostponed
+                      ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/40'
+                      : isCancelled
+                      ? 'border-rose-400 bg-rose-50/60 dark:bg-rose-950/40'
+                      : 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40'
+                  }`}>
+                    <span className={`font-black text-sm tracking-wide uppercase ${
+                      isPostponed
+                        ? 'text-amber-900 dark:text-amber-100'
+                        : isCancelled
+                        ? 'line-through text-rose-900 dark:text-rose-100'
+                        : 'text-blue-900 dark:text-blue-100'
+                    }`}>
                       {event.dish.proteina}
                     </span>
+                    {isPostponed && (
+                      <span className="ml-2 text-xs font-black text-amber-700 dark:text-amber-300">
+                        (POSTERGADO)
+                      </span>
+                    )}
                   </div>
                 ) : (
                   <div className="my-1.5 py-2.5 px-3 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 text-center min-h-[46px] flex items-center justify-center">
@@ -335,6 +413,7 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                 {event.description || event.notes}
               </div>
             )}
+            </div>
           </div>
         </div>
 

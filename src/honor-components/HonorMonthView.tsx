@@ -86,6 +86,8 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
               <div className="flex-1 mt-1 overflow-y-auto scrollbar-none min-h-[40px] flex flex-col gap-1">
                 {dayEvents.map((event) => {
                   const color = getEventColor(event.colorId);
+                  const isPostponed = event.status === 'postponed';
+                  const isCancelled = event.status === 'cancelled';
                   return (
                     <div 
                       key={event.id} 
@@ -99,11 +101,21 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                           onSelectEvent(e, event);
                         }
                       }}
-                      className="w-full rounded py-[3px] px-0.5 text-[8px] sm:text-[10px] leading-none font-bold shadow-sm whitespace-nowrap overflow-hidden text-clip cursor-pointer hover:opacity-90 active:scale-[0.98] transition-transform"
+                      className={`w-full rounded py-[3px] px-1 text-[8px] sm:text-[10px] leading-none font-bold shadow-sm whitespace-nowrap overflow-hidden text-clip cursor-pointer hover:opacity-90 active:scale-[0.98] transition-transform flex items-center gap-1 ${
+                        isPostponed
+                          ? 'ring-1 ring-amber-400 opacity-90'
+                          : isCancelled
+                          ? 'ring-1 ring-rose-400 opacity-70 line-through'
+                          : ''
+                      }`}
                       style={{ backgroundColor: color.bg, color: color.text || '#fff' }}
-                      title={event.localName}
+                      title={`${event.localName}${isPostponed ? ' (Postergado)' : isCancelled ? ' (Cancelado)' : ''}`}
                     >
-                      {event.localName || 'Evento'}
+                      {isPostponed && <span className="font-black text-amber-200">✕</span>}
+                      {isCancelled && <span className="font-black text-rose-200">✕</span>}
+                      <span className="truncate">{event.localName || 'Evento'}</span>
+                      {isPostponed && <span className="text-[7px] sm:text-[8px] opacity-90 shrink-0 font-normal">(Post.)</span>}
+                      {isCancelled && <span className="text-[7px] sm:text-[8px] opacity-90 shrink-0 font-normal">(Canc.)</span>}
                     </div>
                   );
                 })}

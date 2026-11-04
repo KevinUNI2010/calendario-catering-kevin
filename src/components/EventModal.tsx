@@ -1,6 +1,6 @@
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import React, { useState, useEffect, useRef } from 'react';
-import { CalendarEvent, Local, ReminderConfig, DishSelection, MenuOptions } from '../types';
+import { CalendarEvent, Local, ReminderConfig, DishSelection, MenuOptions, EventStatus } from '../types';
 import { getEventColor } from '../utils/colorUtils';
 import { parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas, formatServilletasForSave } from '../utils/servilletaUtils';
@@ -25,7 +25,9 @@ import {
   Upload,
   Crop,
   Eye,
-  FileText
+  FileText,
+  Ban,
+  AlertCircle
 } from 'lucide-react';
 
 interface EventModalProps {
@@ -78,6 +80,12 @@ export const EventModal: React.FC<EventModalProps> = ({
     if (event?.isDatePending !== undefined) return event.isDatePending;
     if (event?.dish?.isDatePending !== undefined) return event.dish.isDatePending;
     return false;
+  });
+  const [status, setStatus] = useState<EventStatus>(() => {
+    if (event?.status === 'postponed' || event?.status === 'cancelled') {
+      return event.status;
+    }
+    return event?.status || 'confirmed';
   });
   const [description, setDescription] = useState(event?.description || '');
   const [dish, setDish] = useState<DishSelection>(event?.dish || {
@@ -145,6 +153,7 @@ export const EventModal: React.FC<EventModalProps> = ({
             ? event.dish.isDatePending
             : false);
       setIsDatePending(pendingDate);
+      setStatus(event.status === 'postponed' || event.status === 'cancelled' ? event.status : (event.status || 'confirmed'));
       setDescription(event.description || '');
       setDish(event.dish || {
         proteina: '',
@@ -269,7 +278,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       colorId: selectedLocal ? selectedLocal.colorId : 'peacock',
       localId: selectedLocal ? selectedLocal.id : '',
       localName: finalLocalName,
-      status: event.status || 'confirmed',
+      status: status || 'confirmed',
       attendees,
       reminders,
       createdBy: event.createdBy || 'Usuario',
@@ -328,6 +337,82 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
           <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-sm flex-1">
+          
+            {/* Selector de Estado del Evento: Visible al editar un evento existente */}
+            {Boolean(event?.id) && (
+              <div className="p-3.5 sm:p-4 rounded-2xl border transition-all bg-gray-50/90 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700/80">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <AlertCircle className="w-4 h-4 text-amber-500" />
+                      Estado del Evento
+                    </span>
+                    <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                      (Solo en edición)
+                    </span>
+                  </div>
+                  {status === 'postponed' && (
+                    <span className="text-[11px] font-black tracking-wide text-amber-800 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700 flex items-center gap-1">
+                      <X className="w-3.5 h-3.5 stroke-[3] text-amber-600" /> Con 'X' en el card (sin borrar la tarjeta)
+                    </span>
+                  )}
+                  {status === 'cancelled' && (
+                    <span className="text-[11px] font-black tracking-wide text-rose-800 dark:text-rose-200 bg-rose-100 dark:bg-rose-950/80 px-2.5 py-0.5 rounded-full border border-rose-300 dark:border-rose-700 flex items-center gap-1">
+                      <Ban className="w-3.5 h-3.5 text-rose-600" /> Evento cancelado
+                    </span>
+                  )}
+                  {status === 'confirmed' && (
+                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5 text-emerald-600" /> Confirmado y activo
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {/* 1. Confirmado */}
+                  <button
+                    type="button"
+                    onClick={() => setStatus('confirmed')}
+                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 border cursor-pointer ${
+                      status === 'confirmed'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-400/40'
+                        : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-emerald-400 hover:bg-emerald-50/40'
+                    }`}
+                  >
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                    <span>Confirmado (Activo)</span>
+                  </button>
+
+                  {/* 2. Postergado */}
+                  <button
+                    type="button"
+                    onClick={() => setStatus('postponed')}
+                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 border cursor-pointer ${
+                      status === 'postponed'
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-sm ring-2 ring-amber-400/50'
+                        : 'bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-400 border-gray-200 dark:border-gray-700 hover:border-amber-400 hover:bg-amber-50/40'
+                    }`}
+                  >
+                    <X className="w-4 h-4 stroke-[3]" />
+                    <span>Evento Postergado</span>
+                  </button>
+
+                  {/* 3. Cancelado */}
+                  <button
+                    type="button"
+                    onClick={() => setStatus('cancelled')}
+                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 border cursor-pointer ${
+                      status === 'cancelled'
+                        ? 'bg-rose-600 text-white border-rose-600 shadow-sm ring-2 ring-rose-400/50'
+                        : 'bg-white dark:bg-gray-800 text-rose-700 dark:text-rose-400 border-gray-200 dark:border-gray-700 hover:border-rose-400 hover:bg-rose-50/40'
+                    }`}
+                  >
+                    <Ban className="w-4 h-4 stroke-[2.5]" />
+                    <span>Evento Cancelado</span>
+                  </button>
+                </div>
+              </div>
+            )}
           
           {/* Row with 3 fields: [ Titulo ] [ DIA ] [ HORA ] */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -941,7 +1026,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 onClick={onClose}
                 className="px-4 py-2 text-xs font-medium rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition cursor-pointer"
               >
-                Cancelar
+                Cerrar
               </button>
               <button
                 type="submit"

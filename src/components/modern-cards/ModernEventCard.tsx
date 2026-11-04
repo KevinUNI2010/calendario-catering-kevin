@@ -11,7 +11,7 @@ import {
   EnsaladaIcon,
   RolledNapkinIcon,
 } from './ModernIcons';
-import { Clock, MessageSquare, ShoppingCart, CheckCircle2, Camera } from 'lucide-react';
+import { Clock, MessageSquare, ShoppingCart, CheckCircle2, Camera, X, Ban } from 'lucide-react';
 
 interface ModernEventCardProps {
   event: CalendarEvent;
@@ -93,11 +93,50 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
   const servidosNum = hasServidos ? event.dish?.platosServidos : undefined;
 
   const evidencePhoto = event.dish?.evidencePhoto || event.evidencePhoto;
+  const isPostponed = event.status === 'postponed';
+  const isCancelled = event.status === 'cancelled';
 
   return (
     <div
-      className={`relative w-full bg-white dark:bg-[#161a23] rounded-3xl p-5 sm:p-6 shadow-[0_10px_30px_-8px_rgba(0,0,0,0.07)] border border-slate-100 dark:border-slate-800/80 overflow-hidden flex flex-col justify-between transition-all duration-200 hover:shadow-[0_16px_36px_-6px_rgba(0,0,0,0.1)] ${className}`}
+      className={`relative w-full bg-white dark:bg-[#161a23] rounded-3xl p-5 sm:p-6 shadow-[0_10px_30px_-8px_rgba(0,0,0,0.07)] border overflow-hidden flex flex-col justify-between transition-all duration-200 hover:shadow-[0_16px_36px_-6px_rgba(0,0,0,0.1)] ${
+        isPostponed
+          ? 'border-amber-400 dark:border-amber-500 ring-2 ring-amber-400/40 bg-amber-50/10'
+          : isCancelled
+          ? 'border-rose-400 dark:border-rose-500 ring-2 ring-rose-400/40 bg-rose-50/10'
+          : 'border-slate-100 dark:border-slate-800/80'
+      } ${className}`}
     >
+      {/* 
+        ========================================================================
+        MARCA DE AGUA 'X' DIAGONAL PARA EVENTO POSTERGADO / CANCELADO
+        (Permite ver claramente la X sobre el card sin borrar ningún detalle)
+        ========================================================================
+      */}
+      {isPostponed && (
+        <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center overflow-hidden select-none">
+          <svg
+            className="w-full h-full p-6 text-amber-500/25 dark:text-amber-400/30"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <line x1="8" y1="8" x2="92" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+            <line x1="92" y1="8" x2="8" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+          </svg>
+        </div>
+      )}
+
+      {isCancelled && (
+        <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center overflow-hidden select-none">
+          <svg
+            className="w-full h-full p-6 text-rose-500/25 dark:text-rose-400/30"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            <line x1="8" y1="8" x2="92" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+            <line x1="92" y1="8" x2="8" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+          </svg>
+        </div>
+      )}
       {/* 
         ========================================================================
         FORMAS ORGÁNICAS / BLOBS DE FONDO (DINÁMICAS CON EL COLOR DEL LOCAL)
@@ -156,6 +195,20 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
               {event.localName.toUpperCase()}
             </span>
 
+            {isPostponed && (
+              <span className="px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase inline-flex items-center gap-1.5 bg-amber-500 text-white shadow-xs border border-amber-600 animate-pulse">
+                <X className="w-3.5 h-3.5 stroke-[3]" />
+                <span>POSTERGADO</span>
+              </span>
+            )}
+
+            {isCancelled && (
+              <span className="px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase inline-flex items-center gap-1.5 bg-rose-600 text-white shadow-xs border border-rose-700">
+                <Ban className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>CANCELADO</span>
+              </span>
+            )}
+
             {isDatePending && (
               <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-tight bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
                 Fecha por confirmar
@@ -184,13 +237,22 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
 
         {/* TÍTULO PRINCIPAL: Proteína en tipografía grande y destacada */}
         <div className="min-h-[64px] flex flex-col justify-center">
-          <h2 className="text-[28px] font-black text-slate-900 dark:text-white leading-[1.08] tracking-tight uppercase">
-            {event.dish?.proteina || event.title || 'SIN PROTEÍNA'}
-          </h2>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className={`text-[28px] font-black leading-[1.08] tracking-tight uppercase ${
+              isCancelled ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'
+            }`}>
+              {event.dish?.proteina || event.title || 'SIN PROTEÍNA'}
+            </h2>
+            {isPostponed && (
+              <span className="px-2 py-0.5 text-xs font-black rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                POSTERGADO
+              </span>
+            )}
+          </div>
           {/* Barra de acento con el color del local */}
           <div
             className="h-[5px] w-14 rounded-full mt-2 transition-all duration-300"
-            style={{ backgroundColor: localColor }}
+            style={{ backgroundColor: isPostponed ? '#f59e0b' : isCancelled ? '#e11d48' : localColor }}
           />
         </div>
 

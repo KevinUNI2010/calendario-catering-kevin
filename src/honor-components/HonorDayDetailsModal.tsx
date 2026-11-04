@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { CalendarEvent } from '../types';
-import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles, Ban } from 'lucide-react';
 import { formatDateShort, formatEventTime, parseEventDate } from '../utils/dateUtils';
 import { getEventColor } from '../utils/colorUtils';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -54,7 +54,11 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
       eventsList: { timeFormatted: string; timestamp: number }[];
     }>();
 
+    const inactiveEventsCount = events.filter(e => e.status === 'postponed' || e.status === 'cancelled').length;
+
     events.forEach((event) => {
+      // Ignorar eventos postergados o cancelados para la producción de cocina del día
+      if (event.status === 'postponed' || event.status === 'cancelled') return;
       const dish = event.dish;
       const hasFood = dish && (dish.proteina || dish.salsa || dish.carbohidrato || dish.guarnicion || dish.ensalada || dish.servilleta);
       if (!dish || !hasFood) return;
@@ -131,7 +135,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
         };
       });
 
-    return { totals, totalPlates, totalEventsWithFood, localesList: localesWithHours, localesWithHours };
+    return { totals, totalPlates, totalEventsWithFood, localesList: localesWithHours, localesWithHours, inactiveEventsCount };
   }, [events]);
 
   if (!isOpen || !date) return null;
@@ -267,6 +271,8 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
               {sortedEvents.map(event => {
               const color = getEventColor(event.colorId);
               const timeString = formatEventTime(event.startDate);
+              const isPostponed = event.status === 'postponed';
+              const isCancelled = event.status === 'cancelled';
 
               return (
                 <div 
@@ -277,15 +283,60 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                       onClose();
                     }
                   }}
-                  className={`bg-white dark:bg-[#1a1a1a] rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-gray-800 transition-all ${role === 'admin' ? 'cursor-pointer hover:shadow-md' : ''}`}
+                  className={`relative bg-white dark:bg-[#1a1a1a] rounded-3xl p-5 shadow-sm border transition-all overflow-hidden ${
+                    isPostponed
+                      ? 'border-amber-400 dark:border-amber-500 ring-2 ring-amber-400/40 bg-amber-50/10'
+                      : isCancelled
+                      ? 'border-rose-400 dark:border-rose-500 ring-2 ring-rose-400/40 bg-rose-50/10'
+                      : 'border-gray-100 dark:border-gray-800'
+                  } ${role === 'admin' ? 'cursor-pointer hover:shadow-md' : ''}`}
                 >
-                  <div className="flex flex-col h-full">
+                  {/* Marca de agua 'X' diagonal para evento postergado / cancelado */}
+                  {isPostponed && (
+                    <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center overflow-hidden select-none">
+                      <svg
+                        className="w-full h-full p-4 sm:p-6 text-amber-500/25 dark:text-amber-400/30"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="none"
+                      >
+                        <line x1="8" y1="8" x2="92" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+                        <line x1="92" y1="8" x2="8" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  )}
+
+                  {isCancelled && (
+                    <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center overflow-hidden select-none">
+                      <svg
+                        className="w-full h-full p-4 sm:p-6 text-rose-500/25 dark:text-rose-400/30"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="none"
+                      >
+                        <line x1="8" y1="8" x2="92" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+                        <line x1="92" y1="8" x2="8" y2="92" stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col h-full relative z-10">
                     {/* Header Event Card */}
                     <div className="flex items-center justify-between gap-2 mb-3">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="px-3.5 py-1 text-[13px] font-bold rounded-full tracking-wide uppercase" style={{ backgroundColor: `${color.bg}20`, color: color.bg }}>
                           {event.localName.toUpperCase()}
                         </span>
+                        {isPostponed && (
+                          <span className="px-3 py-1 text-xs font-black rounded-full bg-amber-500 text-white flex items-center gap-1 shadow-xs border border-amber-600 animate-pulse">
+                            <X className="w-3.5 h-3.5 stroke-[3]" />
+                            <span>EVENTO POSTERGADO</span>
+                          </span>
+                        )}
+                        {isCancelled && (
+                          <span className="px-3 py-1 text-xs font-black rounded-full bg-rose-600 text-white flex items-center gap-1 shadow-xs border border-rose-700">
+                            <Ban className="w-3.5 h-3.5" />
+                            <span>EVENTO CANCELADO</span>
+                          </span>
+                        )}
                         {(event.isDatePending || event.dish?.isDatePending) && (
                           <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
                             Fecha por confirmar
@@ -312,10 +363,27 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                     {event.dish && (
                       <div className="flex-1 flex flex-col mt-2">
                         {event.dish.proteina ? (
-                          <div className="my-1.5 py-2.5 px-3 rounded-xl border-2 border-blue-500 bg-blue-50/50 dark:bg-blue-950/40 shadow-xs text-center">
-                            <span className="font-black text-sm text-blue-900 dark:text-blue-100 tracking-wide uppercase">
+                          <div className={`my-1.5 py-2.5 px-3 rounded-xl border-2 shadow-xs text-center ${
+                            isPostponed
+                              ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/40'
+                              : isCancelled
+                              ? 'border-rose-400 bg-rose-50/60 dark:bg-rose-950/40'
+                              : 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40'
+                          }`}>
+                            <span className={`font-black text-sm tracking-wide uppercase ${
+                              isPostponed
+                                ? 'text-amber-900 dark:text-amber-100'
+                                : isCancelled
+                                ? 'line-through text-rose-900 dark:text-rose-100'
+                                : 'text-blue-900 dark:text-blue-100'
+                            }`}>
                               {event.dish.proteina}
                             </span>
+                            {isPostponed && (
+                              <span className="ml-2 text-xs font-black text-amber-700 dark:text-amber-300">
+                                (POSTERGADO)
+                              </span>
+                            )}
                           </div>
                         ) : (
                           <div className="my-1.5 py-2.5 px-3 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 text-center min-h-[46px] flex items-center justify-center">
@@ -582,6 +650,13 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {summary.inactiveEventsCount > 0 && (
+                <div className="text-xs font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-3.5 py-2 rounded-xl border border-amber-200/80 dark:border-amber-800/50 flex items-center gap-2 mt-3">
+                  <X className="w-4 h-4 text-amber-600 shrink-0 stroke-[2.5]" />
+                  <span>Se excluyeron {summary.inactiveEventsCount} evento(s) postergado(s) o cancelado(s) del cálculo de producción de cocina.</span>
+                </div>
+              )}
             </div>
           )}
 

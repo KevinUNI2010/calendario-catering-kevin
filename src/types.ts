@@ -58,6 +58,8 @@ export interface ReminderConfig {
   sent?: boolean;
 }
 
+export type EventStatus = 'confirmed' | 'postponed' | 'cancelled' | 'pending' | 'in_progress';
+
 export interface CalendarEvent {
   id: string;
   title: string;
@@ -68,7 +70,7 @@ export interface CalendarEvent {
   colorId: string;
   localId: string;
   localName: string;
-  status: 'confirmed' | 'pending' | 'in_progress' | 'cancelled';
+  status: EventStatus;
   attendees: Attendee[];
   reminders: ReminderConfig[];
   createdBy: string;

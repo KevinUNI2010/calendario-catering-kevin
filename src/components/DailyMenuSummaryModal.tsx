@@ -90,6 +90,8 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
     }>();
 
     events.forEach((event) => {
+      // Ignorar eventos postergados o cancelados para la producción de cocina
+      if (event.status === 'postponed' || event.status === 'cancelled') return;
       const dish = event.dish;
       const hasFood = dish && (dish.proteina || dish.salsa || dish.carbohidrato || dish.guarnicion || dish.ensalada || dish.servilleta);
       if (!dish || !hasFood) return;
