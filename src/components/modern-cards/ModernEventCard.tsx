@@ -273,12 +273,12 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
           </div>
         </div>
 
-        {/* NOTA / DESCRIPCIÓN: Con espacio reservado homogéneo */}
-        <div className="mt-3.5 pt-2 min-h-[38px] flex items-center gap-2 text-slate-600 dark:text-slate-400 text-xs">
+        {/* NOTA / DESCRIPCIÓN: Con espacio reservado homogéneo para hasta 3 líneas */}
+        <div className="mt-3.5 pt-2 min-h-[58px] h-[58px] flex items-start gap-2 text-slate-600 dark:text-slate-400 text-xs overflow-hidden">
           {event.description || event.notes ? (
             <>
-              <MessageSquare className="w-4 h-4 shrink-0 text-slate-500 opacity-80" />
-              <p className="line-clamp-2 leading-relaxed italic">
+              <MessageSquare className="w-4 h-4 shrink-0 text-slate-500 opacity-80 mt-0.5" />
+              <p className="line-clamp-3 leading-snug italic">
                 {event.description || event.notes}
               </p>
             </>
@@ -382,7 +382,7 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
             className="w-full py-1.5 px-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors"
           >
             <Camera className="w-3.5 h-3.5 text-blue-500" />
-            <span>Ver Evidencia Cuaderno</span>
+            <span>Ver evidencia</span>
           </button>
         </div>
       )}

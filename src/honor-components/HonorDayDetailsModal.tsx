@@ -358,12 +358,12 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                           )}
                         </div>
                         
-                        {/* Descripción / Notas: Deja el espacio reservado si no existe para mantener perfecta alineación */}
-                        <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center text-sm">
+                        {/* Descripción / Notas: Espacio reservado para 3 líneas exactas para alineación homogénea */}
+                        <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[72px] h-[72px] flex items-start text-xs sm:text-sm overflow-hidden">
                           {(event.description || event.notes) ? (
-                            <span className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                            <p className="text-gray-600 dark:text-gray-400 whitespace-pre-line line-clamp-3 leading-snug w-full">
                               {event.description || event.notes}
-                            </span>
+                            </p>
                           ) : (
                             <span className="text-transparent select-none">&nbsp;</span>
                           )}
@@ -516,7 +516,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                               />
                               <span className="flex items-center gap-1 font-semibold text-[11px]">
                                 <FileText className="w-3.5 h-3.5 text-blue-500" />
-                                Ver Evidencia Cuaderno
+                                Ver evidencia
                               </span>
                             </button>
                           </div>
