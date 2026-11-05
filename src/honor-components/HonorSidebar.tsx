@@ -313,8 +313,8 @@ export const HonorSidebar: React.FC<SidebarProps> = ({
       {onLogout && (
         <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between text-xs mb-2 text-gray-500 dark:text-gray-400">
-            <span>Sesión activa:</span>
-            <span className="font-semibold text-gray-900 dark:text-gray-100">Usuario</span>
+            <span>Sesión activa como:</span>
+            <span className="font-semibold text-gray-900 dark:text-gray-100">{userName || (role === 'admin' ? 'Administrador' : 'Cliente')}</span>
           </div>
           <button
             type="button"
