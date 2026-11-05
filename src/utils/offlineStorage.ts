@@ -20,7 +20,19 @@ export interface QueuedAction {
 
 export function saveCachedEvents(events: CalendarEvent[]): void {
   try {
-    localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
+    // Evitar que fotos pesadas en base64 saturen la cuota de 5MB de localStorage
+    const lightweightEvents = events.map(e => {
+      if (e.evidencePhoto && e.evidencePhoto.length > 300) {
+        const { evidencePhoto, ...rest } = e;
+        return {
+          ...rest,
+          evidencePhoto: undefined,
+          dish: rest.dish ? { ...rest.dish, evidencePhoto: undefined } : undefined
+        };
+      }
+      return e;
+    });
+    localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(lightweightEvents));
   } catch (e) {
     console.warn('Could not cache events locally', e);
   }
