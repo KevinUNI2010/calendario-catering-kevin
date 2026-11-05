@@ -150,12 +150,17 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
       return;
     }
 
-    // Coordinated initial load from Supabase
+    // Coordinated initial load from Supabase with safe timeout
+    const safetyTimer = setTimeout(() => {
+      setIsLoadingData(false);
+    }, 2500);
+
     Promise.all([
       fetchSupabaseLocales(),
       fetchSupabaseMenuOptions(),
       fetchSupabaseEvents(session)
     ]).then(([supaLocales, supaMenu, supaEvents]) => {
+      clearTimeout(safetyTimer);
       if (supaLocales !== null) {
         setAllLocales(supaLocales);
         saveCachedLocales(supaLocales);
@@ -179,6 +184,7 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
       }
       setIsLoadingData(false);
     }).catch((err) => {
+      clearTimeout(safetyTimer);
       console.warn('Error fetching Supabase data on first load:', err);
       setIsLoadingData(false);
     });
@@ -621,7 +627,7 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
 
         {/* View Component */}
         <main className="flex-1 flex flex-col h-full overflow-hidden bg-white dark:bg-gray-900 relative">
-          {isLoadingData && (
+          {isLoadingData && events.length === 0 && (
             <div className="absolute inset-0 z-20 bg-white/70 dark:bg-black/70 backdrop-blur-2xs flex flex-col items-center justify-center gap-3 animate-in fade-in duration-150">
               <div className="w-9 h-9 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
               <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Cargando eventos...</span>

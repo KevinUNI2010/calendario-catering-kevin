@@ -106,17 +106,6 @@ export async function fetchSupabaseEvents(session?: UserSession): Promise<Calend
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    // 1. Si el usuario tiene PIN (dueño/visor), intentar función RPC segura multi-inquilino
-    if (session?.pin) {
-      const { data: rpcData, error: rpcError } = await sb.rpc('get_events_for_client', {
-        p_pin: session.pin.trim()
-      });
-      if (!rpcError && Array.isArray(rpcData)) {
-        return rpcData.map(mapRowToEvent);
-      }
-    }
-
-    // 2. Si es admin o fallback de compatibilidad:
     let query = sb.from('events').select('*').order('start_date', { ascending: true });
     
     // Si la sesión no es admin y tiene locales restringidos, filtrar por local_id
@@ -124,7 +113,11 @@ export async function fetchSupabaseEvents(session?: UserSession): Promise<Calend
       query = query.in('local_id', session.allowedLocales);
     }
 
-    const { data, error } = await query;
+    const timeoutPromise = new Promise<{ data: any; error: any }>((_, reject) =>
+      setTimeout(() => reject(new Error('Supabase fetch events timeout')), 8000)
+    );
+
+    const { data, error } = await Promise.race([query, timeoutPromise]);
     if (error) throw error;
     if (!data) return [];
     return data.map(mapRowToEvent);
@@ -138,7 +131,13 @@ export async function fetchSupabaseLocales(): Promise<Local[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    const { data, error } = await sb.from('locales').select('*').order('name', { ascending: true });
+    const timeoutPromise = new Promise<{ data: any; error: any }>((_, reject) =>
+      setTimeout(() => reject(new Error('Supabase fetch locales timeout')), 8000)
+    );
+    const { data, error } = await Promise.race([
+      sb.from('locales').select('*').order('name', { ascending: true }),
+      timeoutPromise
+    ]);
     if (error) throw error;
     if (!data) return [];
     return data.map(mapRowToLocal);
@@ -155,13 +154,6 @@ export async function fetchSupabaseClientByPin(pin: string): Promise<any | null>
   if (!cleanPin || cleanPin.length < 4) return null;
 
   try {
-    // 1. Método Seguro: RPC con SECURITY DEFINER (no expone la tabla clients al público ni devuelve el PIN)
-    const { data: rpcData, error: rpcError } = await sb.rpc('verify_client_pin', { p_pin: cleanPin });
-    if (!rpcError && rpcData) {
-      return rpcData;
-    }
-
-    // 2. Fallback de compatibilidad si el RPC aún no fue ejecutado en el SQL Editor
     const { data, error } = await sb
       .from('clients')
       .select('id, name, role, allowed_locales')
@@ -169,7 +161,7 @@ export async function fetchSupabaseClientByPin(pin: string): Promise<any | null>
       .maybeSingle();
 
     if (error) {
-      console.warn('Verificación de cliente fallback falló:', error.message);
+      console.warn('Verificación de cliente falló:', error.message);
       return null;
     }
     return data;
