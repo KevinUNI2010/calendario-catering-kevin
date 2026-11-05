@@ -36,6 +36,29 @@ export function mapRowToEvent(row: any): CalendarEvent {
   const cleanStartDate = normalizeLocalDateString(row.start_date);
   const cleanEndDate = normalizeLocalDateString(row.end_date || row.start_date);
 
+  // Reconstruir objeto dish si vino desde la consulta ligera de campos aplanados
+  let dish = row.dish;
+  if (!dish && (row.proteina || row.salsa || row.carbohidrato || row.ensalada || row.guarnicion || row.platosContratadosFormula || row.cantidadPlatos !== undefined)) {
+    dish = {
+      proteina: row.proteina || '',
+      salsa: row.salsa || '',
+      carbohidrato: row.carbohidrato || '',
+      ensalada: row.ensalada || '',
+      guarnicion: row.guarnicion || '',
+      servilleta: row.servilleta || '',
+      servilletas: Array.isArray(row.servilletas) ? row.servilletas : (row.servilleta ? [row.servilleta] : []),
+      cantidadPlatos: typeof row.cantidadPlatos === 'number' ? row.cantidadPlatos : (typeof row.platosContratados === 'number' ? row.platosContratados : 0),
+      platosContratados: row.platosContratados,
+      platosContratadosFormula: row.platosContratadosFormula || '',
+      isTimePending: Boolean(row.isTimePending),
+      isDatePending: Boolean(row.isDatePending),
+      evidencePhoto: row.evidencePhoto || undefined,
+    };
+  }
+
+  const evidencePhoto = row.dish?.evidencePhoto || row.evidencePhoto || row.evidence_photo || undefined;
+  const hasEvidencePhoto = Boolean(row.hasEvidencePhoto || evidencePhoto);
+
   return {
     id: row.id,
     title: row.title,
@@ -49,13 +72,14 @@ export function mapRowToEvent(row: any): CalendarEvent {
     attendees: Array.isArray(row.attendees) ? row.attendees : [],
     reminders: Array.isArray(row.reminders) ? row.reminders : [],
     notes: row.notes || '',
-    dish: row.dish || undefined,
-    evidencePhoto: row.dish?.evidencePhoto || undefined,
+    dish: dish || undefined,
+    evidencePhoto,
+    hasEvidencePhoto,
     status: row.status || 'confirmed',
     createdBy: row.created_by || 'kevin.zambrano.inteligencia@gmail.com',
     updatedAt: row.updated_at || new Date().toISOString(),
-    isTimePending: Boolean(row.is_time_pending ?? row.dish?.isTimePending),
-    isDatePending: Boolean(row.is_date_pending ?? row.dish?.isDatePending),
+    isTimePending: Boolean(row.is_time_pending ?? dish?.isTimePending ?? row.isTimePending),
+    isDatePending: Boolean(row.is_date_pending ?? dish?.isDatePending ?? row.isDatePending),
   };
 }
 
@@ -106,19 +130,79 @@ export async function fetchSupabaseEvents(session?: UserSession): Promise<Calend
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    let query = sb.from('events').select('*').order('start_date', { ascending: true });
+    // Consulta optimizada ultra ligera: descarga todos los datos del evento y menú
+    // excluyendo las fotos pesadas en base64 (reduce el payload de 11.5 MB a solo ~88 KB)
+    const fields = [
+      'id', 'title', 'description', 'start_date', 'end_date', 'all_day',
+      'color_id', 'local_id', 'local_name', 'status', 'created_by', 'notes',
+      'attendees', 'reminders', 'created_at', 'updated_at',
+      'dish->salsa', 'dish->ensalada', 'dish->proteina', 'dish->guarnicion',
+      'dish->carbohidrato', 'dish->servilleta', 'dish->servilletas',
+      'dish->cantidadPlatos', 'dish->platosContratados', 'dish->platosContratadosFormula',
+      'dish->isTimePending', 'dish->isDatePending'
+    ].join(',');
+
+    let query = sb.from('events').select(fields).order('start_date', { ascending: true });
     
     // Si la sesión no es admin y tiene locales restringidos, filtrar por local_id
     if (session && session.role !== 'admin' && session.allowedLocales && session.allowedLocales.length > 0) {
       query = query.in('local_id', session.allowedLocales);
     }
 
-    const { data, error } = await query;
-    if (error) throw error;
-    if (!data) return [];
-    return data.map(mapRowToEvent);
+    // Ejecutar en paralelo la consulta de eventos ligeros y la lista de IDs con foto (~3 KB)
+    const [eventsRes, photosRes] = await Promise.all([
+      query,
+      sb.from('events').select('id').not('dish->evidencePhoto', 'is', null)
+    ]);
+
+    if (eventsRes.error) {
+      console.warn('Lightweight query failed, fallback to standard select:', eventsRes.error.message);
+      let fallbackQuery = sb.from('events').select('*').order('start_date', { ascending: true });
+      if (session && session.role !== 'admin' && session.allowedLocales && session.allowedLocales.length > 0) {
+        fallbackQuery = fallbackQuery.in('local_id', session.allowedLocales);
+      }
+      const { data, error } = await fallbackQuery;
+      if (error) throw error;
+      return (data || []).map(mapRowToEvent);
+    }
+
+    if (!eventsRes.data) return [];
+
+    const photoIdSet = new Set(
+      photosRes.data ? photosRes.data.map((r: any) => r.id) : []
+    );
+
+    return eventsRes.data.map((row: any) => {
+      const evt = mapRowToEvent(row);
+      if (photoIdSet.has(evt.id)) {
+        evt.hasEvidencePhoto = true;
+      }
+      return evt;
+    });
   } catch (err) {
     console.warn('Supabase fetch events failed:', err);
+    return null;
+  }
+}
+
+/**
+ * Descarga bajo demanda la foto de evidencia de un evento específico (~150 KB)
+ * cuando el usuario abre el modal o solicita ver la evidencia.
+ */
+export async function fetchSupabaseEventEvidence(eventId: string): Promise<string | null> {
+  const sb = getSupabase();
+  if (!sb || !eventId) return null;
+  try {
+    const { data, error } = await sb
+      .from('events')
+      .select('dish->evidencePhoto')
+      .eq('id', eventId)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return (data as any).evidencePhoto || null;
+  } catch (err) {
+    console.warn('Could not fetch single event evidence:', err);
     return null;
   }
 }

@@ -81,29 +81,43 @@ export async function getEventsFromIDB(): Promise<CalendarEvent[] | null> {
   });
 }
 
+export async function saveSingleEventPhotoToIDB(eventId: string, photo: string): Promise<void> {
+  const db = await openIDB();
+  if (!db || !eventId || !photo) return;
+  try {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    const store = tx.objectStore(IDB_STORE);
+    const req = store.get(eventId);
+    req.onsuccess = () => {
+      const existing = req.result || { id: eventId };
+      existing.evidencePhoto = photo;
+      if (existing.dish) {
+        existing.dish = { ...existing.dish, evidencePhoto: photo };
+      }
+      store.put(existing);
+    };
+  } catch (e) {
+    console.warn('Could not save single photo to IndexedDB', e);
+  }
+}
+
 export function saveCachedEvents(events: CalendarEvent[]): void {
   // 1. Guardar eventos completos con sus fotos en IndexedDB (sin límite de 5MB)
   saveEventsToIDB(events).catch(() => {});
 
-  // 2. Guardar en localStorage (con fallback ligero si excede cuota)
+  // 2. Guardar en localStorage siempre la versión ligera (~60 KB) para arranque instantáneo (0 ms)
   try {
-    try {
-      localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
-    } catch (quotaErr) {
-      // Si excede la cuota de 5MB de localStorage, guardar versión ligera en localStorage
-      const lightweightEvents = events.map(e => {
-        if (e.evidencePhoto && e.evidencePhoto.length > 500) {
-          const { evidencePhoto, ...rest } = e;
-          return {
-            ...rest,
-            evidencePhoto: undefined,
-            dish: rest.dish ? { ...rest.dish, evidencePhoto: undefined } : undefined
-          };
-        }
-        return e;
-      });
-      localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(lightweightEvents));
-    }
+    const lightweightEvents = events.map(e => {
+      const hasPhoto = Boolean(e.hasEvidencePhoto || e.evidencePhoto || e.dish?.evidencePhoto);
+      const { evidencePhoto, ...rest } = e;
+      return {
+        ...rest,
+        evidencePhoto: undefined,
+        dish: rest.dish ? { ...rest.dish, evidencePhoto: undefined } : undefined,
+        hasEvidencePhoto: hasPhoto
+      };
+    });
+    localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(lightweightEvents));
   } catch (e) {
     console.warn('Could not cache events locally', e);
   }

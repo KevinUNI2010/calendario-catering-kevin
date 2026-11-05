@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CalendarEvent, Local } from '../types';
 import { getEventColor } from '../utils/colorUtils';
 import { parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas } from '../utils/servilletaUtils';
 import { formatEventTime, parseEventDate } from '../utils/dateUtils';
+import { fetchSupabaseEventEvidence } from '../lib/supabase';
+import { saveSingleEventPhotoToIDB } from '../utils/offlineStorage';
 import { EvidenceLightboxModal } from './EvidenceLightboxModal';
 import {
   Calendar,
@@ -35,7 +37,23 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
 }) => {
   const colorDef = getEventColor(event.colorId);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const evidencePhoto = event.dish?.evidencePhoto || event.evidencePhoto;
+  const [evidencePhoto, setEvidencePhoto] = useState<string | undefined>(
+    () => event.dish?.evidencePhoto || event.evidencePhoto
+  );
+  const [isLoadingPhoto, setIsLoadingPhoto] = useState(false);
+
+  useEffect(() => {
+    if (!evidencePhoto && (event.hasEvidencePhoto || event.dish?.evidencePhoto || event.evidencePhoto)) {
+      setIsLoadingPhoto(true);
+      fetchSupabaseEventEvidence(event.id).then((photo) => {
+        if (photo) {
+          setEvidencePhoto(photo);
+          saveSingleEventPhotoToIDB(event.id, photo);
+        }
+        setIsLoadingPhoto(false);
+      }).catch(() => setIsLoadingPhoto(false));
+    }
+  }, [event.id, evidencePhoto, event.hasEvidencePhoto]);
 
   const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
   const isDatePending = Boolean(event.isDatePending || event.dish?.isDatePending);
@@ -392,16 +410,27 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                 </div>
 
                 {/* Botón ver evidencia cuaderno si existe */}
-                {evidencePhoto && (
+                {(evidencePhoto || event.hasEvidencePhoto) && (
                   <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
                     <button
                       type="button"
-                      onClick={() => setLightboxOpen(true)}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-blue-200 dark:border-blue-800/80 bg-blue-50/70 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-semibold transition cursor-pointer"
+                      disabled={isLoadingPhoto}
+                      onClick={() => {
+                        if (evidencePhoto) {
+                          setLightboxOpen(true);
+                        }
+                      }}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-blue-200 dark:border-blue-800/80 bg-blue-50/70 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-semibold transition cursor-pointer disabled:opacity-60"
                     >
-                      <img src={evidencePhoto} alt="Cuaderno" className="w-6 h-6 rounded object-cover shadow-xs border border-blue-200 dark:border-blue-700" />
+                      {evidencePhoto ? (
+                        <img src={evidencePhoto} alt="Cuaderno" className="w-6 h-6 rounded object-cover shadow-xs border border-blue-200 dark:border-blue-700" />
+                      ) : (
+                        <div className="w-6 h-6 rounded bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                          <FileText className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
+                        </div>
+                      )}
                       <FileText className="w-3.5 h-3.5" />
-                      <span>Ver evidencia</span>
+                      <span>{isLoadingPhoto ? 'Cargando evidencia...' : 'Ver evidencia'}</span>
                     </button>
                   </div>
                 )}

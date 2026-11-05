@@ -78,6 +78,7 @@ export interface CalendarEvent {
   notes?: string;
   dish?: DishSelection;
   evidencePhoto?: string; // Foto de cuaderno recortada asociada al evento
+  hasEvidencePhoto?: boolean; // Indicador ligero de disponibilidad de foto de evidencia
   isTimePending?: boolean; // Hora por confirmar
   isDatePending?: boolean; // Fecha por confirmar / tentativa
 }

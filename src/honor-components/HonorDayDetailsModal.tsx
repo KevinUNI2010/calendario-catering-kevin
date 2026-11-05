@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { CalendarEvent } from '../types';
 import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles, Ban } from 'lucide-react';
 import { formatDateShort, formatEventTime, parseEventDate } from '../utils/dateUtils';
@@ -6,6 +6,8 @@ import { getEventColor } from '../utils/colorUtils';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { getEffectivePlateCount, parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas } from '../utils/servilletaUtils';
+import { fetchSupabaseEventEvidence } from '../lib/supabase';
+import { saveSingleEventPhotoToIDB } from '../utils/offlineStorage';
 import { EvidenceLightboxModal } from '../components/EvidenceLightboxModal';
 import { ModernEventCard } from '../components/modern-cards/ModernEventCard';
 
@@ -31,6 +33,30 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
   useEscapeKey(onClose, isOpen);
   const [lightboxImage, setLightboxImage] = useState<{ src: string; localName?: string; eventDate?: string | Date; title?: string } | null>(null);
   const [cardStyle, setCardStyle] = useState<'classic' | 'modern'>('classic');
+  const [loadedPhotos, setLoadedPhotos] = useState<Record<string, string>>({});
+  const [loadingPhotos, setLoadingPhotos] = useState<Record<string, boolean>>({});
+
+  // Cargar fotos de evidencia bajo demanda solo para los 1 a 3 eventos del día abierto
+  useEffect(() => {
+    if (!isOpen) return;
+    events.forEach((evt) => {
+      const existingPhoto = evt.dish?.evidencePhoto || evt.evidencePhoto || loadedPhotos[evt.id];
+      if (!existingPhoto && evt.hasEvidencePhoto) {
+        setLoadingPhotos((prev) => ({ ...prev, [evt.id]: true }));
+        fetchSupabaseEventEvidence(evt.id)
+          .then((photo) => {
+            if (photo) {
+              setLoadedPhotos((prev) => ({ ...prev, [evt.id]: photo }));
+              saveSingleEventPhotoToIDB(evt.id, photo);
+            }
+            setLoadingPhotos((prev) => ({ ...prev, [evt.id]: false }));
+          })
+          .catch(() => {
+            setLoadingPhotos((prev) => ({ ...prev, [evt.id]: false }));
+          });
+      }
+    });
+  }, [isOpen, events]);
 
   const sortedEvents = [...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
@@ -253,7 +279,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                   className={`w-full ${role === 'admin' ? 'cursor-pointer hover:shadow-md transition-shadow rounded-3xl' : ''}`}
                 >
                   <ModernEventCard
-                    event={event}
+                    event={loadedPhotos[event.id] ? { ...event, evidencePhoto: loadedPhotos[event.id] } : event}
                     className="w-full h-full"
                     onOpenPhotoLightbox={(url) =>
                       setLightboxImage({
@@ -566,32 +592,49 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         </div>
 
                         {/* Botón ver evidencia cuaderno si existe */}
-                        {(event.dish?.evidencePhoto || event.evidencePhoto) && (
-                          <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLightboxImage({
-                                  src: (event.dish?.evidencePhoto || event.evidencePhoto)!,
-                                  localName: event.localName,
-                                  eventDate: event.startDate,
-                                });
-                              }}
-                              className="flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-medium transition cursor-pointer"
-                            >
-                              <img 
-                                src={event.dish?.evidencePhoto || event.evidencePhoto} 
-                                alt="Evidencia cuaderno" 
-                                className="w-7 h-7 rounded-lg object-cover border border-blue-300 dark:border-blue-700"
-                              />
-                              <span className="flex items-center gap-1 font-semibold text-[11px]">
-                                <FileText className="w-3.5 h-3.5 text-blue-500" />
-                                Ver evidencia
-                              </span>
-                            </button>
-                          </div>
-                        )}
+                        {(() => {
+                          const eventPhoto = event.dish?.evidencePhoto || event.evidencePhoto || loadedPhotos[event.id];
+                          const hasPhoto = Boolean(eventPhoto || event.hasEvidencePhoto);
+                          const isPhotoLoading = Boolean(loadingPhotos[event.id]);
+
+                          if (!hasPhoto) return null;
+
+                          return (
+                            <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
+                              <button
+                                type="button"
+                                disabled={isPhotoLoading}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (eventPhoto) {
+                                    setLightboxImage({
+                                      src: eventPhoto,
+                                      localName: event.localName,
+                                      eventDate: event.startDate,
+                                    });
+                                  }
+                                }}
+                                className="flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-medium transition cursor-pointer disabled:opacity-60"
+                              >
+                                {eventPhoto ? (
+                                  <img 
+                                    src={eventPhoto} 
+                                    alt="Evidencia cuaderno" 
+                                    className="w-7 h-7 rounded-lg object-cover border border-blue-300 dark:border-blue-700"
+                                  />
+                                ) : (
+                                  <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                                    <FileText className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
+                                  </div>
+                                )}
+                                <span className="flex items-center gap-1 font-semibold text-[11px]">
+                                  <FileText className="w-3.5 h-3.5 text-blue-500" />
+                                  {isPhotoLoading ? 'Cargando evidencia...' : 'Ver evidencia'}
+                                </span>
+                              </button>
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>

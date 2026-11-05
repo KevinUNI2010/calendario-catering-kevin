@@ -436,15 +436,16 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
       </div>
 
       {/* Evidencia Cuaderno si existe */}
-      {evidencePhoto && (
+      {(evidencePhoto || event.hasEvidencePhoto) && (
         <div className="relative z-10 mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60">
           <button
             type="button"
-            onClick={() => onOpenPhotoLightbox?.(evidencePhoto)}
-            className="w-full py-1.5 px-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors"
+            disabled={!evidencePhoto}
+            onClick={() => evidencePhoto && onOpenPhotoLightbox?.(evidencePhoto)}
+            className="w-full py-1.5 px-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors disabled:opacity-60"
           >
             <Camera className="w-3.5 h-3.5 text-blue-500" />
-            <span>Ver evidencia</span>
+            <span>{evidencePhoto ? 'Ver evidencia' : 'Cargando evidencia...'}</span>
           </button>
         </div>
       )}

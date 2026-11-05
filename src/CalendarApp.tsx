@@ -104,7 +104,8 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
   useEffect(() => {
     if (locales.length > 0) {
       setSelectedLocalIds((prev) => {
-        if (prev.length === 0) {
+        const hasValid = prev.some(id => locales.some(l => l.id === id));
+        if (prev.length === 0 || !hasValid) {
           return locales.map(l => l.id);
         }
         return prev;
@@ -117,11 +118,25 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
     getEventsFromIDB().then((idbEvents) => {
       if (idbEvents && idbEvents.length > 0) {
         setEvents((prev) => {
-          const hasMissingPhotos = prev.some((e) => !e.evidencePhoto && !e.dish?.evidencePhoto);
-          if (hasMissingPhotos) {
-            return idbEvents;
+          if (prev.length === 0) return idbEvents;
+          const photoMap = new Map<string, string>();
+          for (const ie of idbEvents) {
+            const photo = ie.evidencePhoto || ie.dish?.evidencePhoto;
+            if (photo) photoMap.set(ie.id, photo);
           }
-          return prev;
+          if (photoMap.size === 0) return prev;
+          return prev.map(e => {
+            const cachedPhoto = photoMap.get(e.id);
+            if (cachedPhoto && !e.evidencePhoto && !e.dish?.evidencePhoto) {
+              return {
+                ...e,
+                evidencePhoto: cachedPhoto,
+                dish: e.dish ? { ...e.dish, evidencePhoto: cachedPhoto } : undefined,
+                hasEvidencePhoto: true
+              };
+            }
+            return e;
+          });
         });
       }
     });
@@ -317,22 +332,27 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
     return events.filter((evt) => {
       // Local filter: only filter if locales are loaded and user has an active selection
       if (locales.length > 0 && selectedLocalIds.length > 0) {
-        if (!selectedLocalIds.includes(evt.localId)) {
-          return false;
-        }
+        const isMatch = selectedLocalIds.some(id => {
+          const loc = locales.find(l => l.id === id);
+          return (
+            evt.localId === id ||
+            (loc && evt.localName && loc.name.toLowerCase() === evt.localName.toLowerCase())
+          );
+        });
+        if (!isMatch) return false;
       }
       // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesTitle = evt.title.toLowerCase().includes(q);
-        const matchesLocal = evt.localName.toLowerCase().includes(q);
+        const matchesLocal = (evt.localName || '').toLowerCase().includes(q);
         const matchesDesc = (evt.description || '').toLowerCase().includes(q);
         const matchesNotes = (evt.notes || '').toLowerCase().includes(q);
         return matchesTitle || matchesLocal || matchesDesc || matchesNotes;
       }
       return true;
     });
-  }, [events, selectedLocalIds, searchQuery, locales.length]);
+  }, [events, selectedLocalIds, searchQuery, locales]);
 
   // Date Navigation Handlers
   const handlePrevDate = () => {
