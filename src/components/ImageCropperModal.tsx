@@ -161,8 +161,8 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
           return;
         }
 
-        // Limit max dimension to 1200px for high readability of handwriting while keeping file size small (~150kb)
-        const maxDim = 1200;
+        // Limitar dimensión máxima a 1000px: legibilidad impecable de letra manuscrita reduciendo el peso a solo ~40-50 KB
+        const maxDim = 1000;
         let outW = cropPxW;
         let outH = cropPxH;
         if (outW > maxDim || outH > maxDim) {
@@ -193,8 +193,16 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
           targetCanvas.height
         );
 
-        // Compress to JPEG 0.85
-        const croppedBase64 = targetCanvas.toDataURL('image/jpeg', 0.85);
+        // Compresión optimizada: WebP preferido (o JPEG a 0.78 de respaldo) para máxima ligereza
+        let croppedBase64 = '';
+        try {
+          croppedBase64 = targetCanvas.toDataURL('image/webp', 0.80);
+          if (!croppedBase64.startsWith('data:image/webp')) {
+            croppedBase64 = targetCanvas.toDataURL('image/jpeg', 0.78);
+          }
+        } catch {
+          croppedBase64 = targetCanvas.toDataURL('image/jpeg', 0.78);
+        }
         if (onConfirm) onConfirm(croppedBase64);
         if (onCropComplete) onCropComplete(croppedBase64);
         onClose();

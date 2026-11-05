@@ -5,7 +5,7 @@ import { parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas } from '../utils/servilletaUtils';
 import { formatEventTime, parseEventDate } from '../utils/dateUtils';
 import { fetchSupabaseEventEvidence } from '../lib/supabase';
-import { saveSingleEventPhotoToIDB } from '../utils/offlineStorage';
+import { saveSingleEventPhotoToIDB, getEventEvidenceFromIDB } from '../utils/offlineStorage';
 import { EvidenceLightboxModal } from './EvidenceLightboxModal';
 import {
   Calendar,
@@ -44,14 +44,20 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
 
   useEffect(() => {
     if (!evidencePhoto && (event.hasEvidencePhoto || event.dish?.evidencePhoto || event.evidencePhoto)) {
-      setIsLoadingPhoto(true);
-      fetchSupabaseEventEvidence(event.id).then((photo) => {
-        if (photo) {
-          setEvidencePhoto(photo);
-          saveSingleEventPhotoToIDB(event.id, photo);
+      getEventEvidenceFromIDB(event.id).then((idbPhoto) => {
+        if (idbPhoto) {
+          setEvidencePhoto(idbPhoto);
+          return;
         }
-        setIsLoadingPhoto(false);
-      }).catch(() => setIsLoadingPhoto(false));
+        setIsLoadingPhoto(true);
+        fetchSupabaseEventEvidence(event.id).then((photo) => {
+          if (photo) {
+            setEvidencePhoto(photo);
+            saveSingleEventPhotoToIDB(event.id, photo);
+          }
+          setIsLoadingPhoto(false);
+        }).catch(() => setIsLoadingPhoto(false));
+      });
     }
   }, [event.id, evidencePhoto, event.hasEvidencePhoto]);
 

@@ -101,6 +101,25 @@ export async function saveSingleEventPhotoToIDB(eventId: string, photo: string):
   }
 }
 
+export async function getEventEvidenceFromIDB(eventId: string): Promise<string | null> {
+  const db = await openIDB();
+  if (!db || !eventId) return null;
+  return new Promise((resolve) => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const store = tx.objectStore(IDB_STORE);
+      const req = store.get(eventId);
+      req.onsuccess = () => {
+        const item = req.result;
+        resolve(item?.evidencePhoto || item?.dish?.evidencePhoto || null);
+      };
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
 export function saveCachedEvents(events: CalendarEvent[]): void {
   // 1. Guardar eventos completos con sus fotos en IndexedDB (sin límite de 5MB)
   saveEventsToIDB(events).catch(() => {});

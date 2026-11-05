@@ -7,7 +7,7 @@ import { useEscapeKey } from '../hooks/useEscapeKey';
 import { getEffectivePlateCount, parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas } from '../utils/servilletaUtils';
 import { fetchSupabaseEventEvidence } from '../lib/supabase';
-import { saveSingleEventPhotoToIDB } from '../utils/offlineStorage';
+import { saveSingleEventPhotoToIDB, getEventEvidenceFromIDB } from '../utils/offlineStorage';
 import { EvidenceLightboxModal } from '../components/EvidenceLightboxModal';
 import { ModernEventCard } from '../components/modern-cards/ModernEventCard';
 
@@ -36,27 +36,55 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
   const [loadedPhotos, setLoadedPhotos] = useState<Record<string, string>>({});
   const [loadingPhotos, setLoadingPhotos] = useState<Record<string, boolean>>({});
 
-  // Cargar fotos de evidencia bajo demanda solo para los 1 a 3 eventos del día abierto
-  useEffect(() => {
-    if (!isOpen) return;
-    events.forEach((evt) => {
-      const existingPhoto = evt.dish?.evidencePhoto || evt.evidencePhoto || loadedPhotos[evt.id];
-      if (!existingPhoto && evt.hasEvidencePhoto) {
-        setLoadingPhotos((prev) => ({ ...prev, [evt.id]: true }));
-        fetchSupabaseEventEvidence(evt.id)
-          .then((photo) => {
-            if (photo) {
-              setLoadedPhotos((prev) => ({ ...prev, [evt.id]: photo }));
-              saveSingleEventPhotoToIDB(evt.id, photo);
-            }
-            setLoadingPhotos((prev) => ({ ...prev, [evt.id]: false }));
-          })
-          .catch(() => {
-            setLoadingPhotos((prev) => ({ ...prev, [evt.id]: false }));
-          });
+  // Carga 100% bajo demanda: solo descarga la foto cuando el usuario hace clic en "Ver evidencia"
+  const handleOpenEvidence = async (event: CalendarEvent) => {
+    // 1. Si ya está cargada en memoria, abrir al instante (0 ms)
+    const inMemPhoto = event.dish?.evidencePhoto || event.evidencePhoto || loadedPhotos[event.id];
+    if (inMemPhoto) {
+      setLightboxImage({
+        src: inMemPhoto,
+        localName: event.localName,
+        eventDate: event.startDate,
+        title: event.title,
+      });
+      return;
+    }
+
+    if (!event.hasEvidencePhoto) return;
+
+    setLoadingPhotos((prev) => ({ ...prev, [event.id]: true }));
+    try {
+      // 2. Si está en IndexedDB (disco del celular), leerla sin llamar a Supabase
+      const idbPhoto = await getEventEvidenceFromIDB(event.id);
+      if (idbPhoto) {
+        setLoadedPhotos((prev) => ({ ...prev, [event.id]: idbPhoto }));
+        setLightboxImage({
+          src: idbPhoto,
+          localName: event.localName,
+          eventDate: event.startDate,
+          title: event.title,
+        });
+        return;
       }
-    });
-  }, [isOpen, events]);
+
+      // 3. Si no existe en el celular, descargar únicamente esta foto de Supabase (~40-150 KB)
+      const photo = await fetchSupabaseEventEvidence(event.id);
+      if (photo) {
+        setLoadedPhotos((prev) => ({ ...prev, [event.id]: photo }));
+        saveSingleEventPhotoToIDB(event.id, photo);
+        setLightboxImage({
+          src: photo,
+          localName: event.localName,
+          eventDate: event.startDate,
+          title: event.title,
+        });
+      }
+    } catch (err) {
+      console.warn('Error loading evidence photo:', err);
+    } finally {
+      setLoadingPhotos((prev) => ({ ...prev, [event.id]: false }));
+    }
+  };
 
   const sortedEvents = [...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
@@ -281,13 +309,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                   <ModernEventCard
                     event={loadedPhotos[event.id] ? { ...event, evidencePhoto: loadedPhotos[event.id] } : event}
                     className="w-full h-full"
-                    onOpenPhotoLightbox={(url) =>
-                      setLightboxImage({
-                        src: url,
-                        localName: event.localName,
-                        eventDate: event.startDate,
-                      })
-                    }
+                    onOpenPhotoLightbox={() => handleOpenEvidence(event)}
                   />
                 </div>
               ))}
@@ -606,13 +628,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                                 disabled={isPhotoLoading}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (eventPhoto) {
-                                    setLightboxImage({
-                                      src: eventPhoto,
-                                      localName: event.localName,
-                                      eventDate: event.startDate,
-                                    });
-                                  }
+                                  handleOpenEvidence(event);
                                 }}
                                 className="flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-medium transition cursor-pointer disabled:opacity-60"
                               >
