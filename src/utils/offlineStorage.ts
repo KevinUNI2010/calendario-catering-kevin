@@ -18,21 +18,92 @@ export interface QueuedAction {
   timestamp: number;
 }
 
-export function saveCachedEvents(events: CalendarEvent[]): void {
+const IDB_NAME = 'CateringKevinDB_v1';
+const IDB_STORE = 'events_store';
+
+function openIDB(): Promise<IDBDatabase | null> {
+  if (typeof window === 'undefined' || !window.indexedDB) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open(IDB_NAME, 1);
+      request.onupgradeneeded = (e: any) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE, { keyPath: 'id' });
+        }
+      };
+      request.onsuccess = (e: any) => resolve(e.target.result);
+      request.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+export async function saveEventsToIDB(events: CalendarEvent[]): Promise<void> {
+  const db = await openIDB();
+  if (!db) return;
   try {
-    // Evitar que fotos pesadas en base64 saturen la cuota de 5MB de localStorage
-    const lightweightEvents = events.map(e => {
-      if (e.evidencePhoto && e.evidencePhoto.length > 300) {
-        const { evidencePhoto, ...rest } = e;
-        return {
-          ...rest,
-          evidencePhoto: undefined,
-          dish: rest.dish ? { ...rest.dish, evidencePhoto: undefined } : undefined
-        };
-      }
-      return e;
-    });
-    localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(lightweightEvents));
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    const store = tx.objectStore(IDB_STORE);
+    store.clear();
+    for (const evt of events) {
+      store.put(evt);
+    }
+  } catch (e) {
+    console.warn('Could not save to IndexedDB', e);
+  }
+}
+
+export async function getEventsFromIDB(): Promise<CalendarEvent[] | null> {
+  const db = await openIDB();
+  if (!db) return null;
+  return new Promise((resolve) => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const store = tx.objectStore(IDB_STORE);
+      const req = store.getAll();
+      req.onsuccess = () => {
+        if (Array.isArray(req.result) && req.result.length > 0) {
+          resolve(req.result.map(e => ({
+            ...e,
+            startDate: normalizeLocalDateString(e.startDate),
+            endDate: normalizeLocalDateString(e.endDate || e.startDate),
+          })));
+        } else {
+          resolve(null);
+        }
+      };
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+export function saveCachedEvents(events: CalendarEvent[]): void {
+  // 1. Guardar eventos completos con sus fotos en IndexedDB (sin límite de 5MB)
+  saveEventsToIDB(events).catch(() => {});
+
+  // 2. Guardar en localStorage (con fallback ligero si excede cuota)
+  try {
+    try {
+      localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(events));
+    } catch (quotaErr) {
+      // Si excede la cuota de 5MB de localStorage, guardar versión ligera en localStorage
+      const lightweightEvents = events.map(e => {
+        if (e.evidencePhoto && e.evidencePhoto.length > 500) {
+          const { evidencePhoto, ...rest } = e;
+          return {
+            ...rest,
+            evidencePhoto: undefined,
+            dish: rest.dish ? { ...rest.dish, evidencePhoto: undefined } : undefined
+          };
+        }
+        return e;
+      });
+      localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(lightweightEvents));
+    }
   } catch (e) {
     console.warn('Could not cache events locally', e);
   }

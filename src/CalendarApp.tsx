@@ -8,6 +8,7 @@ import {
 import { 
   saveCachedEvents, 
   getCachedEvents, 
+  getEventsFromIDB,
   saveCachedLocales, 
   getCachedLocales,
   saveCachedMenuOptions,
@@ -110,6 +111,21 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
       });
     }
   }, [locales]);
+
+  // Hydrate full events (including evidence photos) from IndexedDB offline store
+  useEffect(() => {
+    getEventsFromIDB().then((idbEvents) => {
+      if (idbEvents && idbEvents.length > 0) {
+        setEvents((prev) => {
+          const hasMissingPhotos = prev.some((e) => !e.evidencePhoto && !e.dish?.evidencePhoto);
+          if (hasMissingPhotos) {
+            return idbEvents;
+          }
+          return prev;
+        });
+      }
+    });
+  }, []);
 
   // Notifications State
   const [notifications, setNotifications] = useState<NotificationItem[]>([

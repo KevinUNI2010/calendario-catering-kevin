@@ -113,11 +113,7 @@ export async function fetchSupabaseEvents(session?: UserSession): Promise<Calend
       query = query.in('local_id', session.allowedLocales);
     }
 
-    const timeoutPromise = new Promise<{ data: any; error: any }>((_, reject) =>
-      setTimeout(() => reject(new Error('Supabase fetch events timeout')), 8000)
-    );
-
-    const { data, error } = await Promise.race([query, timeoutPromise]);
+    const { data, error } = await query;
     if (error) throw error;
     if (!data) return [];
     return data.map(mapRowToEvent);
@@ -131,13 +127,7 @@ export async function fetchSupabaseLocales(): Promise<Local[] | null> {
   const sb = getSupabase();
   if (!sb) return null;
   try {
-    const timeoutPromise = new Promise<{ data: any; error: any }>((_, reject) =>
-      setTimeout(() => reject(new Error('Supabase fetch locales timeout')), 8000)
-    );
-    const { data, error } = await Promise.race([
-      sb.from('locales').select('*').order('name', { ascending: true }),
-      timeoutPromise
-    ]);
+    const { data, error } = await sb.from('locales').select('*').order('name', { ascending: true });
     if (error) throw error;
     if (!data) return [];
     return data.map(mapRowToLocal);
