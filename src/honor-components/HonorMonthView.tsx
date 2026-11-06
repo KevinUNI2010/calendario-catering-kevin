@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { CalendarEvent, Local } from '../types';
 import { getMonthDays, isSameDay, isToday, DAY_NAMES_SHORT, parseEventDate } from '../utils/dateUtils';
 import { getEventColor } from '../utils/colorUtils';
+import { soundManager } from '../utils/soundEffects';
 import { Plus } from 'lucide-react';
 
 interface MonthViewProps {
@@ -12,6 +13,8 @@ interface MonthViewProps {
   onShowDaySummary?: (date: Date, events: CalendarEvent[]) => void;
   role?: string;
   locales?: Local[];
+  onPrevDate?: () => void;
+  onNextDate?: () => void;
 }
 
 export const HonorMonthView: React.FC<MonthViewProps> = ({
@@ -22,12 +25,66 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
   onShowDaySummary,
   role,
   locales = [],
+  onPrevDate,
+  onNextDate,
 }) => {
   const days = getMonthDays(currentDate.getFullYear(), currentDate.getMonth());
   const currentMonth = currentDate.getMonth();
 
+  // Soporte táctil de deslizamiento (Swipe) para mobile y tablets
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const touchStartTime = useRef<number>(0);
+  const [slideAnim, setSlideAnim] = useState<'slide-left' | 'slide-right' | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+      touchStartTime.current = Date.now();
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const diffX = endX - touchStartX.current;
+    const diffY = endY - touchStartY.current;
+    const duration = Date.now() - touchStartTime.current;
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+
+    // Validación precisa de swipe horizontal:
+    // 1. Distancia horizontal mínima: 45px
+    // 2. Ángulo horizontal marcado (diffX > diffY * 1.3) para no interrumpir el scroll vertical
+    // 3. Duración del gesto menor a 650ms
+    const minDistance = 45;
+    if (Math.abs(diffX) >= minDistance && Math.abs(diffX) > Math.abs(diffY) * 1.3 && duration < 650) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try { navigator.vibrate(12); } catch {}
+      }
+      soundManager.playQuickClick();
+
+      if (diffX < 0) {
+        // Deslizar hacia la izquierda (<-) -> Mes siguiente
+        setSlideAnim('slide-left');
+        if (onNextDate) onNextDate();
+      } else {
+        // Deslizar hacia la derecha (->) -> Mes anterior
+        setSlideAnim('slide-right');
+        if (onPrevDate) onPrevDate();
+      }
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full bg-[#f7f8fa] dark:bg-[#0c0c0c] select-none overflow-y-auto p-1.5 sm:p-4 gap-2">
+    <div 
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="flex flex-col h-full bg-[#f7f8fa] dark:bg-[#0c0c0c] select-none overflow-y-auto p-1.5 sm:p-4 gap-2 touch-pan-y"
+    >
       {/* Day of Week Headers */}
       <div className="grid grid-cols-7 mb-1 sticky top-0 z-10 shrink-0 bg-[#f7f8fa] dark:bg-[#0c0c0c] py-1">
         {DAY_NAMES_SHORT.map((day, idx) => (
@@ -43,8 +100,14 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
         ))}
       </div>
 
-      {/* Days Grid */}
-      <div className="grid grid-cols-7 flex-1 auto-rows-fr gap-1 sm:gap-3 pb-20 sm:pb-0">
+      {/* Days Grid con animación fluida de cambio de mes */}
+      <div 
+        key={`${currentDate.getFullYear()}-${currentDate.getMonth()}`}
+        className={`grid grid-cols-7 flex-1 auto-rows-fr gap-1 sm:gap-3 pb-20 sm:pb-0 transition-opacity duration-200 ${
+          slideAnim === 'slide-left' ? 'animate-in fade-in slide-in-from-right-4 duration-200' :
+          slideAnim === 'slide-right' ? 'animate-in fade-in slide-in-from-left-4 duration-200' : ''
+        }`}
+      >
         {days.map((day, idx) => {
           const isCurrMonth = day.getMonth() === currentMonth;
           const dayEvents = events.filter((e) => {

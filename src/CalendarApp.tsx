@@ -676,6 +676,8 @@ export function CalendarApp({ session, onLogout }: CalendarAppProps) {
               onShowDaySummary={(date, events) => setHonorDayModalData({ isOpen: true, date, events })}
               role={session.role}
               locales={locales}
+              onPrevDate={handlePrevDate}
+              onNextDate={handleNextDate}
             />
           )}
 
