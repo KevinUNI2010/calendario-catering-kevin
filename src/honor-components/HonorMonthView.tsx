@@ -31,59 +31,157 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
   const days = getMonthDays(currentDate.getFullYear(), currentDate.getMonth());
   const currentMonth = currentDate.getMonth();
 
-  // Soporte táctil de deslizamiento (Swipe) para mobile y tablets
+  // Soporte de Slide táctil interactivo y natural para mobile y tablets
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
   const touchStartTime = useRef<number>(0);
-  const [slideAnim, setSlideAnim] = useState<'slide-left' | 'slide-right' | null>(null);
+  const isHorizontalSwipe = useRef<boolean | null>(null);
+  const isSwipingActive = useRef<boolean>(false);
+
+  const [dragOffset, setDragOffset] = useState<number>(0);
+  const [dragOpacity, setDragOpacity] = useState<number>(1);
+  const [transitionStyle, setTransitionStyle] = useState<string>('none');
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (isTransitioning) return;
     if (e.touches.length === 1) {
       touchStartX.current = e.touches[0].clientX;
       touchStartY.current = e.touches[0].clientY;
       touchStartTime.current = Date.now();
+      isHorizontalSwipe.current = null;
+      isSwipingActive.current = true;
+      setTransitionStyle('none');
     }
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null || touchStartY.current === null) return;
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const diffX = endX - touchStartX.current;
-    const diffY = endY - touchStartY.current;
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isSwipingActive.current || touchStartX.current === null || touchStartY.current === null || isTransitioning) return;
+
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const diffX = currentX - touchStartX.current;
+    const diffY = currentY - touchStartY.current;
+
+    // Detectar intención del gesto en los primeros 8 píxeles
+    if (isHorizontalSwipe.current === null) {
+      if (Math.abs(diffX) > 8 || Math.abs(diffY) > 8) {
+        if (Math.abs(diffX) > Math.abs(diffY) * 1.1) {
+          isHorizontalSwipe.current = true;
+        } else {
+          isHorizontalSwipe.current = false;
+        }
+      }
+    }
+
+    // Si es desplazamiento horizontal, la cuadrícula sigue el dedo en tiempo real (1:1)
+    if (isHorizontalSwipe.current === true) {
+      const offset = diffX * 0.95;
+      setDragOffset(offset);
+      const screenW = typeof window !== 'undefined' ? window.innerWidth : 380;
+      const progress = Math.min(1, Math.abs(offset) / screenW);
+      setDragOpacity(Math.max(0.35, 1 - progress * 0.65));
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isSwipingActive.current || touchStartX.current === null || isTransitioning) {
+      isSwipingActive.current = false;
+      return;
+    }
+
+    isSwipingActive.current = false;
+    const isHorizontal = isHorizontalSwipe.current === true;
+    const currentOffset = dragOffset;
     const duration = Date.now() - touchStartTime.current;
+    const velocity = Math.abs(currentOffset) / Math.max(1, duration);
 
     touchStartX.current = null;
     touchStartY.current = null;
+    isHorizontalSwipe.current = null;
 
-    // Validación precisa de swipe horizontal:
-    // 1. Distancia horizontal mínima: 45px
-    // 2. Ángulo horizontal marcado (diffX > diffY * 1.3) para no interrumpir el scroll vertical
-    // 3. Duración del gesto menor a 650ms
-    const minDistance = 45;
-    if (Math.abs(diffX) >= minDistance && Math.abs(diffX) > Math.abs(diffY) * 1.3 && duration < 650) {
+    if (!isHorizontal) {
+      setDragOffset(0);
+      setDragOpacity(1);
+      return;
+    }
+
+    // Umbral de activación natural: 55px o deslizamiento rápido (> 0.45 px/ms)
+    const threshold = 55;
+    const shouldChange = (Math.abs(currentOffset) >= threshold || velocity > 0.45) && duration < 800;
+
+    if (shouldChange) {
+      setIsTransitioning(true);
+      const isNext = currentOffset < 0; // Deslizó a la izquierda -> Siguiente mes
+      const screenW = typeof window !== 'undefined' ? window.innerWidth : 380;
+      const exitTarget = isNext ? -screenW * 0.8 : screenW * 0.8;
+
+      // 1. Deslizar con inercia hacia afuera
+      setTransitionStyle('transform 180ms cubic-bezier(0.2, 0.9, 0.4, 1), opacity 180ms ease-out');
+      setDragOffset(exitTarget);
+      setDragOpacity(0.15);
+
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
         try { navigator.vibrate(12); } catch {}
       }
       soundManager.playQuickClick();
 
-      if (diffX < 0) {
-        // Deslizar hacia la izquierda (<-) -> Mes siguiente
-        setSlideAnim('slide-left');
-        if (onNextDate) onNextDate();
-      } else {
-        // Deslizar hacia la derecha (->) -> Mes anterior
-        setSlideAnim('slide-right');
-        if (onPrevDate) onPrevDate();
-      }
+      setTimeout(() => {
+        // 2. Cambiar de mes
+        if (isNext) {
+          if (onNextDate) onNextDate();
+        } else {
+          if (onPrevDate) onPrevDate();
+        }
+
+        // 3. Posicionar el nuevo mes en el lado opuesto sin animación
+        const enterOrigin = isNext ? screenW * 0.5 : -screenW * 0.5;
+        setTransitionStyle('none');
+        setDragOffset(enterOrigin);
+        setDragOpacity(0.3);
+
+        // 4. Deslizar suavemente hacia el centro con efecto elástico
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setTransitionStyle('transform 240ms cubic-bezier(0.16, 1, 0.3, 1), opacity 240ms ease-out');
+            setDragOffset(0);
+            setDragOpacity(1);
+            setTimeout(() => {
+              setIsTransitioning(false);
+              setTransitionStyle('none');
+            }, 250);
+          });
+        });
+      }, 190);
+    } else {
+      // Si no superó el umbral, regresar elásticamente al centro
+      setTransitionStyle('transform 220ms cubic-bezier(0.175, 0.885, 0.32, 1.15), opacity 200ms ease-out');
+      setDragOffset(0);
+      setDragOpacity(1);
+      setTimeout(() => {
+        setTransitionStyle('none');
+      }, 230);
     }
+  };
+
+  const handleTouchCancel = () => {
+    isSwipingActive.current = false;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    isHorizontalSwipe.current = null;
+    setTransitionStyle('transform 200ms ease-out, opacity 200ms ease-out');
+    setDragOffset(0);
+    setDragOpacity(1);
+    setTimeout(() => setTransitionStyle('none'), 210);
   };
 
   return (
     <div 
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="flex flex-col h-full bg-[#f7f8fa] dark:bg-[#0c0c0c] select-none overflow-y-auto p-1.5 sm:p-4 gap-2 touch-pan-y"
+      onTouchCancel={handleTouchCancel}
+      className="flex flex-col h-full bg-[#f7f8fa] dark:bg-[#0c0c0c] select-none overflow-y-auto p-1.5 sm:p-4 gap-2 touch-pan-y overflow-x-hidden"
     >
       {/* Day of Week Headers */}
       <div className="grid grid-cols-7 mb-1 sticky top-0 z-10 shrink-0 bg-[#f7f8fa] dark:bg-[#0c0c0c] py-1">
@@ -100,13 +198,15 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
         ))}
       </div>
 
-      {/* Days Grid con animación fluida de cambio de mes */}
+      {/* Days Grid con deslizamiento interactivo en tiempo real (1:1 con el dedo) */}
       <div 
-        key={`${currentDate.getFullYear()}-${currentDate.getMonth()}`}
-        className={`grid grid-cols-7 flex-1 auto-rows-fr gap-1 sm:gap-3 pb-20 sm:pb-0 transition-opacity duration-200 ${
-          slideAnim === 'slide-left' ? 'animate-in fade-in slide-in-from-right-4 duration-200' :
-          slideAnim === 'slide-right' ? 'animate-in fade-in slide-in-from-left-4 duration-200' : ''
-        }`}
+        style={{
+          transform: `translate3d(${dragOffset}px, 0, 0)`,
+          opacity: dragOpacity,
+          transition: transitionStyle,
+          willChange: dragOffset !== 0 ? 'transform, opacity' : 'auto',
+        }}
+        className="grid grid-cols-7 flex-1 auto-rows-fr gap-1 sm:gap-3 pb-20 sm:pb-0"
       >
         {days.map((day, idx) => {
           const isCurrMonth = day.getMonth() === currentMonth;
@@ -120,6 +220,7 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
             <div
               key={idx}
               onClick={() => {
+                if (Math.abs(dragOffset) > 6 || isTransitioning) return;
                 if (onShowDaySummary) {
                   onShowDaySummary(day, dayEvents);
                 }
@@ -158,6 +259,7 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                       key={event.id} 
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (Math.abs(dragOffset) > 6 || isTransitioning) return;
                         if (role !== 'admin') {
                           if (onShowDaySummary) {
                             onShowDaySummary(day, dayEvents);
