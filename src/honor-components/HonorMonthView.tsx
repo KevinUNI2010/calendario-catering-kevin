@@ -125,22 +125,6 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
           );
         })}
       </div>
-
-      {/* Legend */}
-      {locales.length > 0 && (
-        <div className="mt-2 py-2 px-4 bg-white dark:bg-[#1a1a1a] rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-wrap gap-4 items-center justify-center border border-gray-100 dark:border-gray-800">
-          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Leyenda:</span>
-          {locales.map(local => {
-            const color = getEventColor(local.colorId);
-            return (
-              <div key={local.id} className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color.bg }} />
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{local.name}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 };
