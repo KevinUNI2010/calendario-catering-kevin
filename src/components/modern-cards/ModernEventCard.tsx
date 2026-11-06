@@ -359,15 +359,11 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
         {/* LADO IZQUIERDO: Servilleta con ícono 3D según su color real */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           {servList.length === 0 ? (
-            <div className="flex flex-col">
+            <div className="flex flex-col items-start gap-1">
               <span className="text-[11px] font-medium text-slate-400">Servilleta:</span>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 shadow-2xs">
-                  Por confirmar
-                </span>
-                {/* Recuadro para escribir a mano más amplio como se solicitó */}
-                <div className="w-14 h-6 rounded-md border-2 border-amber-400 bg-white dark:bg-slate-900 shadow-2xs" title="Espacio para escribir a mano" />
-              </div>
+              <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 shadow-2xs whitespace-nowrap">
+                Por confirmar
+              </span>
             </div>
           ) : (
             <div className="flex items-center gap-2.5">
@@ -440,12 +436,14 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
         <div className="relative z-10 mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60">
           <button
             type="button"
-            disabled={!evidencePhoto}
-            onClick={() => evidencePhoto && onOpenPhotoLightbox?.(evidencePhoto)}
-            className="w-full py-1.5 px-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors disabled:opacity-60"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenPhotoLightbox?.(evidencePhoto || '');
+            }}
+            className="w-full py-1.5 px-3 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors"
           >
             <Camera className="w-3.5 h-3.5 text-blue-500" />
-            <span>{evidencePhoto ? 'Ver evidencia' : 'Cargando evidencia...'}</span>
+            <span>Ver evidencia</span>
           </button>
         </div>
       )}
