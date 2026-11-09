@@ -364,9 +364,13 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                 </button>
               )}
             </div>
-          ) : cardColumns >= 3 ? (
-            /* Cuadrícula de 3 o 4 cards por fila (sin scroll horizontal ni slider) */
-            <div className={`grid ${cardColumns === 3 ? 'grid-cols-3 gap-2 sm:gap-3.5' : 'grid-cols-4 gap-1 sm:gap-2.5'} auto-rows-max w-full`}>
+          ) : cardColumns >= 2 ? (
+            /* Cuadrícula de 2, 3 o 4 cards por fila (sin desbordes ni textos cortados) */
+            <div className={`grid ${
+              cardColumns === 2 ? 'grid-cols-2 gap-2.5 sm:gap-4' :
+              cardColumns === 3 ? 'grid-cols-3 gap-2 sm:gap-3.5' :
+              'grid-cols-4 gap-1 sm:gap-2.5'
+            } auto-rows-max w-full`}>
               {sortedEvents.map(event => {
                 const color = getEventColor(event.colorId);
                 const timeString = formatEventTime(event.startDate);
@@ -379,7 +383,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                 const servList = event.dish ? getSelectedServilletas(event.dish) : [];
 
                 // ==============================================================
-                // VARIANTE MODERNO (LAB) PARA 4 CARDS POR FILA
+                // VARIANTE MODERNO (LAB) (2, 3 o 4 CARDS POR FILA)
                 // ==============================================================
                 if (cardStyle === 'modern') {
                   return (
@@ -391,7 +395,11 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                           onClose();
                         }
                       }}
-                      className={`relative bg-white dark:bg-[#161a23] rounded-2xl p-1.5 sm:p-2.5 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.06)] border overflow-hidden flex flex-col justify-between transition-all select-none hover:shadow-md ${
+                      className={`relative bg-white dark:bg-[#161a23] rounded-2xl ${
+                        cardColumns === 2 ? 'p-3 sm:p-4 shadow-sm' :
+                        cardColumns === 3 ? 'p-2 sm:p-3 shadow-2xs' :
+                        'p-1.5 sm:p-2.5 shadow-2xs'
+                      } border overflow-hidden flex flex-col justify-between transition-all select-none hover:shadow-md ${
                         isPostponed
                           ? 'border-amber-400 dark:border-amber-500 ring-1 ring-amber-400/40 bg-amber-50/15'
                           : isCancelled
@@ -402,7 +410,9 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                       {/* Blob Orgánico de fondo adaptado al color del local */}
                       <svg
                         aria-hidden="true"
-                        className="absolute -top-6 -left-6 w-20 h-20 pointer-events-none transition-colors duration-300"
+                        className={`absolute -top-6 -left-6 pointer-events-none transition-colors duration-300 ${
+                          cardColumns === 2 ? 'w-28 h-28' : 'w-20 h-20'
+                        }`}
                         viewBox="0 0 200 200"
                         fill="none"
                       >
@@ -426,9 +436,13 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
 
                       <div className="relative z-10 flex flex-col flex-1">
                         {/* Badge Pill con punto del local */}
-                        <div className="mb-0.5">
+                        <div className="mb-1 flex items-center justify-between">
                           <span
-                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[7.5px] sm:text-[9.5px] font-black tracking-tight uppercase border truncate max-w-full"
+                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-black tracking-tight uppercase border truncate max-w-full ${
+                              cardColumns === 2 ? 'text-[10px] sm:text-xs' :
+                              cardColumns === 3 ? 'text-[8.5px] sm:text-[10px]' :
+                              'text-[7.5px] sm:text-[9.5px]'
+                            }`}
                             style={{
                               backgroundColor: `${color.bg}14`,
                               color: color.bg,
@@ -442,32 +456,48 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         </div>
 
                         {/* Horario con ícono de reloj */}
-                        <div className="flex items-center gap-0.5 text-[7px] sm:text-[8.5px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-                          <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />
+                        <div className={`flex items-center gap-1 font-bold text-slate-600 dark:text-slate-400 mb-1.5 ${
+                          cardColumns === 2 ? 'text-xs' :
+                          cardColumns === 3 ? 'text-[8.5px] sm:text-[10px]' :
+                          'text-[7px] sm:text-[8.5px]'
+                        }`}>
+                          <Clock className={cardColumns === 2 ? 'w-3 h-3 text-rose-500 shrink-0' : 'w-2.5 h-2.5 text-rose-500 shrink-0'} />
                           <span className="truncate">{isTimePending ? 'Por confirmar' : timeString}</span>
                         </div>
 
                         {/* Plato Principal (Título negro/blanco en negrita + barra de color debajo) */}
-                        <div className="my-0.5 sm:my-1">
+                        <div className="my-1">
                           <h4
-                            className="text-[9px] sm:text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tight leading-tight line-clamp-2"
+                            className={`font-black text-slate-900 dark:text-white uppercase tracking-tight leading-tight line-clamp-2 ${
+                              cardColumns === 2 ? 'text-xs sm:text-sm' :
+                              cardColumns === 3 ? 'text-[10.5px] sm:text-xs' :
+                              'text-[9px] sm:text-[11px]'
+                            }`}
                             title={event.dish?.proteina || 'Sin proteína'}
                           >
                             {event.dish?.proteina || 'Sin proteína'}
                           </h4>
-                          <div className="w-6 h-0.5 sm:h-1 rounded-full mt-0.5 mb-1" style={{ backgroundColor: color.bg }} />
+                          <div className={`rounded-full mt-1 mb-1.5 ${
+                            cardColumns === 2 ? 'w-8 h-1' : 'w-6 h-0.5 sm:h-1'
+                          }`} style={{ backgroundColor: color.bg }} />
                         </div>
 
                         {/* Acompañamientos con avatares circulares ilustrados */}
                         {event.dish && (
-                          <div className="space-y-0.5 sm:space-y-1 my-0.5 text-[7.5px] sm:text-[9px]">
+                          <div className={`space-y-1 my-1 ${
+                            cardColumns === 2 ? 'text-xs' :
+                            cardColumns === 3 ? 'text-[8.5px] sm:text-[10px]' :
+                            'text-[7.5px] sm:text-[9px]'
+                          }`}>
                             {event.dish.salsa && (
-                              <div className="flex items-center gap-1 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
+                              <div className="flex items-center gap-1.5 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
                                 <div
-                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shrink-0 border"
+                                  className={`rounded-full flex items-center justify-center shrink-0 border ${
+                                    cardColumns === 2 ? 'w-5 h-5' : 'w-3.5 h-3.5 sm:w-4 sm:h-4'
+                                  }`}
                                   style={{ backgroundColor: `${color.bg}12`, borderColor: `${color.bg}25`, color: color.bg }}
                                 >
-                                  <SalsaIcon size={10} className="w-2.5 h-2.5" color={color.bg} />
+                                  <SalsaIcon size={cardColumns === 2 ? 12 : 10} className="w-2.5 h-2.5" color={color.bg} />
                                 </div>
                                 <span className="truncate font-semibold text-slate-800 dark:text-slate-200" title={event.dish.salsa}>
                                   {event.dish.salsa}
@@ -475,12 +505,14 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                               </div>
                             )}
                             {event.dish.carbohidrato && (
-                              <div className="flex items-center gap-1 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
+                              <div className="flex items-center gap-1.5 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
                                 <div
-                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shrink-0 border"
+                                  className={`rounded-full flex items-center justify-center shrink-0 border ${
+                                    cardColumns === 2 ? 'w-5 h-5' : 'w-3.5 h-3.5 sm:w-4 sm:h-4'
+                                  }`}
                                   style={{ backgroundColor: `${color.bg}12`, borderColor: `${color.bg}25`, color: color.bg }}
                                 >
-                                  <CarbohidratoIcon size={10} className="w-2.5 h-2.5" color={color.bg} />
+                                  <CarbohidratoIcon size={cardColumns === 2 ? 12 : 10} className="w-2.5 h-2.5" color={color.bg} />
                                 </div>
                                 <span className="truncate font-semibold text-slate-800 dark:text-slate-200" title={event.dish.carbohidrato}>
                                   {event.dish.carbohidrato}
@@ -488,12 +520,14 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                               </div>
                             )}
                             {event.dish.guarnicion && (
-                              <div className="flex items-center gap-1 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
+                              <div className="flex items-center gap-1.5 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
                                 <div
-                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shrink-0 border"
+                                  className={`rounded-full flex items-center justify-center shrink-0 border ${
+                                    cardColumns === 2 ? 'w-5 h-5' : 'w-3.5 h-3.5 sm:w-4 sm:h-4'
+                                  }`}
                                   style={{ backgroundColor: `${color.bg}12`, borderColor: `${color.bg}25`, color: color.bg }}
                                 >
-                                  <GuarnicionIcon size={10} className="w-2.5 h-2.5" color={color.bg} />
+                                  <GuarnicionIcon size={cardColumns === 2 ? 12 : 10} className="w-2.5 h-2.5" color={color.bg} />
                                 </div>
                                 <span className="truncate font-semibold text-slate-800 dark:text-slate-200" title={event.dish.guarnicion}>
                                   {event.dish.guarnicion}
@@ -501,12 +535,14 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                               </div>
                             )}
                             {event.dish.ensalada && (
-                              <div className="flex items-center gap-1 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
+                              <div className="flex items-center gap-1.5 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
                                 <div
-                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shrink-0 border"
+                                  className={`rounded-full flex items-center justify-center shrink-0 border ${
+                                    cardColumns === 2 ? 'w-5 h-5' : 'w-3.5 h-3.5 sm:w-4 sm:h-4'
+                                  }`}
                                   style={{ backgroundColor: `${color.bg}12`, borderColor: `${color.bg}25`, color: color.bg }}
                                 >
-                                  <EnsaladaIcon size={10} className="w-2.5 h-2.5" color={color.bg} />
+                                  <EnsaladaIcon size={cardColumns === 2 ? 12 : 10} className="w-2.5 h-2.5" color={color.bg} />
                                 </div>
                                 <span className="truncate font-semibold text-slate-800 dark:text-slate-200" title={event.dish.ensalada}>
                                   {event.dish.ensalada}
@@ -518,32 +554,34 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                       </div>
 
                       {/* Footer Moderno (N.º Platos, Servilleta, Evidencia) */}
-                      <div className="mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800/60 flex flex-col gap-1 relative z-10">
-                        <div className="flex items-center justify-between text-[6.5px] sm:text-[7.5px] font-black uppercase tracking-wider text-slate-500">
-                          <span className="flex items-center gap-0.5">
-                            <span className="w-1 h-1 rounded-full bg-rose-500" />
+                      <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 flex flex-col gap-1.5 relative z-10">
+                        <div className="flex items-center justify-between text-[7.5px] sm:text-[9px] font-black uppercase tracking-wider text-slate-500">
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                             N.° Platos
                           </span>
                         </div>
 
                         {totalPlates > 0 && (
-                          <div className="flex items-center justify-between bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/40 rounded px-1 py-0.5 text-blue-700 dark:text-blue-300 font-bold text-[7px] sm:text-[8.5px]">
-                            <span className="text-[6.5px] sm:text-[7.5px] text-blue-500 font-semibold">Degustación:</span>
+                          <div className={`flex items-center justify-between bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/40 rounded-lg px-2 py-1 text-blue-700 dark:text-blue-300 font-bold ${
+                            cardColumns === 2 ? 'text-xs' : 'text-[7.5px] sm:text-[9px]'
+                          }`}>
+                            <span className="text-blue-500 font-semibold">Degustación:</span>
                             <span>{totalPlates}</span>
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between text-[6.5px] sm:text-[8px] mt-0.5">
-                          <span className="text-slate-400 text-[6.5px] sm:text-[7.5px]">Servilleta:</span>
+                        <div className={`flex items-center justify-between ${cardColumns === 2 ? 'text-xs' : 'text-[7px] sm:text-[8.5px]'}`}>
+                          <span className="text-slate-400">Servilleta:</span>
                           {servList.length > 0 ? (
                             <span
-                              className="font-bold text-slate-700 dark:text-slate-300 truncate max-w-[55px] sm:max-w-[70px]"
+                              className="font-bold text-slate-700 dark:text-slate-300 truncate max-w-[70px] sm:max-w-[100px]"
                               title={servList.map(s => s.name).join(', ')}
                             >
                               {servList.map(s => s.name).join('/')}
                             </span>
                           ) : (
-                            <span className="text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/40 px-1 rounded text-[6.5px] sm:text-[7.5px]">
+                            <span className="text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/40 px-1.5 py-0.5 rounded">
                               Por confirmar
                             </span>
                           )}
@@ -557,20 +595,22 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                               handleOpenEvidence(event);
                             }}
                             disabled={loadingPhotos[event.id]}
-                            className="w-full py-0.5 sm:py-1 rounded-lg bg-blue-50/90 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-[7px] sm:text-[8.5px] font-bold flex items-center justify-center gap-1 cursor-pointer transition active:scale-95 shadow-2xs mt-0.5"
+                            className={`w-full rounded-lg bg-blue-50/90 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-bold flex items-center justify-center gap-1 cursor-pointer transition active:scale-95 shadow-2xs ${
+                              cardColumns === 2 ? 'py-1.5 text-xs' : 'py-0.5 sm:py-1 text-[7.5px] sm:text-[9px]'
+                            }`}
                             title="Ver evidencia fotográfica"
                           >
                             {loadingPhotos[event.id] ? (
                               <span className="animate-spin text-[8px]">⏳</span>
                             ) : (
                               <>
-                                <Camera className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
+                                <Camera className={cardColumns === 2 ? 'w-3.5 h-3.5 text-blue-600 dark:text-blue-400' : 'w-2.5 h-2.5 text-blue-600 dark:text-blue-400'} />
                                 <span>Ver evidencia</span>
                               </>
                             )}
                           </button>
                         ) : (
-                          <div className="text-[6.5px] sm:text-[7.5px] text-slate-400 italic text-center py-0.5">
+                          <div className="text-[7.5px] sm:text-[8.5px] text-slate-400 italic text-center py-0.5">
                             Sin foto
                           </div>
                         )}
@@ -580,7 +620,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                 }
 
                 // ==============================================================
-                // VARIANTE CLÁSICO PARA 4 CARDS POR FILA
+                // VARIANTE CLÁSICO (2, 3 o 4 CARDS POR FILA)
                 // ==============================================================
                 return (
                   <div
@@ -591,7 +631,11 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         onClose();
                       }
                     }}
-                    className={`relative bg-white dark:bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-1 sm:p-2.5 shadow-2xs sm:shadow-xs border transition-all flex flex-col justify-between overflow-hidden select-none ${
+                    className={`relative bg-white dark:bg-[#1a1a1a] rounded-2xl ${
+                      cardColumns === 2 ? 'p-3 sm:p-4 shadow-sm' :
+                      cardColumns === 3 ? 'p-2 sm:p-3 shadow-2xs' :
+                      'p-1.5 sm:p-2.5 shadow-2xs'
+                    } border transition-all flex flex-col justify-between overflow-hidden select-none ${
                       isPostponed
                         ? 'border-amber-400 dark:border-amber-500 ring-1 ring-amber-400/40 bg-amber-50/20'
                         : isCancelled
@@ -611,18 +655,26 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
 
                     <div className="flex flex-col flex-1">
                       {/* Local Badge & Horario */}
-                      <div className="flex flex-col items-center text-center pb-1 border-b border-gray-100 dark:border-gray-800/80 mb-1">
+                      <div className={`flex flex-col items-center text-center ${cardColumns === 2 ? 'pb-2 mb-2' : 'pb-1 mb-1'} border-b border-gray-100 dark:border-gray-800/80`}>
                         <span 
-                          className="w-full truncate px-1 py-0.5 text-[8.5px] sm:text-[10px] font-black rounded tracking-tight leading-none mb-1 uppercase"
-                          style={{ backgroundColor: `${color.bg}22`, color: color.bg }}
+                          className={`w-full truncate px-2 py-0.5 rounded-lg uppercase tracking-tight leading-none mb-1 ${
+                            cardColumns === 2 ? 'text-xs font-black' :
+                            cardColumns === 3 ? 'text-[9.5px] sm:text-[11px] font-black' :
+                            'text-[8.5px] sm:text-[10px] font-black'
+                          }`}
+                          style={{ backgroundColor: `${color.bg}18`, color: color.bg }}
                           title={event.localName}
                         >
                           {event.localName || 'Local'}
                         </span>
-                        <span className={`text-[7.5px] sm:text-[9px] font-bold leading-none py-0.5 px-1 rounded truncate ${
+                        <span className={`font-semibold leading-none py-0.5 px-1 rounded truncate ${
+                          cardColumns === 2 ? 'text-[11px] mt-0.5' :
+                          cardColumns === 3 ? 'text-[8.5px] sm:text-[10px]' :
+                          'text-[7.5px] sm:text-[9px]'
+                        } ${
                           isTimePending
-                            ? 'text-amber-700 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-300'
-                            : 'text-gray-500 dark:text-gray-400'
+                            ? 'text-amber-700 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-300 font-bold'
+                            : 'text-gray-600 dark:text-gray-400'
                         }`}>
                           {isTimePending ? '🕒 P.C.' : timeString}
                         </span>
@@ -630,14 +682,21 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
 
                       {/* Plato Principal */}
                       {event.dish?.proteina ? (
-                        <div className={`my-1 p-1 rounded-md border text-center ${
+                        <div className={`rounded-xl border text-center ${
+                          cardColumns === 2 ? 'my-2 py-2 px-1 border-blue-300 dark:border-blue-800 bg-white dark:bg-blue-950/20 shadow-2xs' :
+                          'my-1 p-1 border-blue-200 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/30'
+                        } ${
                           isPostponed
-                            ? 'border-amber-300 bg-amber-50/70 dark:bg-amber-950/40'
+                            ? '!border-amber-300 !bg-amber-50/70 dark:!bg-amber-950/40'
                             : isCancelled
-                            ? 'border-rose-300 bg-rose-50/70 dark:bg-rose-950/40'
-                            : 'border-blue-200 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/30'
+                            ? '!border-rose-300 !bg-rose-50/70 dark:!bg-rose-950/40'
+                            : ''
                         }`}>
-                          <span className={`text-[8.5px] sm:text-[10.5px] font-black leading-tight block uppercase truncate ${
+                          <span className={`font-black leading-tight block uppercase truncate ${
+                            cardColumns === 2 ? 'text-xs sm:text-sm tracking-tight' :
+                            cardColumns === 3 ? 'text-[9.5px] sm:text-[11.5px]' :
+                            'text-[8.5px] sm:text-[10.5px]'
+                          } ${
                             isPostponed ? 'text-amber-900 dark:text-amber-200' : isCancelled ? 'text-rose-900 dark:text-rose-200 line-through' : 'text-blue-900 dark:text-blue-200'
                           }`} title={event.dish.proteina}>
                             {event.dish.proteina}
@@ -651,7 +710,11 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
 
                       {/* Lista de Acompañamientos */}
                       {event.dish && (
-                        <div className="text-[7.5px] sm:text-[9px] text-gray-600 dark:text-gray-400 space-y-0.5 leading-tight overflow-hidden mt-0.5">
+                        <div className={`text-gray-700 dark:text-gray-300 space-y-1 leading-tight overflow-hidden ${
+                          cardColumns === 2 ? 'text-[11px] sm:text-xs my-1.5' :
+                          cardColumns === 3 ? 'text-[8.5px] sm:text-[10px] my-1' :
+                          'text-[7.5px] sm:text-[9px] my-0.5'
+                        }`}>
                           {event.dish.salsa && <div className="truncate" title={`Salsa: ${event.dish.salsa}`}>• {event.dish.salsa}</div>}
                           {event.dish.carbohidrato && <div className="truncate" title={`Carbohidrato: ${event.dish.carbohidrato}`}>• {event.dish.carbohidrato}</div>}
                           {event.dish.guarnicion && <div className="truncate" title={`Guarnición: ${event.dish.guarnicion}`}>• {event.dish.guarnicion}</div>}
@@ -660,24 +723,37 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                       )}
 
                       {/* Servilleta compacta */}
-                      <div className="mt-1 pt-1 border-t border-gray-100 dark:border-gray-800 text-[7px] sm:text-[8.5px] text-gray-500 truncate">
+                      <div className={`border-t border-gray-100 dark:border-gray-800 ${
+                        cardColumns === 2 ? 'mt-2 pt-2 text-[11px]' :
+                        'mt-1 pt-1 text-[7px] sm:text-[8.5px]'
+                      }`}>
                         {servList.length > 0 ? (
                           <div className="flex items-center gap-1 truncate" title={`Servilleta: ${servList.map(s => s.name).join(', ')}`}>
                             {servList[0].color && (
-                              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: servList[0].color }} />
+                              <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: servList[0].color }} />
                             )}
-                            <span className="font-semibold text-gray-700 dark:text-gray-300 truncate">{servList.map(s => s.name).join('/')}</span>
+                            <span className="font-semibold text-gray-700 dark:text-gray-300 truncate">
+                              Serv: {servList.map(s => s.name).join('/')}
+                            </span>
                           </div>
                         ) : (
-                          <span className="text-amber-600 dark:text-amber-400 italic font-medium">Serv: P.C.</span>
+                          <span className="text-amber-600 dark:text-amber-400 italic font-bold">
+                            Serv: P.C.
+                          </span>
                         )}
                       </div>
                     </div>
 
                     {/* Footer: Platos y Evidencia */}
-                    <div className="mt-1.5 pt-1 border-t border-gray-100 dark:border-gray-800 text-center">
+                    <div className={`border-t border-gray-100 dark:border-gray-800 flex flex-col gap-1.5 ${
+                      cardColumns === 2 ? 'mt-2 pt-2' : 'mt-1.5 pt-1'
+                    }`}>
                       {totalPlates > 0 && (
-                        <span className="block text-[8px] sm:text-[9.5px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50/70 dark:bg-blue-950/40 rounded py-0.5 mb-1 leading-none">
+                        <span className={`block font-bold text-blue-700 dark:text-blue-300 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/40 rounded-lg text-center leading-none ${
+                          cardColumns === 2 ? 'text-xs py-1.5' :
+                          cardColumns === 3 ? 'text-[9px] sm:text-[10.5px] py-1' :
+                          'text-[8px] sm:text-[9.5px] py-0.5'
+                        }`}>
                           {totalPlates} pl.
                         </span>
                       )}
@@ -689,20 +765,24 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                             handleOpenEvidence(event);
                           }}
                           disabled={loadingPhotos[event.id]}
-                          className="w-full py-0.5 sm:py-1 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded text-[7.5px] sm:text-[9px] font-bold flex items-center justify-center gap-0.5 leading-none cursor-pointer transition active:scale-95"
+                          className={`w-full rounded-lg bg-white dark:bg-[#222] hover:bg-gray-50 dark:hover:bg-[#2a2a2a] border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-300 font-bold flex items-center justify-center gap-1.5 leading-none cursor-pointer transition active:scale-95 shadow-2xs ${
+                            cardColumns === 2 ? 'py-1.5 text-xs' :
+                            cardColumns === 3 ? 'py-1 text-[8.5px] sm:text-[10px]' :
+                            'py-0.5 sm:py-1 text-[7.5px] sm:text-[9px]'
+                          }`}
                           title="Ver evidencia fotográfica"
                         >
                           {loadingPhotos[event.id] ? (
                             <span className="animate-spin text-[8px]">⏳</span>
                           ) : (
                             <>
-                              <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                              <Camera className={cardColumns === 2 ? 'w-3.5 h-3.5 text-blue-600' : 'w-2.5 h-2.5 sm:w-3 sm:h-3'} />
                               <span>Foto</span>
                             </>
                           )}
                         </button>
                       ) : (
-                        <div className="text-[7px] sm:text-[8px] text-gray-400 italic py-0.5 leading-none">
+                        <div className="text-[8px] sm:text-[9px] text-gray-400 italic text-center py-0.5 leading-none">
                           Sin foto
                         </div>
                       )}
@@ -712,7 +792,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
               })}
             </div>
           ) : cardStyle === 'modern' ? (
-            <div className={`grid ${cardColumns === 1 ? 'grid-cols-1 gap-4' : 'grid-cols-2 gap-3 sm:gap-4'} auto-rows-max`}>
+            <div className="grid grid-cols-1 gap-4 auto-rows-max">
               {sortedEvents.map(event => (
                 <div
                   key={event.id}
@@ -733,7 +813,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
               ))}
             </div>
           ) : (
-            <div className={`grid ${cardColumns === 1 ? 'grid-cols-1 gap-4' : 'grid-cols-2 gap-3 sm:gap-4'} auto-rows-max`}>
+            <div className="grid grid-cols-1 gap-4 auto-rows-max">
               {sortedEvents.map(event => {
               const color = getEventColor(event.colorId);
               const timeString = formatEventTime(event.startDate);
