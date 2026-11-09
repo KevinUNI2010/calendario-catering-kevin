@@ -486,7 +486,13 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                 type="button"
                 id="open-full-edit-btn"
                 onClick={() => {
-                  onOpenFullEdit(event);
+                  const eventWithPhoto = evidencePhoto ? {
+                    ...event,
+                    evidencePhoto,
+                    dish: event.dish ? { ...event.dish, evidencePhoto } : undefined,
+                    hasEvidencePhoto: true,
+                  } : event;
+                  onOpenFullEdit(eventWithPhoto);
                   onClose();
                 }}
                 className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm hover:shadow transition cursor-pointer"

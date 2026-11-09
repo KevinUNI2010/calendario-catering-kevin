@@ -133,6 +133,19 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
 
   const sortedEvents = [...events].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
+  const getEventWithLoadedPhoto = (evt: CalendarEvent): CalendarEvent => {
+    const photo = loadedPhotos[evt.id] || evt.evidencePhoto || evt.dish?.evidencePhoto;
+    if (photo) {
+      return {
+        ...evt,
+        evidencePhoto: photo,
+        dish: evt.dish ? { ...evt.dish, evidencePhoto: photo } : undefined,
+        hasEvidencePhoto: true,
+      };
+    }
+    return evt;
+  };
+
   // Calculate totals for summary
   const summary = useMemo(() => {
     const totals: Record<string, Record<string, number>> = {
@@ -391,7 +404,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                       key={event.id}
                       onClick={() => {
                         if (role === 'admin') {
-                          onSelectEvent(event);
+                          onSelectEvent(getEventWithLoadedPhoto(event));
                           onClose();
                         }
                       }}
@@ -627,7 +640,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                     key={event.id}
                     onClick={() => {
                       if (role === 'admin') {
-                        onSelectEvent(event);
+                        onSelectEvent(getEventWithLoadedPhoto(event));
                         onClose();
                       }
                     }}
@@ -798,7 +811,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                   key={event.id}
                   onClick={() => {
                     if (role === 'admin') {
-                      onSelectEvent(event);
+                      onSelectEvent(getEventWithLoadedPhoto(event));
                       onClose();
                     }
                   }}
@@ -825,7 +838,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                   key={event.id}
                   onClick={(e) => {
                     if (role === 'admin') {
-                      onSelectEvent(event);
+                      onSelectEvent(getEventWithLoadedPhoto(event));
                       onClose();
                     }
                   }}

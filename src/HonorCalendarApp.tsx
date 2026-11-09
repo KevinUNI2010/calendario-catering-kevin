@@ -210,7 +210,26 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
         saveCachedMenuOptions(supaMenu);
       }
       if (supaEvents !== null) {
-        setEvents(supaEvents);
+        setEvents((prev) => {
+          const photoMap = new Map<string, string>();
+          for (const pe of prev) {
+            const photo = pe.evidencePhoto || pe.dish?.evidencePhoto;
+            if (photo) photoMap.set(pe.id, photo);
+          }
+          if (photoMap.size === 0) return supaEvents;
+          return supaEvents.map(se => {
+            const cachedPhoto = photoMap.get(se.id);
+            if (cachedPhoto) {
+              return {
+                ...se,
+                evidencePhoto: cachedPhoto,
+                dish: se.dish ? { ...se.dish, evidencePhoto: cachedPhoto } : undefined,
+                hasEvidencePhoto: true
+              };
+            }
+            return se;
+          });
+        });
         saveCachedEvents(supaEvents);
       }
       setIsLoadingData(false);
@@ -457,7 +476,7 @@ export function HonorCalendarApp({ session, onLogout }: CalendarAppProps) {
 
     // Sync via Supabase if configured (for Vercel)
     if (isSupabaseConfigured()) {
-      upsertSupabaseEvent(event);
+      await upsertSupabaseEvent(event);
     }
 
     if (isNew) {

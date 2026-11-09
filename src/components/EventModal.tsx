@@ -5,6 +5,8 @@ import { getEventColor } from '../utils/colorUtils';
 import { parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas, formatServilletasForSave } from '../utils/servilletaUtils';
 import { notify } from '../utils/toastHelper';
+import { fetchSupabaseEventEvidence } from '../lib/supabase';
+import { getEventEvidenceFromIDB, saveSingleEventPhotoToIDB } from '../utils/offlineStorage';
 import { ImageCropperModal } from './ImageCropperModal';
 import { EvidenceLightboxModal } from './EvidenceLightboxModal';
 import { 
@@ -109,9 +111,10 @@ export const EventModal: React.FC<EventModalProps> = ({
   const [servidosFormula, setServidosFormula] = useState(
     event?.dish?.platosServidos ? String(event.dish.platosServidos) : ''
   );
-  const [evidencePhoto, setEvidencePhoto] = useState<string | undefined>(
+  const [evidencePhoto, setEvidencePhoto] = useState<string | null | undefined>(
     event?.dish?.evidencePhoto || event?.evidencePhoto
   );
+  const [isLoadingEvidence, setIsLoadingEvidence] = useState(false);
   const [cropperOpen, setCropperOpen] = useState(false);
   const [rawImageForCropper, setRawImageForCropper] = useState<string>('');
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -175,7 +178,29 @@ export const EventModal: React.FC<EventModalProps> = ({
       setServidosFormula(
         event.dish?.platosServidos ? String(event.dish.platosServidos) : ''
       );
-      setEvidencePhoto(event.dish?.evidencePhoto || event.evidencePhoto);
+      
+      const initialPhoto = event.dish?.evidencePhoto || event.evidencePhoto;
+      setEvidencePhoto(initialPhoto);
+
+      // Si el evento tiene foto marcada en BD pero aún no se cargó el base64 pesado en memoria
+      if (!initialPhoto && event.id && (event.hasEvidencePhoto || event.dish?.evidencePhoto || event.evidencePhoto)) {
+        getEventEvidenceFromIDB(event.id).then((idbPhoto) => {
+          if (idbPhoto) {
+            setEvidencePhoto(idbPhoto);
+            return;
+          }
+          setIsLoadingEvidence(true);
+          fetchSupabaseEventEvidence(event.id!)
+            .then((photo) => {
+              if (photo) {
+                setEvidencePhoto(photo);
+                saveSingleEventPhotoToIDB(event.id!, photo);
+              }
+            })
+            .catch(() => {})
+            .finally(() => setIsLoadingEvidence(false));
+        });
+      }
     }
   }, [isOpen, event, locales]);
 
@@ -256,6 +281,14 @@ export const EventModal: React.FC<EventModalProps> = ({
         ? finalConfirmados
         : (finalContratados > 0 ? finalContratados : 0));
 
+    const isPhotoDeleted = evidencePhoto === null;
+    const finalEvidencePhoto = isPhotoDeleted 
+      ? null 
+      : (evidencePhoto !== undefined ? evidencePhoto : (event.evidencePhoto || event.dish?.evidencePhoto));
+    const hasPhoto = isPhotoDeleted 
+      ? false 
+      : Boolean(finalEvidencePhoto || event.hasEvidencePhoto);
+
     const updatedDish: DishSelection = {
       ...dish,
       cantidadPlatos: effectivePlates,
@@ -263,7 +296,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       platosContratados: finalContratados > 0 ? finalContratados : undefined,
       platosConfirmados: finalConfirmados,
       platosServidos: finalServidos,
-      evidencePhoto: evidencePhoto || undefined,
+      evidencePhoto: finalEvidencePhoto,
       isTimePending,
       isDatePending,
     };
@@ -287,7 +320,8 @@ export const EventModal: React.FC<EventModalProps> = ({
       updatedAt: new Date().toISOString(),
       notes: event.notes || '',
       dish: updatedDish,
-      evidencePhoto: evidencePhoto || undefined,
+      evidencePhoto: finalEvidencePhoto,
+      hasEvidencePhoto: hasPhoto,
       isTimePending,
       isDatePending,
     };
@@ -921,7 +955,12 @@ export const EventModal: React.FC<EventModalProps> = ({
                   onChange={handleFileChange}
                 />
 
-                {evidencePhoto ? (
+                {isLoadingEvidence ? (
+                  <div className="p-4 rounded-xl border border-dashed border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 flex items-center justify-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    <span>Cargando foto de evidencia del cuaderno...</span>
+                  </div>
+                ) : evidencePhoto ? (
                   <div className="bg-white dark:bg-gray-800/90 p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xs space-y-2">
                     <div 
                       onClick={() => setLightboxOpen(true)}
@@ -963,7 +1002,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
                       <button
                         type="button"
-                        onClick={() => setEvidencePhoto(undefined)}
+                        onClick={() => setEvidencePhoto(null)}
                         className="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition cursor-pointer"
                         title="Quitar foto"
                       >

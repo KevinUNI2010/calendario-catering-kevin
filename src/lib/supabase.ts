@@ -1,6 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { CalendarEvent, Local, UserSession } from '../types';
 import { normalizeLocalDateString } from '../utils/dateUtils';
+import { saveSingleEventPhotoToIDB, deleteEventEvidenceFromIDB } from '../utils/offlineStorage';
 
 // Supabase Client and Sync helpers for Vercel & Supabase
 const env = (import.meta as any).env || {};
@@ -324,9 +325,46 @@ export async function upsertSupabaseEvent(event: CalendarEvent): Promise<boolean
   const sb = getSupabase();
   if (!sb) return false;
   try {
-    const row = mapEventToRow(event);
+    const isExplicitlyDeleted = event.evidencePhoto === null || event.dish?.evidencePhoto === null;
+    let evidencePhotoToSave = event.evidencePhoto || event.dish?.evidencePhoto;
+
+    // Si el evento no tiene foto cargada en memoria (undefined) pero ya existe en la base de datos
+    // y no fue explícitamente eliminada por el usuario (null), preservamos la foto existente en Supabase.
+    // Esto evita que editar un plato, fecha, hora, local o conteo borre la foto de evidencia.
+    if (!isExplicitlyDeleted && !evidencePhotoToSave && event.id) {
+      try {
+        const existingPhoto = await fetchSupabaseEventEvidence(event.id);
+        if (existingPhoto) {
+          evidencePhotoToSave = existingPhoto;
+        }
+      } catch (e) {
+        console.warn('Could not check existing photo for event:', event.id, e);
+      }
+    }
+
+    const finalPhoto = isExplicitlyDeleted ? undefined : (evidencePhotoToSave || undefined);
+
+    const safeEvent: CalendarEvent = {
+      ...event,
+      evidencePhoto: finalPhoto,
+      dish: event.dish ? {
+        ...event.dish,
+        evidencePhoto: finalPhoto,
+      } : undefined,
+      hasEvidencePhoto: isExplicitlyDeleted ? false : Boolean(finalPhoto || event.hasEvidencePhoto),
+    };
+
+    const row = mapEventToRow(safeEvent);
     const { error } = await sb.from('events').upsert(row);
     if (error) throw error;
+
+    // Sincronizar de inmediato con IndexedDB local
+    if (finalPhoto && typeof finalPhoto === 'string') {
+      saveSingleEventPhotoToIDB(event.id, finalPhoto).catch(() => {});
+    } else if (isExplicitlyDeleted) {
+      deleteEventEvidenceFromIDB(event.id).catch(() => {});
+    }
+
     return true;
   } catch (err) {
     console.warn('Supabase upsert event failed:', err);

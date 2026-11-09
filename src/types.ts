@@ -46,7 +46,7 @@ export interface DishSelection {
   platosContratados?: number; // Total calculado de la fórmula (ej: 184)
   platosConfirmados?: number; // Numérico: ajuste del día para cocina (ej: 198)
   platosServidos?: number; // Numérico: conteo final servido en sala (ej: 230)
-  evidencePhoto?: string; // Data URL o link a la foto del cuaderno recortada
+  evidencePhoto?: string | null; // Data URL o link a la foto del cuaderno recortada
   isTimePending?: boolean; // Hora por confirmar
   isDatePending?: boolean; // Fecha por confirmar / tentativa
 }
@@ -77,7 +77,7 @@ export interface CalendarEvent {
   updatedAt: string;
   notes?: string;
   dish?: DishSelection;
-  evidencePhoto?: string; // Foto de cuaderno recortada asociada al evento
+  evidencePhoto?: string | null; // Foto de cuaderno recortada asociada al evento
   hasEvidencePhoto?: boolean; // Indicador ligero de disponibilidad de foto de evidencia
   isTimePending?: boolean; // Hora por confirmar
   isDatePending?: boolean; // Fecha por confirmar / tentativa

@@ -43,16 +43,49 @@ function openIDB(): Promise<IDBDatabase | null> {
 export async function saveEventsToIDB(events: CalendarEvent[]): Promise<void> {
   const db = await openIDB();
   if (!db) return;
-  try {
-    const tx = db.transaction(IDB_STORE, 'readwrite');
-    const store = tx.objectStore(IDB_STORE);
-    store.clear();
-    for (const evt of events) {
-      store.put(evt);
+  return new Promise((resolve) => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      const store = tx.objectStore(IDB_STORE);
+
+      // Leer las fotos existentes antes de actualizar para no perder fotos en caché
+      // cuando se sincroniza con la consulta ligera inicial de Supabase
+      const getAllReq = store.getAll();
+      getAllReq.onsuccess = () => {
+        const existingPhotoMap = new Map<string, string>();
+        if (Array.isArray(getAllReq.result)) {
+          for (const item of getAllReq.result) {
+            const photo = item.evidencePhoto || item.dish?.evidencePhoto;
+            if (photo) existingPhotoMap.set(item.id, photo);
+          }
+        }
+
+        store.clear();
+        for (const evt of events) {
+          const cachedPhoto = existingPhotoMap.get(evt.id);
+          const photoToKeep = evt.evidencePhoto || evt.dish?.evidencePhoto || cachedPhoto;
+          const mergedEvt = photoToKeep ? {
+            ...evt,
+            evidencePhoto: photoToKeep,
+            dish: evt.dish ? { ...evt.dish, evidencePhoto: photoToKeep } : undefined,
+            hasEvidencePhoto: true
+          } : evt;
+          store.put(mergedEvt);
+        }
+        resolve();
+      };
+      getAllReq.onerror = () => {
+        store.clear();
+        for (const evt of events) {
+          store.put(evt);
+        }
+        resolve();
+      };
+    } catch (e) {
+      console.warn('Could not save to IndexedDB', e);
+      resolve();
     }
-  } catch (e) {
-    console.warn('Could not save to IndexedDB', e);
-  }
+  });
 }
 
 export async function getEventsFromIDB(): Promise<CalendarEvent[] | null> {
@@ -118,6 +151,29 @@ export async function getEventEvidenceFromIDB(eventId: string): Promise<string |
       resolve(null);
     }
   });
+}
+
+export async function deleteEventEvidenceFromIDB(eventId: string): Promise<void> {
+  const db = await openIDB();
+  if (!db || !eventId) return;
+  try {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    const store = tx.objectStore(IDB_STORE);
+    const req = store.get(eventId);
+    req.onsuccess = () => {
+      const existing = req.result;
+      if (existing) {
+        existing.evidencePhoto = undefined;
+        if (existing.dish) {
+          existing.dish = { ...existing.dish, evidencePhoto: undefined };
+        }
+        existing.hasEvidencePhoto = false;
+        store.put(existing);
+      }
+    };
+  } catch (e) {
+    console.warn('Could not remove photo from IndexedDB', e);
+  }
 }
 
 export function saveCachedEvents(events: CalendarEvent[]): void {
