@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { CalendarEvent } from '../types';
-import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles, Ban, Camera, LayoutGrid, LayoutList } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles, Ban, Camera } from 'lucide-react';
 import { formatDateShort, formatEventTime, parseEventDate } from '../utils/dateUtils';
 import { getEventColor } from '../utils/colorUtils';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -48,12 +48,19 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
     return 'classic';
   });
 
-  const [cardLayout, setCardLayout] = useState<'1-col' | '4-col'>(() => {
+  const [cardColumns, setCardColumns] = useState<1 | 2 | 3 | 4>(() => {
     try {
-      const saved = localStorage.getItem('calendario_day_card_layout');
-      if (saved === '1-col' || saved === '4-col') return saved;
+      const saved = localStorage.getItem('calendario_day_card_columns');
+      if (saved === '1' || saved === '2' || saved === '3' || saved === '4') {
+        return Number(saved) as 1 | 2 | 3 | 4;
+      }
+      const legacy = localStorage.getItem('calendario_day_card_layout');
+      if (legacy === '4-col') return 4;
+      if (legacy === '3-col') return 3;
+      if (legacy === '2-col') return 2;
+      if (legacy === '1-col') return 1;
     } catch {}
-    return '1-col';
+    return 1;
   });
 
   const handleCardStyleChange = (style: 'classic' | 'modern') => {
@@ -63,10 +70,11 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
     } catch {}
   };
 
-  const handleCardLayoutChange = (layout: '1-col' | '4-col') => {
-    setCardLayout(layout);
+  const handleCardColumnsChange = (cols: 1 | 2 | 3 | 4) => {
+    setCardColumns(cols);
     try {
-      localStorage.setItem('calendario_day_card_layout', layout);
+      localStorage.setItem('calendario_day_card_columns', String(cols));
+      localStorage.setItem('calendario_day_card_layout', `${cols}-col`);
     } catch {}
   };
 
@@ -285,34 +293,26 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
             <h3 className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Eventos del Día</h3>
             
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              {/* Formato: 1 por fila vs 4 por fila */}
-              <div className="inline-flex p-0.5 rounded-lg bg-gray-200 dark:bg-gray-800 text-[10px] sm:text-[11px] font-bold">
-                <button
-                  type="button"
-                  onClick={() => handleCardLayoutChange('1-col')}
-                  className={`px-2 sm:px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
-                    cardLayout === '1-col'
-                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-2xs'
-                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
-                  }`}
-                  title="Ver tarjetas estándar (1 por fila)"
-                >
-                  <LayoutList className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                  <span>1 por fila</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleCardLayoutChange('4-col')}
-                  className={`px-2 sm:px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
-                    cardLayout === '4-col'
-                      ? 'bg-blue-600 text-white shadow-2xs'
-                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
-                  }`}
-                  title="Ver 4 tarjetas por fila en cuadrícula compacta"
-                >
-                  <LayoutGrid className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                  <span>4 por fila</span>
-                </button>
+              {/* Formato: elegir entre 1, 2, 3 o 4 por fila */}
+              <div className="inline-flex items-center p-0.5 rounded-lg bg-gray-200 dark:bg-gray-800 text-[10px] sm:text-[11px] font-bold">
+                <span className="px-1.5 text-gray-500 dark:text-gray-400 text-[9px] sm:text-[10px] select-none">
+                  Fila:
+                </span>
+                {([1, 2, 3, 4] as const).map((cols) => (
+                  <button
+                    key={cols}
+                    type="button"
+                    onClick={() => handleCardColumnsChange(cols)}
+                    className={`min-w-[24px] sm:min-w-[28px] px-1.5 sm:px-2 py-1 rounded-md transition cursor-pointer text-center font-bold ${
+                      cardColumns === cols
+                        ? 'bg-blue-600 text-white shadow-2xs'
+                        : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                    }`}
+                    title={`Ver ${cols} ${cols === 1 ? 'tarjeta' : 'tarjetas'} por fila`}
+                  >
+                    {cols}
+                  </button>
+                ))}
               </div>
 
               {/* Estilo: Clásico vs Moderno */}
@@ -364,9 +364,9 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                 </button>
               )}
             </div>
-          ) : cardLayout === '4-col' ? (
-            /* Cuadrícula de 4 cards por fila (sin scroll horizontal ni slider) */
-            <div className="grid grid-cols-4 gap-1 sm:gap-2.5 auto-rows-max w-full">
+          ) : cardColumns >= 3 ? (
+            /* Cuadrícula de 3 o 4 cards por fila (sin scroll horizontal ni slider) */
+            <div className={`grid ${cardColumns === 3 ? 'grid-cols-3 gap-2 sm:gap-3.5' : 'grid-cols-4 gap-1 sm:gap-2.5'} auto-rows-max w-full`}>
               {sortedEvents.map(event => {
                 const color = getEventColor(event.colorId);
                 const timeString = formatEventTime(event.startDate);
@@ -712,7 +712,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
               })}
             </div>
           ) : cardStyle === 'modern' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-max">
+            <div className={`grid ${cardColumns === 1 ? 'grid-cols-1 gap-4' : 'grid-cols-2 gap-3 sm:gap-4'} auto-rows-max`}>
               {sortedEvents.map(event => (
                 <div
                   key={event.id}
@@ -733,7 +733,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-max">
+            <div className={`grid ${cardColumns === 1 ? 'grid-cols-1 gap-4' : 'grid-cols-2 gap-3 sm:gap-4'} auto-rows-max`}>
               {sortedEvents.map(event => {
               const color = getEventColor(event.colorId);
               const timeString = formatEventTime(event.startDate);
