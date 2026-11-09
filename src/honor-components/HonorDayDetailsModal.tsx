@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { CalendarEvent } from '../types';
-import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles, Ban } from 'lucide-react';
+import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles, Ban, Camera, LayoutGrid, LayoutList } from 'lucide-react';
 import { formatDateShort, formatEventTime, parseEventDate } from '../utils/dateUtils';
 import { getEventColor } from '../utils/colorUtils';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -32,7 +32,38 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
 }) => {
   useEscapeKey(onClose, isOpen);
   const [lightboxImage, setLightboxImage] = useState<{ src: string; localName?: string; eventDate?: string | Date; title?: string } | null>(null);
-  const [cardStyle, setCardStyle] = useState<'classic' | 'modern'>('classic');
+  
+  // Persistencia de preferencias de vista en el dispositivo (localStorage)
+  const [cardStyle, setCardStyle] = useState<'classic' | 'modern'>(() => {
+    try {
+      const saved = localStorage.getItem('calendario_day_card_style');
+      if (saved === 'classic' || saved === 'modern') return saved;
+    } catch {}
+    return 'classic';
+  });
+
+  const [cardLayout, setCardLayout] = useState<'1-col' | '4-col'>(() => {
+    try {
+      const saved = localStorage.getItem('calendario_day_card_layout');
+      if (saved === '1-col' || saved === '4-col') return saved;
+    } catch {}
+    return '1-col';
+  });
+
+  const handleCardStyleChange = (style: 'classic' | 'modern') => {
+    setCardStyle(style);
+    try {
+      localStorage.setItem('calendario_day_card_style', style);
+    } catch {}
+  };
+
+  const handleCardLayoutChange = (layout: '1-col' | '4-col') => {
+    setCardLayout(layout);
+    try {
+      localStorage.setItem('calendario_day_card_layout', layout);
+    } catch {}
+  };
+
   const [loadedPhotos, setLoadedPhotos] = useState<Record<string, string>>({});
   const [loadingPhotos, setLoadingPhotos] = useState<Record<string, boolean>>({});
 
@@ -243,33 +274,67 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#fcfaf8] dark:bg-[#0c0c0c]">
           
-          {/* Eventos del Día */}
-          <div className="mb-4 flex items-center justify-between">
+          {/* Eventos del Día y Controles de Vista */}
+          <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-wider">Eventos del Día</h3>
-            <div className="inline-flex p-0.5 rounded-lg bg-gray-200 dark:bg-gray-800 text-[11px] font-bold">
-              <button
-                type="button"
-                onClick={() => setCardStyle('classic')}
-                className={`px-2.5 py-1 rounded-md transition cursor-pointer ${
-                  cardStyle === 'classic'
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-2xs'
-                    : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
-                }`}
-              >
-                Clásico
-              </button>
-              <button
-                type="button"
-                onClick={() => setCardStyle('modern')}
-                className={`px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
-                  cardStyle === 'modern'
-                    ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
-                }`}
-              >
-                <Sparkles className="w-3 h-3" />
-                <span>Moderno (Lab)</span>
-              </button>
+            
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              {/* Formato: 1 por fila vs 4 por fila */}
+              <div className="inline-flex p-0.5 rounded-lg bg-gray-200 dark:bg-gray-800 text-[10px] sm:text-[11px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => handleCardLayoutChange('1-col')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
+                    cardLayout === '1-col'
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-2xs'
+                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                  title="Ver tarjetas estándar (1 por fila)"
+                >
+                  <LayoutList className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span>1 por fila</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCardLayoutChange('4-col')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
+                    cardLayout === '4-col'
+                      ? 'bg-blue-600 text-white shadow-2xs'
+                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                  title="Ver 4 tarjetas por fila en cuadrícula compacta"
+                >
+                  <LayoutGrid className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span>4 por fila</span>
+                </button>
+              </div>
+
+              {/* Estilo: Clásico vs Moderno */}
+              <div className="inline-flex p-0.5 rounded-lg bg-gray-200 dark:bg-gray-800 text-[10px] sm:text-[11px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => handleCardStyleChange('classic')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-md transition cursor-pointer ${
+                    cardStyle === 'classic'
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-2xs'
+                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                >
+                  Clásico
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCardStyleChange('modern')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
+                    cardStyle === 'modern'
+                      ? 'bg-blue-600 text-white shadow-2xs'
+                      : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>Moderno (Lab)</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -292,6 +357,153 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                   <span>Crear Primer Evento</span>
                 </button>
               )}
+            </div>
+          ) : cardLayout === '4-col' ? (
+            /* Cuadrícula de 4 cards por fila (sin scroll horizontal ni slider) */
+            <div className="grid grid-cols-4 gap-1 sm:gap-2.5 auto-rows-max w-full">
+              {sortedEvents.map(event => {
+                const color = getEventColor(event.colorId);
+                const timeString = formatEventTime(event.startDate);
+                const isPostponed = event.status === 'postponed';
+                const isCancelled = event.status === 'cancelled';
+                const stateColor = isPostponed ? '#f59e0b' : isCancelled ? '#ef4444' : null;
+                const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
+                const totalPlates = event.dish ? getEffectivePlateCount(event.dish) : 0;
+                const hasEvidence = Boolean(event.dish?.evidencePhoto || event.evidencePhoto || event.hasEvidencePhoto || loadedPhotos[event.id]);
+                const servList = event.dish ? getSelectedServilletas(event.dish) : [];
+
+                return (
+                  <div
+                    key={event.id}
+                    onClick={() => {
+                      if (role === 'admin') {
+                        onSelectEvent(event);
+                        onClose();
+                      }
+                    }}
+                    className={`relative bg-white dark:bg-[#1a1a1a] rounded-xl sm:rounded-2xl p-1 sm:p-2.5 shadow-2xs sm:shadow-xs border transition-all flex flex-col justify-between overflow-hidden select-none ${
+                      isPostponed
+                        ? 'border-amber-400 dark:border-amber-500 ring-1 ring-amber-400/40 bg-amber-50/20'
+                        : isCancelled
+                        ? 'border-rose-400 dark:border-rose-500 ring-1 ring-rose-400/40 bg-rose-50/20'
+                        : cardStyle === 'modern'
+                        ? 'border-blue-200/90 dark:border-blue-900/40 hover:border-blue-500 hover:shadow-xs'
+                        : 'border-gray-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500'
+                    } ${role === 'admin' ? 'cursor-pointer active:scale-98' : ''}`}
+                  >
+                    {/* Marca de agua X para postergado / cancelado */}
+                    {(isPostponed || isCancelled) && (
+                      <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center overflow-hidden select-none">
+                        <svg className="w-full h-full p-1.5" viewBox="0 0 100 100" preserveAspectRatio="none">
+                          <line x1="8" y1="8" x2="92" y2="92" stroke={stateColor!} strokeWidth="6" strokeLinecap="round" />
+                          <line x1="92" y1="8" x2="8" y2="92" stroke={stateColor!} strokeWidth="6" strokeLinecap="round" />
+                        </svg>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col flex-1">
+                      {/* Local Badge & Horario */}
+                      <div className="flex flex-col items-center text-center pb-1 border-b border-gray-100 dark:border-gray-800/80 mb-1">
+                        <span 
+                          className="w-full truncate px-1 py-0.5 text-[8.5px] sm:text-[10px] font-black rounded tracking-tight leading-none mb-1 uppercase"
+                          style={{ backgroundColor: `${color.bg}22`, color: color.bg }}
+                          title={event.localName}
+                        >
+                          {event.localName || 'Local'}
+                        </span>
+                        <span className={`text-[7.5px] sm:text-[9px] font-bold leading-none py-0.5 px-1 rounded truncate ${
+                          isTimePending
+                            ? 'text-amber-700 bg-amber-50 dark:bg-amber-950/40 dark:text-amber-300'
+                            : 'text-gray-500 dark:text-gray-400'
+                        }`}>
+                          {isTimePending ? '🕒 P.C.' : timeString}
+                        </span>
+                      </div>
+
+                      {/* Plato Principal */}
+                      {event.dish?.proteina ? (
+                        <div className={`my-1 p-1 rounded-md border text-center ${
+                          isPostponed
+                            ? 'border-amber-300 bg-amber-50/70 dark:bg-amber-950/40'
+                            : isCancelled
+                            ? 'border-rose-300 bg-rose-50/70 dark:bg-rose-950/40'
+                            : cardStyle === 'modern'
+                            ? 'border-blue-400/80 bg-blue-50/80 dark:bg-blue-950/50 shadow-2xs'
+                            : 'border-blue-200 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/30'
+                        }`}>
+                          <span className={`text-[8.5px] sm:text-[10.5px] font-black leading-tight block uppercase truncate ${
+                            isPostponed ? 'text-amber-900 dark:text-amber-200' : isCancelled ? 'text-rose-900 dark:text-rose-200 line-through' : 'text-blue-900 dark:text-blue-200'
+                          }`} title={event.dish.proteina}>
+                            {event.dish.proteina}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="my-1 p-1 rounded-md border border-dashed border-gray-200 dark:border-gray-800 text-center">
+                          <span className="text-[7.5px] sm:text-[9px] text-gray-400 italic">Sin plato</span>
+                        </div>
+                      )}
+
+                      {/* Lista de Acompañamientos */}
+                      {event.dish && (
+                        <div className="text-[7.5px] sm:text-[9px] text-gray-600 dark:text-gray-400 space-y-0.5 leading-tight overflow-hidden mt-0.5">
+                          {event.dish.salsa && <div className="truncate" title={`Salsa: ${event.dish.salsa}`}>• {event.dish.salsa}</div>}
+                          {event.dish.carbohidrato && <div className="truncate" title={`Carbohidrato: ${event.dish.carbohidrato}`}>• {event.dish.carbohidrato}</div>}
+                          {event.dish.guarnicion && <div className="truncate" title={`Guarnición: ${event.dish.guarnicion}`}>• {event.dish.guarnicion}</div>}
+                          {event.dish.ensalada && <div className="truncate" title={`Ensalada: ${event.dish.ensalada}`}>• {event.dish.ensalada}</div>}
+                        </div>
+                      )}
+
+                      {/* Servilleta compacta */}
+                      <div className="mt-1 pt-1 border-t border-gray-100 dark:border-gray-800 text-[7px] sm:text-[8.5px] text-gray-500 truncate">
+                        {servList.length > 0 ? (
+                          <div className="flex items-center gap-1 truncate" title={`Servilleta: ${servList.map(s => s.name).join(', ')}`}>
+                            {servList[0].color && (
+                              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: servList[0].color }} />
+                            )}
+                            <span className="font-semibold text-gray-700 dark:text-gray-300 truncate">{servList.map(s => s.name).join('/')}</span>
+                          </div>
+                        ) : (
+                          <span className="text-amber-600 dark:text-amber-400 italic font-medium">Serv: P.C.</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Footer: Platos y Evidencia */}
+                    <div className="mt-1.5 pt-1 border-t border-gray-100 dark:border-gray-800 text-center">
+                      {totalPlates > 0 && (
+                        <span className="block text-[8px] sm:text-[9.5px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50/70 dark:bg-blue-950/40 rounded py-0.5 mb-1 leading-none">
+                          {totalPlates} pl.
+                        </span>
+                      )}
+                      {hasEvidence ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEvidence(event);
+                          }}
+                          disabled={loadingPhotos[event.id]}
+                          className="w-full py-0.5 sm:py-1 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded text-[7.5px] sm:text-[9px] font-bold flex items-center justify-center gap-0.5 leading-none cursor-pointer transition active:scale-95"
+                          title="Ver evidencia fotográfica"
+                        >
+                          {loadingPhotos[event.id] ? (
+                            <span className="animate-spin text-[8px]">⏳</span>
+                          ) : (
+                            <>
+                              <Camera className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                              <span>Foto</span>
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <div className="text-[7px] sm:text-[8px] text-gray-400 italic py-0.5 leading-none">
+                          Sin foto
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : cardStyle === 'modern' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-max">
