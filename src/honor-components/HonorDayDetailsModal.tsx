@@ -10,6 +10,12 @@ import { fetchSupabaseEventEvidence } from '../lib/supabase';
 import { saveSingleEventPhotoToIDB, getEventEvidenceFromIDB } from '../utils/offlineStorage';
 import { EvidenceLightboxModal } from '../components/EvidenceLightboxModal';
 import { ModernEventCard } from '../components/modern-cards/ModernEventCard';
+import {
+  SalsaIcon,
+  CarbohidratoIcon,
+  GuarnicionIcon,
+  EnsaladaIcon,
+} from '../components/modern-cards/ModernIcons';
 
 interface HonorDayDetailsModalProps {
   isOpen: boolean;
@@ -372,6 +378,210 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                 const hasEvidence = Boolean(event.dish?.evidencePhoto || event.evidencePhoto || event.hasEvidencePhoto || loadedPhotos[event.id]);
                 const servList = event.dish ? getSelectedServilletas(event.dish) : [];
 
+                // ==============================================================
+                // VARIANTE MODERNO (LAB) PARA 4 CARDS POR FILA
+                // ==============================================================
+                if (cardStyle === 'modern') {
+                  return (
+                    <div
+                      key={event.id}
+                      onClick={() => {
+                        if (role === 'admin') {
+                          onSelectEvent(event);
+                          onClose();
+                        }
+                      }}
+                      className={`relative bg-white dark:bg-[#161a23] rounded-2xl p-1.5 sm:p-2.5 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.06)] border overflow-hidden flex flex-col justify-between transition-all select-none hover:shadow-md ${
+                        isPostponed
+                          ? 'border-amber-400 dark:border-amber-500 ring-1 ring-amber-400/40 bg-amber-50/15'
+                          : isCancelled
+                          ? 'border-rose-400 dark:border-rose-500 ring-1 ring-rose-400/40 bg-rose-50/15'
+                          : 'border-slate-100 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700'
+                      } ${role === 'admin' ? 'cursor-pointer active:scale-98' : ''}`}
+                    >
+                      {/* Blob Orgánico de fondo adaptado al color del local */}
+                      <svg
+                        aria-hidden="true"
+                        className="absolute -top-6 -left-6 w-20 h-20 pointer-events-none transition-colors duration-300"
+                        viewBox="0 0 200 200"
+                        fill="none"
+                      >
+                        <path
+                          d="M45.7,-78.3C58.9,-71.1,69.1,-58.5,76.5,-44.6C83.9,-30.7,88.5,-15.3,87.7,-0.5C86.8,14.4,80.5,28.8,72.4,41.9C64.3,55,54.4,66.8,41.9,74.5C29.4,82.2,14.7,85.8,-0.1,86C-14.9,86.2,-29.8,83,-43.3,75.7C-56.8,68.4,-68.9,57,-76.7,43.2C-84.5,29.4,-88,14.7,-86.6,0.8C-85.2,-13.1,-78.9,-26.2,-70.7,-38.7C-62.5,-51.2,-52.4,-63.1,-39.8,-70.6C-27.2,-78.1,-13.6,-81.2,0.8,-82.6C15.2,-84,32.5,-85.5,45.7,-78.3Z"
+                          transform="translate(100 100)"
+                          fill={color.bg}
+                          fillOpacity="0.14"
+                        />
+                      </svg>
+
+                      {/* Marca de agua X para postergado / cancelado */}
+                      {(isPostponed || isCancelled) && (
+                        <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center overflow-hidden select-none">
+                          <svg className="w-full h-full p-1.5" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <line x1="8" y1="8" x2="92" y2="92" stroke={stateColor!} strokeWidth="6" strokeLinecap="round" />
+                            <line x1="92" y1="8" x2="8" y2="92" stroke={stateColor!} strokeWidth="6" strokeLinecap="round" />
+                          </svg>
+                        </div>
+                      )}
+
+                      <div className="relative z-10 flex flex-col flex-1">
+                        {/* Badge Pill con punto del local */}
+                        <div className="mb-0.5">
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[7.5px] sm:text-[9.5px] font-black tracking-tight uppercase border truncate max-w-full"
+                            style={{
+                              backgroundColor: `${color.bg}14`,
+                              color: color.bg,
+                              borderColor: `${color.bg}30`,
+                            }}
+                            title={event.localName}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color.bg }} />
+                            <span className="truncate">{event.localName}</span>
+                          </span>
+                        </div>
+
+                        {/* Horario con ícono de reloj */}
+                        <div className="flex items-center gap-0.5 text-[7px] sm:text-[8.5px] font-bold text-slate-600 dark:text-slate-400 mb-1">
+                          <Clock className="w-2.5 h-2.5 text-rose-500 shrink-0" />
+                          <span className="truncate">{isTimePending ? 'Por confirmar' : timeString}</span>
+                        </div>
+
+                        {/* Plato Principal (Título negro/blanco en negrita + barra de color debajo) */}
+                        <div className="my-0.5 sm:my-1">
+                          <h4
+                            className="text-[9px] sm:text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tight leading-tight line-clamp-2"
+                            title={event.dish?.proteina || 'Sin proteína'}
+                          >
+                            {event.dish?.proteina || 'Sin proteína'}
+                          </h4>
+                          <div className="w-6 h-0.5 sm:h-1 rounded-full mt-0.5 mb-1" style={{ backgroundColor: color.bg }} />
+                        </div>
+
+                        {/* Acompañamientos con avatares circulares ilustrados */}
+                        {event.dish && (
+                          <div className="space-y-0.5 sm:space-y-1 my-0.5 text-[7.5px] sm:text-[9px]">
+                            {event.dish.salsa && (
+                              <div className="flex items-center gap-1 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
+                                <div
+                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shrink-0 border"
+                                  style={{ backgroundColor: `${color.bg}12`, borderColor: `${color.bg}25`, color: color.bg }}
+                                >
+                                  <SalsaIcon size={10} className="w-2.5 h-2.5" color={color.bg} />
+                                </div>
+                                <span className="truncate font-semibold text-slate-800 dark:text-slate-200" title={event.dish.salsa}>
+                                  {event.dish.salsa}
+                                </span>
+                              </div>
+                            )}
+                            {event.dish.carbohidrato && (
+                              <div className="flex items-center gap-1 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
+                                <div
+                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shrink-0 border"
+                                  style={{ backgroundColor: `${color.bg}12`, borderColor: `${color.bg}25`, color: color.bg }}
+                                >
+                                  <CarbohidratoIcon size={10} className="w-2.5 h-2.5" color={color.bg} />
+                                </div>
+                                <span className="truncate font-semibold text-slate-800 dark:text-slate-200" title={event.dish.carbohidrato}>
+                                  {event.dish.carbohidrato}
+                                </span>
+                              </div>
+                            )}
+                            {event.dish.guarnicion && (
+                              <div className="flex items-center gap-1 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
+                                <div
+                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shrink-0 border"
+                                  style={{ backgroundColor: `${color.bg}12`, borderColor: `${color.bg}25`, color: color.bg }}
+                                >
+                                  <GuarnicionIcon size={10} className="w-2.5 h-2.5" color={color.bg} />
+                                </div>
+                                <span className="truncate font-semibold text-slate-800 dark:text-slate-200" title={event.dish.guarnicion}>
+                                  {event.dish.guarnicion}
+                                </span>
+                              </div>
+                            )}
+                            {event.dish.ensalada && (
+                              <div className="flex items-center gap-1 py-0.5 border-t border-slate-100 dark:border-slate-800/60">
+                                <div
+                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center shrink-0 border"
+                                  style={{ backgroundColor: `${color.bg}12`, borderColor: `${color.bg}25`, color: color.bg }}
+                                >
+                                  <EnsaladaIcon size={10} className="w-2.5 h-2.5" color={color.bg} />
+                                </div>
+                                <span className="truncate font-semibold text-slate-800 dark:text-slate-200" title={event.dish.ensalada}>
+                                  {event.dish.ensalada}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Footer Moderno (N.º Platos, Servilleta, Evidencia) */}
+                      <div className="mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800/60 flex flex-col gap-1 relative z-10">
+                        <div className="flex items-center justify-between text-[6.5px] sm:text-[7.5px] font-black uppercase tracking-wider text-slate-500">
+                          <span className="flex items-center gap-0.5">
+                            <span className="w-1 h-1 rounded-full bg-rose-500" />
+                            N.° Platos
+                          </span>
+                        </div>
+
+                        {totalPlates > 0 && (
+                          <div className="flex items-center justify-between bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/40 rounded px-1 py-0.5 text-blue-700 dark:text-blue-300 font-bold text-[7px] sm:text-[8.5px]">
+                            <span className="text-[6.5px] sm:text-[7.5px] text-blue-500 font-semibold">Degustación:</span>
+                            <span>{totalPlates}</span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between text-[6.5px] sm:text-[8px] mt-0.5">
+                          <span className="text-slate-400 text-[6.5px] sm:text-[7.5px]">Servilleta:</span>
+                          {servList.length > 0 ? (
+                            <span
+                              className="font-bold text-slate-700 dark:text-slate-300 truncate max-w-[55px] sm:max-w-[70px]"
+                              title={servList.map(s => s.name).join(', ')}
+                            >
+                              {servList.map(s => s.name).join('/')}
+                            </span>
+                          ) : (
+                            <span className="text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/40 px-1 rounded text-[6.5px] sm:text-[7.5px]">
+                              Por confirmar
+                            </span>
+                          )}
+                        </div>
+
+                        {hasEvidence ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenEvidence(event);
+                            }}
+                            disabled={loadingPhotos[event.id]}
+                            className="w-full py-0.5 sm:py-1 rounded-lg bg-blue-50/90 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-[7px] sm:text-[8.5px] font-bold flex items-center justify-center gap-1 cursor-pointer transition active:scale-95 shadow-2xs mt-0.5"
+                            title="Ver evidencia fotográfica"
+                          >
+                            {loadingPhotos[event.id] ? (
+                              <span className="animate-spin text-[8px]">⏳</span>
+                            ) : (
+                              <>
+                                <Camera className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
+                                <span>Ver evidencia</span>
+                              </>
+                            )}
+                          </button>
+                        ) : (
+                          <div className="text-[6.5px] sm:text-[7.5px] text-slate-400 italic text-center py-0.5">
+                            Sin foto
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+
+                // ==============================================================
+                // VARIANTE CLÁSICO PARA 4 CARDS POR FILA
+                // ==============================================================
                 return (
                   <div
                     key={event.id}
@@ -386,8 +596,6 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         ? 'border-amber-400 dark:border-amber-500 ring-1 ring-amber-400/40 bg-amber-50/20'
                         : isCancelled
                         ? 'border-rose-400 dark:border-rose-500 ring-1 ring-rose-400/40 bg-rose-50/20'
-                        : cardStyle === 'modern'
-                        ? 'border-blue-200/90 dark:border-blue-900/40 hover:border-blue-500 hover:shadow-xs'
                         : 'border-gray-200 dark:border-gray-800 hover:border-blue-400 dark:hover:border-blue-500'
                     } ${role === 'admin' ? 'cursor-pointer active:scale-98' : ''}`}
                   >
@@ -427,8 +635,6 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                             ? 'border-amber-300 bg-amber-50/70 dark:bg-amber-950/40'
                             : isCancelled
                             ? 'border-rose-300 bg-rose-50/70 dark:bg-rose-950/40'
-                            : cardStyle === 'modern'
-                            ? 'border-blue-400/80 bg-blue-50/80 dark:bg-blue-950/50 shadow-2xs'
                             : 'border-blue-200 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/30'
                         }`}>
                           <span className={`text-[8.5px] sm:text-[10.5px] font-black leading-tight block uppercase truncate ${
