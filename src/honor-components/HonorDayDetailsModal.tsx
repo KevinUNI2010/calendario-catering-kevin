@@ -299,7 +299,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#fcfaf8] dark:bg-[#0c0c0c]">
+        <div className="flex-1 overflow-y-auto p-2 sm:p-6 bg-[#fcfaf8] dark:bg-[#0c0c0c]">
           
           {/* Eventos del Día y Controles de Vista */}
           <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2">
@@ -379,10 +379,10 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
             </div>
           ) : cardStyle === 'modern' ? (
             <div className={`grid ${
-              cardColumns === 1 ? 'grid-cols-1 gap-4' :
-              cardColumns === 2 ? 'grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4' :
-              cardColumns === 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3' :
-              'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5'
+              cardColumns === 1 ? 'grid-cols-1 gap-3 sm:gap-4' :
+              cardColumns === 2 ? 'grid-cols-2 gap-2 sm:gap-4' :
+              cardColumns === 3 ? 'grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3.5' :
+              'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5'
             } auto-rows-max w-full`}>
               {sortedEvents.map(event => (
                 <div
@@ -405,10 +405,10 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
             </div>
           ) : (
             <div className={`grid ${
-              cardColumns === 1 ? 'grid-cols-1 gap-4' :
-              cardColumns === 2 ? 'grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4' :
-              cardColumns === 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3' :
-              'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5'
+              cardColumns === 1 ? 'grid-cols-1 gap-3 sm:gap-4' :
+              cardColumns === 2 ? 'grid-cols-2 gap-2 sm:gap-4' :
+              cardColumns === 3 ? 'grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3.5' :
+              'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5'
             } auto-rows-max w-full`}>
               {sortedEvents.map(event => {
               const color = getEventColor(event.colorId);
@@ -425,7 +425,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                       onClose();
                     }
                   }}
-                  className={`relative bg-white dark:bg-[#1a1a1a] rounded-3xl p-5 shadow-sm border transition-all overflow-hidden ${
+                  className={`relative bg-white dark:bg-[#1a1a1a] rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm border transition-all overflow-hidden ${
                     isPostponed
                       ? 'border-amber-400 dark:border-amber-500 ring-2 ring-amber-400/40 bg-amber-50/10'
                       : isCancelled
@@ -462,57 +462,57 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
 
                   <div className="flex flex-col h-full relative z-10">
                     {/* Header Event Card */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="px-3.5 py-1 text-[13px] font-bold rounded-full tracking-wide uppercase" style={{ backgroundColor: `${color.bg}20`, color: color.bg }}>
+                    <div className="flex items-center justify-between gap-1 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
+                      <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                        <span className="px-2.5 sm:px-3.5 py-0.5 sm:py-1 text-[11px] sm:text-[13px] font-bold rounded-full tracking-wide uppercase inline-flex items-center" style={{ backgroundColor: `${color.bg}20`, color: color.bg }}>
                           {event.localName.toUpperCase()}
                         </span>
                         {isPostponed && (
-                          <span className="px-3 py-1 text-xs font-black rounded-full bg-amber-500 text-white flex items-center gap-1 shadow-xs border border-amber-600 animate-pulse">
-                            <X className="w-3.5 h-3.5 stroke-[3]" />
-                            <span>EVENTO POSTERGADO</span>
+                          <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-black rounded-full bg-amber-500 text-white flex items-center gap-1 shadow-xs border border-amber-600 animate-pulse">
+                            <X className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
+                            <span>POSTERGADO</span>
                           </span>
                         )}
                         {isCancelled && (
-                          <span className="px-3 py-1 text-xs font-black rounded-full bg-rose-600 text-white flex items-center gap-1 shadow-xs border border-rose-700">
-                            <Ban className="w-3.5 h-3.5" />
-                            <span>EVENTO CANCELADO</span>
+                          <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-black rounded-full bg-rose-600 text-white flex items-center gap-1 shadow-xs border border-rose-700">
+                            <Ban className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                            <span>CANCELADO</span>
                           </span>
                         )}
                         {(event.isDatePending || event.dish?.isDatePending) && (
-                          <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
+                          <span className="px-2 sm:px-2.5 py-0.5 text-[9px] sm:text-[10px] font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
                             Fecha por confirmar
                           </span>
                         )}
                       </div>
                       {(event.isTimePending || event.dish?.isTimePending) ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs">
-                          <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                          Por confirmar
+                        <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs">
+                          <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span className="truncate">Por confirmar</span>
                         </span>
                       ) : (
-                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 shrink-0">
                           {timeString}
                         </span>
                       )}
                     </div>
                     
-                    <h3 className="font-normal text-gray-700 dark:text-gray-300 text-sm leading-snug mb-3 truncate min-h-[20px]">
+                    <h3 className="font-normal text-gray-700 dark:text-gray-300 text-xs sm:text-sm leading-snug mb-2 sm:mb-3 truncate min-h-[16px] sm:min-h-[20px]">
                       {event.title || <span className="text-transparent select-none">&nbsp;</span>}
                     </h3>
 
                     {/* Menu details */}
                     {event.dish && (
-                      <div className="flex-1 flex flex-col mt-2">
+                      <div className="flex-1 flex flex-col mt-1 sm:mt-2">
                         {event.dish.proteina ? (
-                          <div className={`my-1.5 py-2.5 px-3 rounded-xl border-2 shadow-xs text-center ${
+                          <div className={`my-1 sm:my-1.5 py-1.5 sm:py-2.5 px-2 sm:px-3 rounded-lg sm:rounded-xl border-2 shadow-xs text-center ${
                             isPostponed
                               ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/40'
                               : isCancelled
                               ? 'border-rose-400 bg-rose-50/60 dark:bg-rose-950/40'
                               : 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40'
                           }`}>
-                            <span className={`font-black text-sm tracking-wide uppercase ${
+                            <span className={`font-black text-xs sm:text-sm tracking-wide uppercase block truncate ${
                               isPostponed
                                 ? 'text-amber-900 dark:text-amber-100'
                                 : isCancelled
@@ -522,57 +522,57 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                               {event.dish.proteina}
                             </span>
                             {isPostponed && (
-                              <span className="ml-2 text-xs font-black text-amber-700 dark:text-amber-300">
+                              <span className="ml-1.5 text-[10px] sm:text-xs font-black text-amber-700 dark:text-amber-300">
                                 (POSTERGADO)
                               </span>
                             )}
                           </div>
                         ) : (
-                          <div className="my-1.5 py-2.5 px-3 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 text-center min-h-[46px] flex items-center justify-center">
-                            <span className="text-xs text-gray-400 italic">Sin proteína</span>
+                          <div className="my-1 sm:my-1.5 py-1.5 sm:py-2.5 px-2 sm:px-3 rounded-lg sm:rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 text-center min-h-[36px] sm:min-h-[46px] flex items-center justify-center">
+                            <span className="text-[10px] sm:text-xs text-gray-400 italic">Sin proteína</span>
                           </div>
                         )}
 
                         {/* Salsa */}
-                        <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center">
+                        <div className="py-1.5 sm:py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[30px] sm:min-h-[41px] flex items-center">
                           {event.dish.salsa ? (
-                            <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.salsa}</span>
+                            <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate">{event.dish.salsa}</span>
                           ) : (
                             <span className="text-transparent select-none">&nbsp;</span>
                           )}
                         </div>
 
                         {/* Carbohidrato */}
-                        <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center">
+                        <div className="py-1.5 sm:py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[30px] sm:min-h-[41px] flex items-center">
                           {event.dish.carbohidrato ? (
-                            <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.carbohidrato}</span>
+                            <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate">{event.dish.carbohidrato}</span>
                           ) : (
                             <span className="text-transparent select-none">&nbsp;</span>
                           )}
                         </div>
 
                         {/* Guarnición */}
-                        <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center">
+                        <div className="py-1.5 sm:py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[30px] sm:min-h-[41px] flex items-center">
                           {event.dish.guarnicion ? (
-                            <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.guarnicion}</span>
+                            <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate">{event.dish.guarnicion}</span>
                           ) : (
                             <span className="text-transparent select-none">&nbsp;</span>
                           )}
                         </div>
 
                         {/* Ensalada */}
-                        <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[41px] flex items-center">
+                        <div className="py-1.5 sm:py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[30px] sm:min-h-[41px] flex items-center">
                           {event.dish.ensalada ? (
-                            <span className="font-medium text-gray-800 dark:text-gray-200 text-sm">{event.dish.ensalada}</span>
+                            <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate">{event.dish.ensalada}</span>
                           ) : (
                             <span className="text-transparent select-none">&nbsp;</span>
                           )}
                         </div>
                         
-                        {/* Descripción / Notas: Espacio reservado para 3 líneas exactas para alineación homogénea */}
-                        <div className="py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[72px] h-[72px] flex items-start text-xs sm:text-sm overflow-hidden">
+                        {/* Descripción / Notas */}
+                        <div className="py-1.5 sm:py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[44px] sm:min-h-[72px] h-[44px] sm:h-[72px] flex items-start text-[10.5px] sm:text-sm overflow-hidden">
                           {(event.description || event.notes) ? (
-                            <p className="text-gray-600 dark:text-gray-400 whitespace-pre-line line-clamp-3 leading-snug w-full">
+                            <p className="text-gray-600 dark:text-gray-400 whitespace-pre-line line-clamp-2 sm:line-clamp-3 leading-snug w-full">
                               {event.description || event.notes}
                             </p>
                           ) : (
@@ -581,7 +581,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         </div>
 
                         {/* Footer Event Card */}
-                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-end text-sm gap-2 flex-wrap">
+                        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-end text-xs sm:text-sm gap-2">
                           <div className="min-w-0 flex-1 pb-0.5">
                             {(() => {
                               const servList = getSelectedServilletas(event.dish);
@@ -643,23 +643,23 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                             const servidosNum = hasServidos ? event.dish.platosServidos : undefined;
 
                             return (
-                              <div className="flex flex-col items-end gap-1 text-[11px] shrink-0">
+                              <div className="w-full sm:w-auto flex flex-col items-start sm:items-end gap-1 text-[10.5px] sm:text-[11px] shrink-0">
                                 {/* Título de sección: N.º DE PLATOS */}
-                                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase pr-1 select-none">
+                                <span className="text-[9.5px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase pr-1 select-none">
                                   N.º DE PLATOS
                                 </span>
 
                                 {/* Degustación */}
                                 {hasDegustacion ? (
                                   <span 
-                                    className="w-full text-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap" 
+                                    className="w-full sm:w-auto text-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap text-[10.5px] sm:text-[11px]" 
                                     title="Platos degustación pactados"
                                   >
                                     Degustación: {displayDegustacion || contratadosNum}
                                   </span>
                                 ) : (
                                   <span 
-                                    className="w-full px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 flex items-center justify-between gap-2 whitespace-nowrap" 
+                                    className="w-full sm:w-auto px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 flex items-center justify-between gap-2 whitespace-nowrap text-[10.5px] sm:text-[11px]" 
                                     title="Degustación pendiente de registrar"
                                   >
                                     <span>Degustación:</span>
@@ -670,14 +670,14 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                                 {/* Pedidos: muestra cantidad confirmada o recuadro para completar después */}
                                 {hasPedidos ? (
                                   <span 
-                                    className="w-full text-center px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 whitespace-nowrap" 
+                                    className="w-full sm:w-auto text-center px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 whitespace-nowrap text-[10.5px] sm:text-[11px]" 
                                     title="Platos pedidos para cocina"
                                   >
                                     Pedidos: {pedidosNum}
                                   </span>
                                 ) : (
                                   <span 
-                                    className="w-full px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 flex items-center justify-between gap-2 whitespace-nowrap" 
+                                    className="w-full sm:w-auto px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 flex items-center justify-between gap-2 whitespace-nowrap text-[10.5px] sm:text-[11px]" 
                                     title="Pedidos pendientes de confirmar (completar después)"
                                   >
                                     <span>Pedidos:</span>
@@ -688,14 +688,14 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                                 {/* Servidos: muestra cantidad servida o recuadro para completar después */}
                                 {hasServidos ? (
                                   <span 
-                                    className="w-full text-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 whitespace-nowrap" 
+                                    className="w-full sm:w-auto text-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 whitespace-nowrap text-[10.5px] sm:text-[11px]" 
                                     title="Platos servidos en sala"
                                   >
                                     Servidos: {servidosNum}
                                   </span>
                                 ) : (
                                   <span 
-                                    className="w-full px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-2 whitespace-nowrap" 
+                                    className="w-full sm:w-auto px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-2 whitespace-nowrap text-[10.5px] sm:text-[11px]" 
                                     title="Servidos pendientes de registrar"
                                   >
                                     <span>Servidos:</span>
@@ -716,7 +716,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                           if (!hasPhoto) return null;
 
                           return (
-                            <div className="mt-3 pt-2.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
+                            <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
                               <button
                                 type="button"
                                 disabled={isPhotoLoading}
@@ -724,20 +724,20 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                                   e.stopPropagation();
                                   handleOpenEvidence(event);
                                 }}
-                                className="flex items-center gap-2 p-1.5 pr-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-medium transition cursor-pointer disabled:opacity-60"
+                                className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 pr-2.5 sm:pr-3 rounded-lg sm:rounded-xl bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-[10.5px] sm:text-xs font-medium transition cursor-pointer disabled:opacity-60"
                               >
                                 {eventPhoto ? (
                                   <img 
                                     src={eventPhoto} 
                                     alt="Evidencia cuaderno" 
-                                    className="w-7 h-7 rounded-lg object-cover border border-blue-300 dark:border-blue-700"
+                                    className="w-5 h-5 sm:w-7 sm:h-7 rounded-md sm:rounded-lg object-cover border border-blue-300 dark:border-blue-700"
                                   />
                                 ) : (
-                                  <div className="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                                    <FileText className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
+                                  <div className="w-5 h-5 sm:w-7 sm:h-7 rounded-md sm:rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                                    <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500 animate-pulse" />
                                   </div>
                                 )}
-                                <span className="flex items-center gap-1 font-semibold text-[11px]">
+                                <span className="flex items-center gap-1 font-semibold text-[10.5px] sm:text-[11px]">
                                   <FileText className="w-3.5 h-3.5 text-blue-500" />
                                   {isPhotoLoading ? 'Cargando evidencia...' : 'Ver evidencia'}
                                 </span>
