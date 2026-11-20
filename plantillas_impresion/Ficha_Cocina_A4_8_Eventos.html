@@ -1,0 +1,644 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modelo de Impresión A4 - 8 Fichas de Cocina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 6mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* BARRA SUPERIOR INTERACTIVA (NO IMPRIMIBLE) */
+    .no-print {
+      max-width: 900px;
+      margin: 16px auto 20px;
+      padding: 14px 20px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .no-print-info h1 {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .no-print-info p {
+      font-size: 11.5px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-toggle {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn-toggle:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-toggle.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+      box-shadow: 0 2px 6px rgba(37,99,235,0.25);
+    }
+
+    .btn-print {
+      background: #059669;
+      color: #ffffff;
+      border: none;
+      padding: 7px 16px;
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      box-shadow: 0 2px 6px rgba(5,150,105,0.25);
+      transition: all 0.15s ease;
+    }
+
+    .btn-print:hover {
+      background: #047857;
+    }
+
+    /* CONTENEDOR Y HOJA A4 FÍSICA */
+    .a4-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .a4-page {
+      width: 210mm;
+      height: 297mm;
+      background: #ffffff;
+      padding: 6mm;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 3.5mm;
+      overflow: hidden;
+      page-break-after: always;
+      box-sizing: border-box;
+    }
+
+    @media print {
+      body {
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .a4-wrapper {
+        margin: 0 !important;
+      }
+      .a4-page {
+        width: 100% !important;
+        height: 100% !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        gap: 3mm !important;
+      }
+    }
+
+    /* TARJETA INDIVIDUAL (Diseño fiel con formas orgánicas) */
+    .card {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px 11px;
+    }
+
+    /* Blobs / Formas orgánicas de fondo con color dinámico */
+    .blob-tl {
+      position: absolute;
+      top: -24px;
+      left: -24px;
+      width: 130px;
+      height: 130px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .blob-br {
+      position: absolute;
+      bottom: -22px;
+      right: -24px;
+      width: 145px;
+      height: 145px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-between;
+    }
+
+    /* 1. Cabecera */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .badge-local {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      paint-order: stroke fill;
+    }
+
+    .badge-time {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7.5px;
+      border-radius: 9999px;
+      font-size: 10px;
+      font-weight: 700;
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    /* 2. Título del evento */
+    .event-title {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #475569;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+
+    /* 3. Recuadro de Proteína Principal */
+    .protein-box {
+      border: 2px solid #2563eb;
+      background: #eff6ff;
+      border-radius: 8px;
+      padding: 3.5px 6px;
+      text-align: center;
+      margin-bottom: 3.5px;
+    }
+
+    .protein-text {
+      font-size: 11px;
+      font-weight: 900;
+      color: #1e3a8a;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 4. Menú de 4 platos */
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 3px;
+      margin-bottom: 2px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.2;
+    }
+
+    .icon-avatar {
+      width: 18px;
+      height: 18px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 5. Pie de Tarjeta: Servilleta al costado + N.º DE PLATOS (solo rellenados) */
+    .card-footer {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 3.5px;
+      gap: 4px;
+    }
+
+    .servilleta-box {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+    }
+
+    .serv-label {
+      color: #64748b;
+      font-size: 9.5px;
+      font-weight: 600;
+    }
+
+    .serv-val {
+      font-weight: 800;
+      color: #0f172a;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dot {
+      width: 7.5px;
+      height: 7.5px;
+      border-radius: 9999px;
+      display: inline-block;
+      border: 1px solid rgba(0,0,0,0.18);
+    }
+
+    .badge-pending {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #b45309;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .plates-box {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1px;
+    }
+
+    .plates-title {
+      font-size: 7.5px;
+      font-weight: 800;
+      color: #64748b;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .plates-list {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1.5px;
+    }
+
+    .plate-deg {
+      font-size: 9px;
+      font-weight: 700;
+      color: #1d4ed8;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 1px 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .plate-ped {
+      font-size: 9px;
+      font-weight: 700;
+      color: #c2410c;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      padding: 1px 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .plate-serv {
+      font-size: 9px;
+      font-weight: 700;
+      color: #047857;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      padding: 1px 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* Espacio libre */
+    .empty-slot {
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 14px;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100%;
+    }
+
+    .empty-text {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #94a3b8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA DE ACCIONES (NO SE IMPRIME) -->
+  <div class="no-print">
+    <div class="no-print-info">
+      <h1>
+        <span>📋 Modelo de Impresión A4: 8 Fichas de Cocina</span>
+      </h1>
+      <p>Diseño con fondo orgánico y color por local, íconos ilustrados, servilleta al costado y campos de platos rellenados.</p>
+    </div>
+    <div class="controls-group">
+      <button class="btn-toggle" onclick="renderSheet(3)">3 Eventos</button>
+      <button class="btn-toggle" onclick="renderSheet(5)">5 Eventos</button>
+      <button class="btn-toggle active" onclick="renderSheet(7)">7 Eventos</button>
+      <button class="btn-toggle" onclick="renderSheet(8)">8 (Completo)</button>
+      <button class="btn-print" onclick="window.print()">
+        🖨️ Imprimir / Guardar PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- HOJA A4 -->
+  <div class="a4-wrapper">
+    <div class="a4-page" id="a4Grid">
+      <!-- Generado dinámicamente -->
+    </div>
+  </div>
+
+  <script>
+    const eventsData = [{"local":"CRISTALES","color":"#039be5","title":"Promoción","time":null,"timeMinutes":660,"proteina":"POLLO MEXICANA","salsa":"Salsa Bechamel","carbohidrato":"Arroz a la Jardinera","guarnicion":"Piña Almíbar","ensalada":"Ensalada Fresca","servilleta":null,"servilletaColor":null,"degustacion":"400","pedidos":null,"servidos":null},{"local":"ESTELAR","color":"#8e24aa","title":"Reunión Ejecutiva","time":"12:30 p. m.","timeMinutes":750,"proteina":"ASADO DE TIRA","salsa":"Salsa de Champiñones","carbohidrato":"Arroz con Choclo","guarnicion":"Legumbres al Vapor","ensalada":"Ensalada Verde","servilleta":"Blanco","servilletaColor":"#cbd5e1","degustacion":"60","pedidos":null,"servidos":null},{"local":"ARYES","color":"#256a4a","title":"Colegio San Carlos","time":"1:00 p. m.","timeMinutes":780,"proteina":"POLLO ENROLLADO","salsa":"Salsa de Ostión","carbohidrato":"Arroz a la Jardinera","guarnicion":"Piña Almíbar","ensalada":"Ensalada Fresca","servilleta":"Vino Tinto","servilletaColor":"#881337","degustacion":"13x8 = 104","pedidos":null,"servidos":null},{"local":"GLADIOLOS","color":"#0284c7","title":"15 años","time":null,"timeMinutes":810,"proteina":"POLLO A LA PLANCHA","salsa":"Salsa de Maracuyá","carbohidrato":"Arroz Árabe","guarnicion":"Papas Doradas","ensalada":"Ensalada Precocida","servilleta":null,"servilletaColor":null,"degustacion":"200","pedidos":null,"servidos":null},{"local":"VILLA SANTIAGO","color":"#f4511e","title":"Cumpleaños 50","time":"3:00 p. m.","timeMinutes":900,"proteina":"POLLO AL CILINDRO","salsa":"Salsa BBQ Ahumada","carbohidrato":"Papa Rústica","guarnicion":"Choclo Dulce","ensalada":"Ensalada Rusa","servilleta":"Dorado","servilletaColor":"#d97706","degustacion":"45x3 = 135","pedidos":"140","servidos":null},{"local":"CRISTALES","color":"#039be5","title":"Matrimonio Civil","time":"4:30 p. m.","timeMinutes":990,"proteina":"PAVO AL HORNO","salsa":"Salsa Gravy Especial","carbohidrato":"Arroz al Olivar","guarnicion":"Puré de Manzana","ensalada":"Ensalada Waldorf","servilleta":"Lila","servilletaColor":"#9333ea","degustacion":"150","pedidos":null,"servidos":null},{"local":"ARYES","color":"#256a4a","title":"Bautizo","time":"6:00 p. m.","timeMinutes":1080,"proteina":"MEDALLÓN DE CERDO","salsa":"Salsa de Frutos Rojos","carbohidrato":"Puré de Camote","guarnicion":"Piña Glaseada","ensalada":"Ensalada Fresca","servilleta":"Azul noche","servilletaColor":"#1e3a8a","degustacion":"21x8 = 168","pedidos":null,"servidos":null},null];
+
+    function darkenHex(hex, amount = 0.40) {
+      let cleanHex = hex.replace('#', '');
+      if (cleanHex.length === 3) {
+        cleanHex = cleanHex.split('').map(c => c + c).join('');
+      }
+      const num = parseInt(cleanHex, 16);
+      if (isNaN(num)) return '#000000';
+      const r = Math.max(0, Math.floor(((num >> 16) & 255) * (1 - amount)));
+      const g = Math.max(0, Math.floor(((num >> 8) & 255) * (1 - amount)));
+      const b = Math.max(0, Math.floor((num & 255) * (1 - amount)));
+      return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    function generateCardHtml(ev, slotIndex) {
+      if (!ev) {
+        return `
+          <div class="empty-slot">
+            <span class="empty-text">[ Espacio Libre ${slotIndex + 1} ]</span>
+          </div>
+        `;
+      }
+
+      const strokeColor = darkenHex(ev.color, 0.4);
+      const timeDisplay = ev.time ? `🕒 ${ev.time}` : '🕒 ❓:❓';
+
+      return `
+        <div class="card" style="--local-color: ${ev.color};">
+          <!-- Formas orgánicas / Blobs de fondo (dinámicos con el color del local) -->
+          <svg class="blob-tl" viewBox="0 0 200 200" fill="none">
+            <path d="M45.7,-78.3C58.9,-71.1,69.1,-58.5,76.5,-44.6C83.9,-30.7,88.5,-15.3,87.7,-0.5C86.8,14.4,80.5,28.8,72.4,41.9C64.3,55,54.4,66.8,41.9,74.5C29.4,82.2,14.7,85.8,-0.1,86C-14.9,86.2,-29.8,83,-43.3,75.7C-56.8,68.4,-68.9,57,-76.7,43.2C-84.5,29.4,-88,14.7,-86.6,0.8C-85.2,-13.1,-78.9,-26.2,-70.7,-38.7C-62.5,-51.2,-52.4,-63.1,-39.8,-70.6C-27.2,-78.1,-13.6,-81.2,0.8,-82.6C15.2,-84,32.5,-85.5,45.7,-78.3Z" transform="translate(100 100)" fill="${ev.color}" fill-opacity="0.14" />
+          </svg>
+          <svg class="blob-br" viewBox="0 0 200 200" fill="none">
+            <path d="M42.7,-72.8C55.2,-66.4,65.2,-54.6,72.8,-41.3C80.4,-28,85.6,-14,84.9,-0.4C84.2,13.2,77.6,26.4,69.5,38.6C61.4,50.8,51.8,62,39.8,69.7C27.8,77.4,13.9,81.6,-0.5,82.4C-14.9,83.3,-29.8,80.8,-42.6,73.5C-55.4,66.2,-66.1,54.1,-73.4,40.5C-80.7,26.9,-84.6,13.5,-83.4,0.7C-82.2,-12.1,-75.9,-24.2,-67.7,-34.9C-59.5,-45.6,-49.4,-54.9,-37.9,-61.8C-26.4,-68.7,-13.2,-73.2,0.7,-74.4C14.6,-75.6,30.2,-79.2,42.7,-72.8Z" transform="translate(100 100)" fill="${ev.color}" fill-opacity="0.11" />
+          </svg>
+
+          <div class="card-inner">
+            <!-- 1. Cabecera: Local badge + Hora -->
+            <div class="card-header">
+              <span class="badge-local" style="background-color: ${ev.color}20; color: ${ev.color}; border: 1px solid ${ev.color}40; -webkit-text-stroke: 0.8px ${strokeColor};">
+                ${ev.local}
+              </span>
+              <span class="badge-time">
+                ${timeDisplay}
+              </span>
+            </div>
+
+            <!-- 2. Título de Evento -->
+            <div class="event-title">
+              ${ev.title || '&nbsp;'}
+            </div>
+
+            <!-- 3. Recuadro Proteína Principal -->
+            <div class="protein-box">
+              <span class="protein-text">${ev.proteina}</span>
+            </div>
+
+            <!-- 4. Menú de 4 platos con íconos ilustrados con el color del local -->
+            <div class="menu-list">
+              <!-- Salsa -->
+              <div class="menu-item">
+                <div class="icon-avatar" style="background-color: ${ev.color}18; border: 1px solid ${ev.color}30; color: ${ev.color};">
+                  <svg width="13" height="13" viewBox="0 0 32 32" fill="none">
+                    <path d="M5 13C5 20.1797 10.3726 25 17 25C23.6274 25 29 20.1797 29 13H5Z" fill="${ev.color}25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 25L10 27H24L22 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6 13C9 14.5 13 14.5 17 13C21 11.5 25 13 28 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M20 15L25 5C25.3 4.4 26 4.1 26.6 4.4C27.2 4.7 27.5 5.4 27.2 6L22.5 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <span class="item-name">${ev.salsa}</span>
+              </div>
+
+              <!-- Carbohidrato -->
+              <div class="menu-item">
+                <div class="icon-avatar" style="background-color: ${ev.color}18; border: 1px solid ${ev.color}30; color: ${ev.color};">
+                  <svg width="13" height="13" viewBox="0 0 32 32" fill="none">
+                    <path d="M7 16C7 11.5 11 8 16 8C21 8 25 11.5 25 16H7Z" fill="${ev.color}25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13 11C14 11 14.5 12 14.5 12M18 10.5C18.5 11.2 18 12 18 12M10.5 13.5C11.2 13.5 11.5 14 11.5 14M21 13.5C21.5 14 21 14.5 21 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M6 16C6 22 10.5 25 16 25C21.5 25 26 22 26 16H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11 25L10 27H22L21 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <span class="item-name">${ev.carbohidrato}</span>
+              </div>
+
+              <!-- Guarnición -->
+              <div class="menu-item">
+                <div class="icon-avatar" style="background-color: ${ev.color}18; border: 1px solid ${ev.color}30; color: ${ev.color};">
+                  <svg width="13" height="13" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 4C14 7 13 9 14 11C12 8 10 9 11 12C9 9 7 11 9 13C12 13 15 13 16 13C17 13 20 13 23 13C25 11 23 9 21 12C22 9 20 8 18 11C19 9 18 7 16 4Z" fill="${ev.color}25" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                    <ellipse cx="16" cy="21" rx="7.5" ry="9" fill="${ev.color}20" stroke="currentColor" stroke-width="2"/>
+                    <path d="M11 17L21 25M21 17L11 25M16 13V29" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <span class="item-name">${ev.guarnicion}</span>
+              </div>
+
+              <!-- Ensalada -->
+              <div class="menu-item">
+                <div class="icon-avatar" style="background-color: ${ev.color}18; border: 1px solid ${ev.color}30; color: ${ev.color};">
+                  <svg width="13" height="13" viewBox="0 0 32 32" fill="none">
+                    <path d="M6 16C6 21.5228 10.4772 26 16 26C21.5228 26 26 21.5228 26 16H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M11 26L10 28H22L21 26" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 16C9 13 10.5 10 13.5 10C15 10 16 11 16 12C16 11 17 10 18.5 10C21.5 10 23 13 22 16" fill="${ev.color}25" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                    <circle cx="16" cy="14" r="1.5" fill="currentColor"/>
+                  </svg>
+                </div>
+                <span class="item-name">${ev.ensalada}</span>
+              </div>
+            </div>
+
+            <!-- 5. Pie de Tarjeta: Servilleta al costado + N.º DE PLATOS (solo rellenados) -->
+            <div class="card-footer">
+              <div class="servilleta-box">
+                <span class="serv-label">Servilleta:</span>
+                ${ev.servilletaColor ? `
+                  <span class="serv-val">
+                    <span class="dot" style="background-color: ${ev.servilletaColor};"></span>
+                    <span>${ev.servilleta}</span>
+                  </span>
+                ` : `
+                  <span class="badge-pending">🎨❓</span>
+                `}
+              </div>
+
+              <div class="plates-box">
+                <span class="plates-title">N.º DE PLATOS</span>
+                <div class="plates-list">
+                  <span class="plate-deg">Degustación: ${ev.degustacion}</span>
+                  ${ev.pedidos ? `<span class="plate-ped">Pedidos: ${ev.pedidos}</span>` : ''}
+                  ${ev.servidos ? `<span class="plate-serv">Servidos: ${ev.servidos}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSheet(count) {
+      // Actualizar botones
+      document.querySelectorAll('.btn-toggle').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(count.toString()) || (count === 8 && btn.textContent.includes('Completo')));
+      });
+
+      const grid = document.getElementById('a4Grid');
+      let items = [];
+      const actualEvents = eventsData.filter(e => e !== null);
+
+      for (let i = 0; i < 8; i++) {
+        if (i < count && i < actualEvents.length) {
+          items.push(actualEvents[i]);
+        } else if (i < count && count === 8 && i === 7) {
+          // Si son 8 pero el último es nulo o 8 eventos
+          items.push({
+            local: 'GLADIOLOS',
+            color: '#0284c7',
+            title: 'Aniversario Corporativo',
+            time: '8:00 p. m.',
+            timeMinutes: 20 * 60,
+            proteina: 'LOMO SALTADO',
+            salsa: 'Salsa Tradicional Criolla',
+            carbohidrato: 'Arroz con Choclo',
+            guarnicion: 'Papas Nativas',
+            ensalada: 'Ensalada Mixta',
+            servilleta: 'Azul',
+            servilletaColor: '#1d4ed8',
+            degustacion: '180',
+            pedidos: null,
+            servidos: null
+          });
+        } else {
+          items.push(null);
+        }
+      }
+
+      grid.innerHTML = items.map((ev, idx) => generateCardHtml(ev, idx)).join('');
+    }
+
+    // Render inicial con 7 eventos + 1 espacio libre
+    renderSheet(7);
+  </script>
+
+</body>
+</html>
