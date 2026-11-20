@@ -11,6 +11,7 @@ const HonorCalendarApp = lazy(() => import('./HonorCalendarApp').then(m => ({ de
 const PinLogin = lazy(() => import('./components/PinLogin').then(m => ({ default: m.PinLogin })));
 const AdminLogin = lazy(() => import('./components/AdminLogin').then(m => ({ default: m.AdminLogin })));
 const ModernEventCardLab = lazy(() => import('./components/modern-cards/ModernEventCardLab').then(m => ({ default: m.ModernEventCardLab })));
+const FichasCocinaPublicView = lazy(() => import('./components/FichasCocinaPublicView').then(m => ({ default: m.FichasCocinaPublicView })));
 
 export default function App() {
   const [session, setSession] = useState<UserSession | null>(null);
@@ -185,6 +186,9 @@ export default function App() {
           />
           
           {/* Fallback route */}
+          {/* Fichas de Cocina A4 (Ruta pública accesible desde móvil sin login) */}
+          <Route path="/fichas-cocina" element={<FichasCocinaPublicView />} />
+          <Route path="/fichas" element={<FichasCocinaPublicView />} />
           <Route path="/laboratorio-cards" element={<ModernEventCardLab />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
