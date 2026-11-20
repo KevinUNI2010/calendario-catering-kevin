@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CalendarEvent, Local } from '../types';
-import { getEventColor } from '../utils/colorUtils';
+import { getEventColor, getTextStrokeColor } from '../utils/colorUtils';
 import { parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas } from '../utils/servilletaUtils';
 import { formatEventTime, parseEventDate } from '../utils/dateUtils';
@@ -195,11 +195,17 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
               <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span 
-                    className="px-3.5 py-1 text-[13px] font-bold rounded-full tracking-wide uppercase inline-flex items-center" 
-                    style={{ backgroundColor: `${colorDef.bg}20`, color: colorDef.bg }}
+                    className="px-3.5 sm:px-4 py-1 text-[13px] sm:text-[15px] font-black rounded-full tracking-wide uppercase inline-flex items-center shadow-2xs transition-all duration-300" 
+                    style={{ 
+                      backgroundColor: `${colorDef.bg}18`, 
+                      color: colorDef.bg,
+                      border: `1px solid ${colorDef.bg}35`,
+                      WebkitTextStroke: `1px ${getTextStrokeColor(colorDef.bg)}`,
+                      paintOrder: 'stroke fill',
+                    }}
                   >
                     {event.localName.toUpperCase()}
-                    {local?.code && <span className="ml-1.5 opacity-70 text-[11px]">({local.code})</span>}
+                    {local?.code && <span className="ml-1.5 opacity-80 text-[11px] sm:text-xs">({local.code})</span>}
                   </span>
                   {isPostponed && (
                     <span className="px-3 py-1 text-xs font-black rounded-full bg-amber-500 text-white flex items-center gap-1 shadow-xs border border-amber-600 animate-pulse">

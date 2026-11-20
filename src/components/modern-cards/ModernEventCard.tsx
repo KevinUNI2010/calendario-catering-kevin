@@ -1,6 +1,6 @@
 import React from 'react';
 import { CalendarEvent, Local } from '../../types';
-import { getEventColor } from '../../utils/colorUtils';
+import { getEventColor, getTextStrokeColor } from '../../utils/colorUtils';
 import { parsePlateFormula } from '../../utils/plateMath';
 import { getSelectedServilletas } from '../../utils/servilletaUtils';
 import { formatEventTime } from '../../utils/dateUtils';
@@ -181,11 +181,13 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
           {/* Badge del local con su color dinámico y opcional fecha por confirmar */}
           <div className="flex items-center gap-1.5 flex-wrap">
             <span
-              className="px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase inline-flex items-center gap-1.5 shadow-2xs transition-all duration-300"
+              className="px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full text-[13px] sm:text-[14px] font-black tracking-wider uppercase inline-flex items-center gap-1.5 shadow-2xs transition-all duration-300"
               style={{
                 backgroundColor: `${localColor}18`,
                 color: localColor,
                 border: `1px solid ${localColor}35`,
+                WebkitTextStroke: `1px ${getTextStrokeColor(localColor)}`,
+                paintOrder: 'stroke fill',
               }}
             >
               <span

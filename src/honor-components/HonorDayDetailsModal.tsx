@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { CalendarEvent } from '../types';
 import { X, MapPin, Clock, Calendar, ChevronRight, Utensils, FileText, Plus, Sparkles, Ban, Camera } from 'lucide-react';
 import { formatDateShort, formatEventTime, parseEventDate } from '../utils/dateUtils';
-import { getEventColor } from '../utils/colorUtils';
+import { getEventColor, getTextStrokeColor } from '../utils/colorUtils';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { getEffectivePlateCount, parsePlateFormula } from '../utils/plateMath';
 import { getSelectedServilletas } from '../utils/servilletaUtils';
@@ -494,7 +494,16 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                     {/* Header Event Card */}
                     <div className="flex items-center justify-between gap-1 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
                       <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-                        <span className="px-2.5 sm:px-3.5 py-0.5 sm:py-1 text-[11px] sm:text-[13px] font-bold rounded-full tracking-wide uppercase inline-flex items-center" style={{ backgroundColor: `${color.bg}20`, color: color.bg }}>
+                        <span 
+                          className="px-2.5 sm:px-3.5 py-0.5 sm:py-1 text-[13px] sm:text-[15px] font-black rounded-full tracking-wide uppercase inline-flex items-center shadow-2xs transition-all duration-300" 
+                          style={{ 
+                            backgroundColor: `${color.bg}18`, 
+                            color: color.bg,
+                            border: `1px solid ${color.bg}35`,
+                            WebkitTextStroke: `1px ${getTextStrokeColor(color.bg)}`,
+                            paintOrder: 'stroke fill',
+                          }}
+                        >
                           {event.localName.toUpperCase()}
                         </span>
                         {isPostponed && (

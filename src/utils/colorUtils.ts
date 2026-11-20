@@ -1,7 +1,11 @@
 import { EventColor, GOOGLE_CALENDAR_COLORS } from '../types';
 
 const hexToRgb = (hex: string) => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  let cleanHex = hex.replace('#', '');
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex.split('').map(c => c + c).join('');
+  }
+  const result = /^([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(cleanHex);
   return result ? {
     r: parseInt(result[1], 16),
     g: parseInt(result[2], 16),
@@ -16,13 +20,21 @@ const getTextColor = (hex: string) => {
   return brightness > 155 ? '#1f2937' : '#ffffff';
 };
 
-const darkenHex = (hex: string, amount = 0.15) => {
+export const darkenHex = (hex: string, amount = 0.15) => {
   const rgb = hexToRgb(hex);
   if (!rgb) return hex;
   const r = Math.max(0, Math.floor(rgb.r * (1 - amount)));
   const g = Math.max(0, Math.floor(rgb.g * (1 - amount)));
   const b = Math.max(0, Math.floor(rgb.b * (1 - amount)));
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+};
+
+/**
+ * Retorna un tono más oscuro y contrastado de un color hex
+ * para delinear (text-stroke) los caracteres del nombre del local
+ */
+export const getTextStrokeColor = (colorHex: string, amount = 0.35): string => {
+  return darkenHex(colorHex, amount);
 };
 
 export const getEventColor = (colorIdOrHex: string): EventColor => {
