@@ -460,6 +460,36 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                     </div>
                   )}
 
+                  {/* Formas orgánicas / Blobs de fondo dinámicas con el color del local */}
+                  <svg
+                    aria-hidden="true"
+                    className="absolute -top-8 -left-8 sm:-top-10 sm:-left-10 w-36 h-36 sm:w-44 sm:h-44 pointer-events-none transition-colors duration-300 z-0"
+                    viewBox="0 0 200 200"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M45.7,-78.3C58.9,-71.1,69.1,-58.5,76.5,-44.6C83.9,-30.7,88.5,-15.3,87.7,-0.5C86.8,14.4,80.5,28.8,72.4,41.9C64.3,55,54.4,66.8,41.9,74.5C29.4,82.2,14.7,85.8,-0.1,86C-14.9,86.2,-29.8,83,-43.3,75.7C-56.8,68.4,-68.9,57,-76.7,43.2C-84.5,29.4,-88,14.7,-86.6,0.8C-85.2,-13.1,-78.9,-26.2,-70.7,-38.7C-62.5,-51.2,-52.4,-63.1,-39.8,-70.6C-27.2,-78.1,-13.6,-81.2,0.8,-82.6C15.2,-84,32.5,-85.5,45.7,-78.3Z"
+                      transform="translate(100 100)"
+                      fill={color.bg}
+                      fillOpacity="0.12"
+                    />
+                  </svg>
+                  <svg
+                    aria-hidden="true"
+                    className="absolute top-24 -right-12 sm:top-28 sm:-right-16 w-40 h-40 sm:w-52 sm:h-52 pointer-events-none transition-colors duration-300 z-0"
+                    viewBox="0 0 200 200"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M42.7,-72.8C55.2,-66.4,65.2,-54.6,72.8,-41.3C80.4,-28,85.6,-14,84.9,-0.4C84.2,13.2,77.6,26.4,69.5,38.6C61.4,50.8,51.8,62,39.8,69.7C27.8,77.4,13.9,81.6,-0.5,82.4C-14.9,83.3,-29.8,80.8,-42.6,73.5C-55.4,66.2,-66.1,54.1,-73.4,40.5C-80.7,26.9,-84.6,13.5,-83.4,0.7C-82.2,-12.1,-75.9,-24.2,-67.7,-34.9C-59.5,-45.6,-49.4,-54.9,-37.9,-61.8C-26.4,-68.7,-13.2,-73.2,0.7,-74.4C14.6,-75.6,30.2,-79.2,42.7,-72.8Z"
+                      transform="translate(100 100)"
+                      fill={color.bg}
+                      fillOpacity="0.09"
+                    />
+                  </svg>
+
                   <div className="flex flex-col h-full relative z-10">
                     {/* Header Event Card */}
                     <div className="flex items-center justify-between gap-1 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
@@ -534,39 +564,87 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         )}
 
                         {/* Salsa */}
-                        <div className="py-1.5 sm:py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[30px] sm:min-h-[41px] flex items-center">
-                          {event.dish.salsa ? (
-                            <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate">{event.dish.salsa}</span>
-                          ) : (
-                            <span className="text-transparent select-none">&nbsp;</span>
-                          )}
+                        <div className="py-1.5 sm:py-2 border-t border-gray-100 dark:border-gray-800 min-h-[34px] sm:min-h-[42px] flex items-center gap-2 sm:gap-2.5">
+                          <div
+                            className="w-6.5 h-6.5 sm:w-7.5 sm:h-7.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-colors duration-300"
+                            style={{
+                              backgroundColor: `${color.bg}18`,
+                              border: `1px solid ${color.bg}30`,
+                              color: color.bg,
+                            }}
+                          >
+                            <SalsaIcon size={14} color={color.bg} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            {event.dish.salsa ? (
+                              <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate block">{event.dish.salsa}</span>
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-500 italic text-[11px] sm:text-xs">Sin salsa</span>
+                            )}
+                          </div>
                         </div>
 
                         {/* Carbohidrato */}
-                        <div className="py-1.5 sm:py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[30px] sm:min-h-[41px] flex items-center">
-                          {event.dish.carbohidrato ? (
-                            <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate">{event.dish.carbohidrato}</span>
-                          ) : (
-                            <span className="text-transparent select-none">&nbsp;</span>
-                          )}
+                        <div className="py-1.5 sm:py-2 border-t border-gray-100 dark:border-gray-800 min-h-[34px] sm:min-h-[42px] flex items-center gap-2 sm:gap-2.5">
+                          <div
+                            className="w-6.5 h-6.5 sm:w-7.5 sm:h-7.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-colors duration-300"
+                            style={{
+                              backgroundColor: `${color.bg}18`,
+                              border: `1px solid ${color.bg}30`,
+                              color: color.bg,
+                            }}
+                          >
+                            <CarbohidratoIcon size={14} color={color.bg} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            {event.dish.carbohidrato ? (
+                              <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate block">{event.dish.carbohidrato}</span>
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-500 italic text-[11px] sm:text-xs">Sin carbohidrato</span>
+                            )}
+                          </div>
                         </div>
 
                         {/* Guarnición */}
-                        <div className="py-1.5 sm:py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[30px] sm:min-h-[41px] flex items-center">
-                          {event.dish.guarnicion ? (
-                            <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate">{event.dish.guarnicion}</span>
-                          ) : (
-                            <span className="text-transparent select-none">&nbsp;</span>
-                          )}
+                        <div className="py-1.5 sm:py-2 border-t border-gray-100 dark:border-gray-800 min-h-[34px] sm:min-h-[42px] flex items-center gap-2 sm:gap-2.5">
+                          <div
+                            className="w-6.5 h-6.5 sm:w-7.5 sm:h-7.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-colors duration-300"
+                            style={{
+                              backgroundColor: `${color.bg}18`,
+                              border: `1px solid ${color.bg}30`,
+                              color: color.bg,
+                            }}
+                          >
+                            <GuarnicionIcon size={14} color={color.bg} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            {event.dish.guarnicion ? (
+                              <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate block">{event.dish.guarnicion}</span>
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-500 italic text-[11px] sm:text-xs">Sin guarnición</span>
+                            )}
+                          </div>
                         </div>
 
                         {/* Ensalada */}
-                        <div className="py-1.5 sm:py-2.5 border-t border-gray-100 dark:border-gray-800 min-h-[30px] sm:min-h-[41px] flex items-center">
-                          {event.dish.ensalada ? (
-                            <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate">{event.dish.ensalada}</span>
-                          ) : (
-                            <span className="text-transparent select-none">&nbsp;</span>
-                          )}
+                        <div className="py-1.5 sm:py-2 border-t border-gray-100 dark:border-gray-800 min-h-[34px] sm:min-h-[42px] flex items-center gap-2 sm:gap-2.5">
+                          <div
+                            className="w-6.5 h-6.5 sm:w-7.5 sm:h-7.5 rounded-full flex items-center justify-center shrink-0 shadow-2xs transition-colors duration-300"
+                            style={{
+                              backgroundColor: `${color.bg}18`,
+                              border: `1px solid ${color.bg}30`,
+                              color: color.bg,
+                            }}
+                          >
+                            <EnsaladaIcon size={14} color={color.bg} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            {event.dish.ensalada ? (
+                              <span className="font-medium text-gray-800 dark:text-gray-200 text-xs sm:text-sm truncate block">{event.dish.ensalada}</span>
+                            ) : (
+                              <span className="text-gray-400 dark:text-gray-500 italic text-[11px] sm:text-xs">Sin ensalada</span>
+                            )}
+                          </div>
                         </div>
                         
                         {/* Descripción / Notas */}
