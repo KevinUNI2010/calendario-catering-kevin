@@ -565,11 +565,7 @@
     .empty-slot {
       border: 1.5px dashed #cbd5e1;
       border-radius: 13px;
-      background: #f8fafc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+      background: #ffffff;
       height: 100%;
     }
 
@@ -670,9 +666,7 @@
     function generateCardHtml(ev, slotIndex) {
       if (!ev) {
         return `
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre ${slotIndex + 1} ]</span>
-          </div>
+          <div class="empty-slot"></div>
         `;
       }
 

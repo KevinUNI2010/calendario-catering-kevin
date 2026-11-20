@@ -67,23 +67,23 @@
     .controls-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
     .day-pill-btn {
-      background: #f8fafc;
+      background: #ffffff;
       border: 1px solid #cbd5e1;
-      padding: 5px 12px;
+      padding: 4px 10px;
       border-radius: 8px;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
       color: #334155;
       text-decoration: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       transition: all 0.15s ease;
       font-family: inherit;
     }
@@ -93,10 +93,11 @@
       color: #0f172a;
     }
 
-    .day-pill-btn.active {
-      background: #0284c7;
-      color: #ffffff;
-      border-color: #0284c7;
+    .day-pill-btn.has-events {
+      background: #e0f2fe;
+      border-color: #7dd3fc;
+      color: #0369a1;
+      font-weight: 800;
     }
 
     .btn-print {
@@ -238,7 +239,7 @@
       letter-spacing: 0.03em;
     }
 
-    /* CUADRÍCULA DE 2 COLUMNAS X 4 FILAS (8 FICHAS) */
+    /* CUADRÍCULA DE 2 COLUMNAS X 4 FILAS (8 RECUADROS) */
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -530,25 +531,12 @@
       white-space: nowrap;
     }
 
-    /* Espacio libre */
+    /* RECUADRO EN BLANCO: SIN FONDO GRIS, SOLO BORDE DISCONTINUO Y FONDO BLANCO */
     .empty-slot {
       border: 1.5px dashed #cbd5e1;
       border-radius: 13px;
-      background: #f8fafc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+      background: #ffffff;
       height: 100%;
-    }
-
-    .empty-text {
-      font-size: 10px;
-      font-weight: 800;
-      color: #94a3b8;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      user-select: none;
     }
   </style>
 </head>
@@ -561,11 +549,11 @@
         <h1>
           <span>📋 Fichas de Cocina A4 (20 al 30 de Noviembre)</span>
         </h1>
-        <p>13 eventos distribuidos en 5 días de producción. 8 fichas por hoja con fondo orgánico, fecha en cabecera y servilleta al costado.</p>
+        <p>13 eventos distribuidos en 11 días. Cuadrícula de 8 recuadros por hoja; los recuadros sin evento quedan en blanco limpio sin fondo gris.</p>
       </div>
       <div class="controls-group">
         <button class="btn-print" onclick="window.print()">
-          🖨️ Imprimir Todas las Hojas (PDF)
+          🖨️ Imprimir Todas las Hojas (PDF - 11 Págs)
         </button>
       </div>
     </div>
@@ -574,13 +562,51 @@
     <div class="no-print-row">
       <div class="controls-group">
         <span style="font-size: 11px; font-weight: 800; color: #475569;">Ir al día:</span>
-        <a href="#page-2026-11-21" class="day-pill-btn">📅 21 Nov (2)</a><a href="#page-2026-11-22" class="day-pill-btn">📅 22 Nov (1)</a><a href="#page-2026-11-27" class="day-pill-btn">📅 27 Nov (2)</a><a href="#page-2026-11-28" class="day-pill-btn">📅 28 Nov (5)</a><a href="#page-2026-11-29" class="day-pill-btn">📅 29 Nov (3)</a>
+        <a href="#page-2026-11-20" class="day-pill-btn ">📅 20 Nov (0)</a><a href="#page-2026-11-21" class="day-pill-btn has-events">📅 21 Nov (2)</a><a href="#page-2026-11-22" class="day-pill-btn has-events">📅 22 Nov (1)</a><a href="#page-2026-11-23" class="day-pill-btn ">📅 23 Nov (0)</a><a href="#page-2026-11-24" class="day-pill-btn ">📅 24 Nov (0)</a><a href="#page-2026-11-25" class="day-pill-btn ">📅 25 Nov (0)</a><a href="#page-2026-11-26" class="day-pill-btn ">📅 26 Nov (0)</a><a href="#page-2026-11-27" class="day-pill-btn has-events">📅 27 Nov (2)</a><a href="#page-2026-11-28" class="day-pill-btn has-events">📅 28 Nov (5)</a><a href="#page-2026-11-29" class="day-pill-btn has-events">📅 29 Nov (3)</a><a href="#page-2026-11-30" class="day-pill-btn ">📅 30 Nov (0)</a>
       </div>
     </div>
   </div>
 
-  <!-- TODAS LAS HOJAS A4 DEL RANGO -->
+  <!-- TODAS LAS HOJAS A4 DEL RANGO (20 AL 30 DE NOVIEMBRE) -->
   
+      <div class="a4-wrapper" id="page-2026-11-20">
+        <div class="a4-page">
+          <!-- CABECERA DE LA PÁGINA IMPRIMIBLE CON LA FECHA -->
+          <div class="sheet-header">
+            <div class="sheet-header-left">
+              <span class="sheet-cal-icon">📅</span>
+              <span class="sheet-date-text">Viernes, 20 de Noviembre</span>
+              <span class="sheet-count-tag">0 eventos</span>
+            </div>
+            <div class="sheet-header-right">
+              <span class="sheet-brand">CATERING KEVIN</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 1/11</span>
+            </div>
+          </div>
+
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
+          <div class="cards-grid">
+            
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          </div>
+        </div>
+      </div>
+    
       <div class="a4-wrapper" id="page-2026-11-21">
         <div class="a4-page">
           <!-- CABECERA DE LA PÁGINA IMPRIMIBLE CON LA FECHA -->
@@ -592,11 +618,11 @@
             </div>
             <div class="sheet-header-right">
               <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 1/5</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 2/11</span>
             </div>
           </div>
 
-          <!-- CUADRÍCULA DE 8 FICHAS -->
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
           <div class="cards-grid">
             
           <div class="card" style="--local-color: #0072BC;">
@@ -802,29 +828,17 @@
             </div>
           </div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 3 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 4 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 5 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 6 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 7 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 8 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
           </div>
         </div>
@@ -841,11 +855,11 @@
             </div>
             <div class="sheet-header-right">
               <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 2/5</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 3/11</span>
             </div>
           </div>
 
-          <!-- CUADRÍCULA DE 8 FICHAS -->
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
           <div class="cards-grid">
             
           <div class="card" style="--local-color: #ED1C24;">
@@ -954,33 +968,171 @@
             </div>
           </div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 2 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 3 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 4 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 5 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 6 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 7 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 8 ]</span>
+          <div class="empty-slot"></div>
+        
           </div>
+        </div>
+      </div>
+    
+      <div class="a4-wrapper" id="page-2026-11-23">
+        <div class="a4-page">
+          <!-- CABECERA DE LA PÁGINA IMPRIMIBLE CON LA FECHA -->
+          <div class="sheet-header">
+            <div class="sheet-header-left">
+              <span class="sheet-cal-icon">📅</span>
+              <span class="sheet-date-text">Lunes, 23 de Noviembre</span>
+              <span class="sheet-count-tag">0 eventos</span>
+            </div>
+            <div class="sheet-header-right">
+              <span class="sheet-brand">CATERING KEVIN</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 4/11</span>
+            </div>
+          </div>
+
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
+          <div class="cards-grid">
+            
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          </div>
+        </div>
+      </div>
+    
+      <div class="a4-wrapper" id="page-2026-11-24">
+        <div class="a4-page">
+          <!-- CABECERA DE LA PÁGINA IMPRIMIBLE CON LA FECHA -->
+          <div class="sheet-header">
+            <div class="sheet-header-left">
+              <span class="sheet-cal-icon">📅</span>
+              <span class="sheet-date-text">Martes, 24 de Noviembre</span>
+              <span class="sheet-count-tag">0 eventos</span>
+            </div>
+            <div class="sheet-header-right">
+              <span class="sheet-brand">CATERING KEVIN</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 5/11</span>
+            </div>
+          </div>
+
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
+          <div class="cards-grid">
+            
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          </div>
+        </div>
+      </div>
+    
+      <div class="a4-wrapper" id="page-2026-11-25">
+        <div class="a4-page">
+          <!-- CABECERA DE LA PÁGINA IMPRIMIBLE CON LA FECHA -->
+          <div class="sheet-header">
+            <div class="sheet-header-left">
+              <span class="sheet-cal-icon">📅</span>
+              <span class="sheet-date-text">Miércoles, 25 de Noviembre</span>
+              <span class="sheet-count-tag">0 eventos</span>
+            </div>
+            <div class="sheet-header-right">
+              <span class="sheet-brand">CATERING KEVIN</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 6/11</span>
+            </div>
+          </div>
+
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
+          <div class="cards-grid">
+            
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          </div>
+        </div>
+      </div>
+    
+      <div class="a4-wrapper" id="page-2026-11-26">
+        <div class="a4-page">
+          <!-- CABECERA DE LA PÁGINA IMPRIMIBLE CON LA FECHA -->
+          <div class="sheet-header">
+            <div class="sheet-header-left">
+              <span class="sheet-cal-icon">📅</span>
+              <span class="sheet-date-text">Jueves, 26 de Noviembre</span>
+              <span class="sheet-count-tag">0 eventos</span>
+            </div>
+            <div class="sheet-header-right">
+              <span class="sheet-brand">CATERING KEVIN</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 7/11</span>
+            </div>
+          </div>
+
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
+          <div class="cards-grid">
+            
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
         
           </div>
         </div>
@@ -997,11 +1149,11 @@
             </div>
             <div class="sheet-header-right">
               <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 3/5</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 8/11</span>
             </div>
           </div>
 
-          <!-- CUADRÍCULA DE 8 FICHAS -->
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
           <div class="cards-grid">
             
           <div class="card" style="--local-color: #ED1C24;">
@@ -1216,29 +1368,17 @@
             </div>
           </div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 3 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 4 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 5 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 6 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 7 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 8 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
           </div>
         </div>
@@ -1255,11 +1395,11 @@
             </div>
             <div class="sheet-header-right">
               <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 4/5</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 9/11</span>
             </div>
           </div>
 
-          <!-- CUADRÍCULA DE 8 FICHAS -->
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
           <div class="cards-grid">
             
           <div class="card" style="--local-color: #4FB3F6;">
@@ -1792,17 +1932,11 @@
             </div>
           </div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 6 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 7 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 8 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
           </div>
         </div>
@@ -1819,11 +1953,11 @@
             </div>
             <div class="sheet-header-right">
               <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 5/5</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 10/11</span>
             </div>
           </div>
 
-          <!-- CUADRÍCULA DE 8 FICHAS -->
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
           <div class="cards-grid">
             
           <div class="card" style="--local-color: #0072BC;">
@@ -2144,25 +2278,53 @@
             </div>
           </div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 4 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 5 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 6 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 7 ]</span>
-          </div>
+          <div class="empty-slot"></div>
         
-          <div class="empty-slot">
-            <span class="empty-text">[ Espacio Libre 8 ]</span>
+          <div class="empty-slot"></div>
+        
           </div>
+        </div>
+      </div>
+    
+      <div class="a4-wrapper" id="page-2026-11-30">
+        <div class="a4-page">
+          <!-- CABECERA DE LA PÁGINA IMPRIMIBLE CON LA FECHA -->
+          <div class="sheet-header">
+            <div class="sheet-header-left">
+              <span class="sheet-cal-icon">📅</span>
+              <span class="sheet-date-text">Lunes, 30 de Noviembre</span>
+              <span class="sheet-count-tag">0 eventos</span>
+            </div>
+            <div class="sheet-header-right">
+              <span class="sheet-brand">CATERING KEVIN</span>
+              <span class="sheet-badge">Cocina A4 • Pág. 11/11</span>
+            </div>
+          </div>
+
+          <!-- CUADRÍCULA DE 8 RECUADROS -->
+          <div class="cards-grid">
+            
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
+        
+          <div class="empty-slot"></div>
         
           </div>
         </div>
