@@ -104,7 +104,7 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
       const startDate = parseEventDate(event.startDate);
       const timestamp = isNaN(startDate.getTime()) ? 0 : startDate.getTime();
       const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
-      const timeFormatted = isTimePending ? 'Por confirmar' : formatEventTime(event.startDate);
+      const timeFormatted = isTimePending ? '❓:❓' : formatEventTime(event.startDate);
 
       if (!localesMap.has(localName)) {
         localesMap.set(localName, {
@@ -133,7 +133,7 @@ export const DailyMenuSummaryModal: React.FC<DailyMenuSummaryModalProps> = ({
           totals['Servilletas'][s.name] = (totals['Servilletas'][s.name] || 0) + platos;
         });
       } else {
-        totals['Servilletas']['Por confirmar'] = (totals['Servilletas']['Por confirmar'] || 0) + platos;
+        totals['Servilletas']['🎨❓'] = (totals['Servilletas']['🎨❓'] || 0) + platos;
       }
     });
 

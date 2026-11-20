@@ -183,7 +183,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
       const startDate = parseEventDate(event.startDate);
       const timestamp = isNaN(startDate.getTime()) ? 0 : startDate.getTime();
       const isTimePending = Boolean(event.isTimePending || event.dish?.isTimePending);
-      const timeFormatted = isTimePending ? 'Por confirmar' : formatEventTime(event.startDate);
+      const timeFormatted = isTimePending ? '❓:❓' : formatEventTime(event.startDate);
 
       if (!localesMap.has(localName)) {
         localesMap.set(localName, {
@@ -212,7 +212,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
           totals['Servilletas'][s.name] = (totals['Servilletas'][s.name] || 0) + platos;
         });
       } else {
-        totals['Servilletas']['Por confirmar'] = (totals['Servilletas']['Por confirmar'] || 0) + platos;
+        totals['Servilletas']['🎨❓'] = (totals['Servilletas']['🎨❓'] || 0) + platos;
       }
     });
 
@@ -525,9 +525,9 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         )}
                       </div>
                       {(event.isTimePending || event.dish?.isTimePending) ? (
-                        <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs">
+                        <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs" title="Hora por confirmar">
                           <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                          <span className="truncate">Por confirmar</span>
+                          <span className="truncate">❓:❓</span>
                         </span>
                       ) : (
                         <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 shrink-0">
@@ -671,13 +671,15 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                         <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-start sm:items-end text-xs sm:text-sm gap-2">
                           <div className="min-w-0 flex-1 pb-0.5">
                             {(() => {
-                              const servList = getSelectedServilletas(event.dish);
+                              const servList = getSelectedServilletas(event.dish).filter(
+                                s => s.name && s.name.toLowerCase() !== 'por confirmar' && s.name.toLowerCase() !== 'por_confirmar'
+                              );
                               if (servList.length === 0) {
                                 return (
                                   <div className="flex flex-col items-start gap-1">
                                     <span className="text-xs text-gray-400 dark:text-gray-500">Servilleta:</span>
                                     <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 whitespace-nowrap shadow-2xs">
-                                      Por confirmar
+                                      🎨❓
                                     </span>
                                   </div>
                                 );

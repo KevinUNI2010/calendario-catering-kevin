@@ -227,9 +227,9 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                 </div>
               
               {isTimePending ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs" title="Hora por confirmar">
                   <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                  Por confirmar
+                  <span>❓:❓</span>
                 </span>
               ) : (
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -374,13 +374,15 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                 <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-end text-sm gap-2 flex-wrap">
                   <div className="min-w-0 flex-1 pb-0.5">
                     {(() => {
-                      const servList = getSelectedServilletas(event.dish);
+                      const servList = getSelectedServilletas(event.dish).filter(
+                        s => s.name && s.name.toLowerCase() !== 'por confirmar' && s.name.toLowerCase() !== 'por_confirmar'
+                      );
                       if (servList.length === 0) {
                         return (
                           <div className="flex flex-col items-start gap-1">
                             <span className="text-xs text-gray-400 dark:text-gray-500">Servilleta:</span>
                             <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 whitespace-nowrap shadow-2xs">
-                              Por confirmar
+                              🎨❓
                             </span>
                           </div>
                         );

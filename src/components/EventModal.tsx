@@ -511,7 +511,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </span>
                 {isTimePending && (
                   <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200/60 dark:border-amber-800/40">
-                    Por confirmar
+                    ❓:❓
                   </span>
                 )}
               </label>
@@ -533,7 +533,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 }`}
                 required
               >
-                <option value="por_confirmar">🕒 Por confirmar</option>
+                <option value="por_confirmar">🕒 ❓:❓ (Por confirmar)</option>
                 <optgroup label="── Horarios disponibles ──">
                   {!TIME_OPTIONS.includes(eventTime) && eventTime && (
                     <option value={eventTime}>{eventTime}</option>
@@ -871,8 +871,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                       ))}
                     </div>
                   ) : (
-                    <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 animate-in fade-in duration-150">
-                      Por confirmar
+                    <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 animate-in fade-in duration-150">
+                      🎨❓
                     </span>
                   )}
                 </div>

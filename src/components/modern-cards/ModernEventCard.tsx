@@ -60,7 +60,9 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
   const timeFormatted = formatEventTime(event.startDate);
 
   // 3. Servilletas y sus colores reales
-  const servList = getSelectedServilletas(event.dish);
+  const servList = getSelectedServilletas(event.dish).filter(
+    s => s.name && s.name.toLowerCase() !== 'por confirmar' && s.name.toLowerCase() !== 'por_confirmar'
+  );
   const firstNapkin = servList[0];
   const napkinColor = firstNapkin?.color || 
     (firstNapkin?.name ? NAPKIN_COLOR_FALLBACKS[firstNapkin.name.toLowerCase().trim()] : undefined) ||
@@ -220,9 +222,9 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
 
           {/* Hora de inicio o Badge Por confirmar */}
           {isTimePending ? (
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40 shadow-2xs" title="Hora por confirmar">
               <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" strokeWidth={2.5} />
-              <span>Por confirmar</span>
+              <span>❓:❓</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-bold text-sm tracking-tight">
@@ -364,7 +366,7 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
             <div className="flex flex-col items-start gap-1">
               <span className="text-[11px] font-medium text-slate-400">Servilleta:</span>
               <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 shadow-2xs whitespace-nowrap">
-                Por confirmar
+                🎨❓
               </span>
             </div>
           ) : (
