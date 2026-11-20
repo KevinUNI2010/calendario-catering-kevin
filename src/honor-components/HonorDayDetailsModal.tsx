@@ -676,16 +676,16 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                               );
                               if (servList.length === 0) {
                                 return (
-                                  <div className="flex flex-col items-start gap-1">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
                                     <span className="text-xs text-gray-400 dark:text-gray-500">Servilleta:</span>
-                                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 whitespace-nowrap shadow-2xs">
+                                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800 whitespace-nowrap shadow-2xs">
                                       🎨❓
                                     </span>
                                   </div>
                                 );
                               }
                               return (
-                                <div className="flex flex-col items-start gap-1">
+                                <div className="flex items-center gap-1.5 flex-wrap">
                                   <span className="text-xs text-gray-400 dark:text-gray-500">{servList.length > 1 ? 'Servilletas:' : 'Servilleta:'}</span>
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     {servList.map((s, idx) => (

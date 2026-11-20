@@ -363,9 +363,9 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
         {/* LADO IZQUIERDO: Servilleta con ícono 3D según su color real */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           {servList.length === 0 ? (
-            <div className="flex flex-col items-start gap-1">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[11px] font-medium text-slate-400">Servilleta:</span>
-              <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 shadow-2xs whitespace-nowrap">
+              <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800 shadow-2xs whitespace-nowrap">
                 🎨❓
               </span>
             </div>
