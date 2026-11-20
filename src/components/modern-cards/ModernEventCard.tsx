@@ -179,7 +179,7 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
       {/* CONTENIDO SUPERIOR: Cabecera, Título y Platos */}
       <div className="relative z-10">
         {/* CABECERA: Badge del Local + Hora de Inicio */}
-        <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between items-start gap-1.5 sm:gap-2 mb-2">
           {/* Badge del local con su color dinámico y opcional fecha por confirmar */}
           <div className="flex items-center gap-1.5 flex-wrap">
             <span
