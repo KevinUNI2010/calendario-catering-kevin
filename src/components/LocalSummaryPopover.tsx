@@ -431,13 +431,16 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
 
                       const hasDegustacion = Boolean(displayDegustacion || contratadosNum > 0);
 
-                      // Estado de Pedidos (Cocina): si no se ingresó, queda pendiente con recuadro
+                      // Estado de Pedidos (Cocina): solo si fue completado por el administrador
                       const hasPedidos = event.dish.platosConfirmados !== undefined && event.dish.platosConfirmados > 0;
                       const pedidosNum = hasPedidos ? event.dish.platosConfirmados : undefined;
 
-                      // Estado de Servidos (Sala): si no se ingresó, queda pendiente con recuadro
+                      // Estado de Servidos (Sala): solo si fue completado por el administrador
                       const hasServidos = event.dish.platosServidos !== undefined && event.dish.platosServidos > 0;
                       const servidosNum = hasServidos ? event.dish.platosServidos : undefined;
+
+                      // Si no hay ningún dato de platos registrado, no mostrar la sección
+                      if (!hasDegustacion && !hasPedidos && !hasServidos) return null;
 
                       return (
                         <div className="flex flex-col items-end gap-1 text-[11px] shrink-0">
@@ -446,57 +449,33 @@ export const LocalSummaryPopover: React.FC<LocalSummaryPopoverProps> = ({
                             N.º DE PLATOS
                           </span>
 
-                          {/* Degustación */}
-                          {hasDegustacion ? (
+                          {/* Degustación: solo si está rellenado */}
+                          {hasDegustacion && (
                             <span 
                               className="w-full text-center px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 whitespace-nowrap" 
                               title="Platos degustación pactados"
                             >
                               Degustación: {displayDegustacion || contratadosNum}
                             </span>
-                          ) : (
-                            <span 
-                              className="w-full px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800 flex items-center justify-between gap-2 whitespace-nowrap" 
-                              title="Degustación pendiente de registrar"
-                            >
-                              <span>Degustación:</span>
-                              <span className="inline-block w-8 h-3.5 rounded border border-blue-400/90 dark:border-blue-400 bg-white dark:bg-gray-900 shadow-2xs"></span>
-                            </span>
                           )}
 
-                          {/* Pedidos: muestra cantidad confirmada o recuadro para completar después */}
-                          {hasPedidos ? (
+                          {/* Pedidos: solo si fue rellenado por el administrador */}
+                          {hasPedidos && (
                             <span 
                               className="w-full text-center px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 whitespace-nowrap" 
                               title="Platos pedidos para cocina"
                             >
                               Pedidos: {pedidosNum}
                             </span>
-                          ) : (
-                            <span 
-                              className="w-full px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 flex items-center justify-between gap-2 whitespace-nowrap" 
-                              title="Pedidos pendientes de confirmar (completar después)"
-                            >
-                              <span>Pedidos:</span>
-                              <span className="inline-block w-8 h-3.5 rounded border border-orange-400/90 dark:border-orange-400 bg-white dark:bg-gray-900 shadow-2xs"></span>
-                            </span>
                           )}
 
-                          {/* Servidos: muestra cantidad servida o recuadro para completar después */}
-                          {hasServidos ? (
+                          {/* Servidos: solo si fue rellenado por el administrador */}
+                          {hasServidos && (
                             <span 
                               className="w-full text-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 whitespace-nowrap" 
                               title="Platos servidos en sala"
                             >
                               Servidos: {servidosNum}
-                            </span>
-                          ) : (
-                            <span 
-                              className="w-full px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 flex items-center justify-between gap-2 whitespace-nowrap" 
-                              title="Servidos pendientes de registrar"
-                            >
-                              <span>Servidos:</span>
-                              <span className="inline-block w-8 h-3.5 rounded border border-emerald-400/90 dark:border-emerald-400 bg-white dark:bg-gray-900 shadow-2xs"></span>
                             </span>
                           )}
                         </div>

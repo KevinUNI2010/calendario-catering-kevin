@@ -393,44 +393,42 @@ export const ModernEventCard: React.FC<ModernEventCardProps> = ({
           )}
         </div>
 
-        {/* LADO DERECHO: N.º DE PLATOS (Degustación / Pedidos / Servidos) */}
-        <div className="flex flex-col items-end gap-1.5 shrink-0 text-right">
-          {/* Título de sección con punto de acento del local */}
-          <div className="flex items-center gap-1 pb-0.5">
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: localColor }}
-            />
-            <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 tracking-wider uppercase select-none">
-              N.º DE PLATOS
-            </span>
-          </div>
+        {/* LADO DERECHO: N.º DE PLATOS (Degustación / Pedidos / Servidos - solo si están rellenados) */}
+        {(hasDegustacion || hasPedidos || hasServidos) && (
+          <div className="flex flex-col items-end gap-1.5 shrink-0 text-right">
+            {/* Título de sección con punto de acento del local */}
+            <div className="flex items-center gap-1 pb-0.5">
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: localColor }}
+              />
+              <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 tracking-wider uppercase select-none">
+                N.º DE PLATOS
+              </span>
+            </div>
 
-          {/* Degustación */}
-          <div className="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-bold text-xs border border-blue-200 dark:border-blue-800">
-            Degustación: {displayDegustacion || contratadosNum}
-          </div>
+            {/* Degustación */}
+            {hasDegustacion && (
+              <div className="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-bold text-xs border border-blue-200 dark:border-blue-800">
+                Degustación: {displayDegustacion || contratadosNum}
+              </div>
+            )}
 
-          {/* Pedidos */}
-          <div className="px-2.5 py-1 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-bold text-xs border border-orange-200 dark:border-orange-800 flex items-center gap-2">
-            <span>Pedidos:</span>
-            {hasPedidos ? (
-              <span className="font-black">{pedidosNum}</span>
-            ) : (
-              <span className="inline-block w-8 h-3.5 rounded border border-orange-400 bg-white dark:bg-slate-900 shadow-2xs" />
+            {/* Pedidos: solo si fue rellenado por el administrador */}
+            {hasPedidos && (
+              <div className="px-2.5 py-1 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-bold text-xs border border-orange-200 dark:border-orange-800">
+                Pedidos: <span className="font-black">{pedidosNum}</span>
+              </div>
+            )}
+
+            {/* Servidos: solo si fue rellenado por el administrador */}
+            {hasServidos && (
+              <div className="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold text-xs border border-emerald-200 dark:border-emerald-800">
+                Servidos: <span className="font-black">{servidosNum}</span>
+              </div>
             )}
           </div>
-
-          {/* Servidos */}
-          <div className="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold text-xs border border-emerald-200 dark:border-emerald-800 flex items-center gap-2">
-            <span>Servidos:</span>
-            {hasServidos ? (
-              <span className="font-black">{servidosNum}</span>
-            ) : (
-              <span className="inline-block w-8 h-3.5 rounded border border-emerald-400 bg-white dark:bg-slate-900 shadow-2xs" />
-            )}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Evidencia Cuaderno si existe */}
