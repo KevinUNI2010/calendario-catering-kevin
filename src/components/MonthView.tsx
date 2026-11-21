@@ -62,6 +62,10 @@ export const MonthView: React.FC<MonthViewProps> = ({
               className={`min-h-[70px] sm:min-h-[100px] p-0.5 sm:p-1.5 flex flex-col group relative transition-colors ${
                 role !== 'viewer' ? 'cursor-pointer' : ''
               } ${
+                today
+                  ? 'z-10 ring-1 ring-inset ring-blue-500 dark:ring-blue-400 bg-blue-50/20 dark:bg-blue-950/20'
+                  : ''
+              } ${
                 isCurrMonth 
                   ? 'bg-white dark:bg-gray-900 hover:bg-blue-50/30 dark:hover:bg-blue-950/20' 
                   : 'bg-gray-100/80 dark:bg-gray-950/60 text-gray-400 dark:text-gray-600'

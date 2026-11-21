@@ -226,6 +226,10 @@ export const HonorMonthView: React.FC<MonthViewProps> = ({
                 }
               }}
               className={`min-h-[65px] sm:min-h-[100px] p-0.5 sm:p-1 flex flex-col group relative rounded-xl sm:rounded-2xl transition-all duration-300 cursor-pointer ${
+                today
+                  ? 'z-10 border border-[#2b6de3] dark:border-blue-500 shadow-[0_2px_12px_rgba(43,109,227,0.18)]'
+                  : 'border border-transparent'
+              } ${
                 isCurrMonth 
                   ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:scale-[1.01] dark:shadow-none' 
                   : 'bg-gray-200/50 dark:bg-gray-800/40 text-gray-400 dark:text-gray-600 opacity-80'
