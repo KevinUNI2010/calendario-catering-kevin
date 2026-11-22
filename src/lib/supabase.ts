@@ -237,6 +237,13 @@ export async function fetchSupabaseClientByPin(pin: string): Promise<any | null>
   if (!cleanPin || cleanPin.length < 4) return null;
 
   try {
+    // 1. Verificación segura mediante RPC (Bóveda Segura sin exponer la tabla clients)
+    const { data: rpcData, error: rpcError } = await sb.rpc('verify_client_pin', { input_pin: cleanPin });
+    if (!rpcError) {
+      return rpcData || null;
+    }
+
+    // 2. Fallback temporal para retrocompatibilidad
     const { data, error } = await sb
       .from('clients')
       .select('id, name, role, allowed_locales')
