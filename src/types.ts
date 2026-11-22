@@ -182,3 +182,17 @@ export interface RagMessage {
   imageUrl?: string;
   timestamp: string;
 }
+
+export interface LoginAuditLog {
+  id: string;
+  client_id?: string | null;
+  client_name: string;
+  role: string;
+  method: 'pin' | 'google';
+  status: 'success' | 'failed';
+  failure_reason?: string | null;
+  device?: string | null;
+  user_agent?: string | null;
+  ip_address?: string | null;
+  created_at: string;
+}

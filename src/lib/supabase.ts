@@ -1,7 +1,8 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { CalendarEvent, Local, UserSession } from '../types';
+import { CalendarEvent, Local, UserSession, LoginAuditLog } from '../types';
 import { normalizeLocalDateString } from '../utils/dateUtils';
 import { saveSingleEventPhotoToIDB, deleteEventEvidenceFromIDB } from '../utils/offlineStorage';
+import { detectDevice, fetchClientIp } from '../utils/deviceDetector';
 
 // Supabase Client and Sync helpers for Vercel & Supabase
 const env = (import.meta as any).env || {};
@@ -523,5 +524,104 @@ export async function deleteSupabaseAdmin(id: string) {
   } catch (err) {
     console.warn('Supabase delete admin failed:', err);
     return false;
+  }
+}
+
+// ==========================================
+// AUDITORÍA DE INICIOS DE SESIÓN (LOGIN AUDIT)
+// ==========================================
+
+export interface LogLoginParams {
+  client_id?: string | null;
+  client_name: string;
+  role: string;
+  method?: 'pin' | 'google';
+  status?: 'success' | 'failed';
+  failure_reason?: string;
+}
+
+/**
+ * Registra de manera 100% silenciosa y en segundo plano un intento o éxito de login.
+ * No bloquea la ejecución de la app ni muestra alertas al usuario.
+ */
+export function logLoginAttempt(params: LogLoginParams): void {
+  const sb = getSupabase();
+  if (!sb) return;
+
+  // Ejecución en segundo plano completamente asíncrona
+  (async () => {
+    try {
+      const { deviceName, userAgent } = detectDevice();
+      const ip = await fetchClientIp();
+
+      await sb.from('login_audit_logs').insert({
+        client_id: params.client_id || null,
+        client_name: params.client_name,
+        role: params.role || 'viewer',
+        method: params.method || 'pin',
+        status: params.status || 'success',
+        failure_reason: params.failure_reason || null,
+        device: deviceName,
+        user_agent: userAgent,
+        ip_address: ip || null,
+      });
+    } catch (e) {
+      console.warn('Fallo silencioso al registrar auditoría:', e);
+    }
+  })();
+}
+
+/**
+ * Obtiene los registros de auditoría más recientes ordenados del más nuevo al más antiguo.
+ */
+export async function fetchLoginAuditLogs(limit = 150): Promise<LoginAuditLog[]> {
+  const sb = getSupabase();
+  if (!sb) return [];
+  try {
+    const { data, error } = await sb
+      .from('login_audit_logs')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return (data || []) as LoginAuditLog[];
+  } catch (err) {
+    console.warn('fetchLoginAuditLogs failed:', err);
+    return [];
+  }
+}
+
+/**
+ * Obtiene el último acceso exitoso registrado de cada cliente/usuario.
+ * Retorna un mapa: { [client_id]: LoginAuditLog, [client_name]: LoginAuditLog }
+ */
+export async function fetchLatestClientLogins(): Promise<Record<string, LoginAuditLog>> {
+  const sb = getSupabase();
+  if (!sb) return {};
+  try {
+    const { data, error } = await sb
+      .from('login_audit_logs')
+      .select('*')
+      .eq('status', 'success')
+      .order('created_at', { ascending: false })
+      .limit(300);
+
+    if (error) throw error;
+    const map: Record<string, LoginAuditLog> = {};
+    if (data) {
+      for (const log of data) {
+        if (log.client_id && !map[log.client_id]) {
+          map[log.client_id] = log as LoginAuditLog;
+        }
+        if (log.client_name && !map[log.client_name]) {
+          map[log.client_name] = log as LoginAuditLog;
+        }
+      }
+    }
+    return map;
+  } catch (err) {
+    console.warn('fetchLatestClientLogins failed:', err);
+    return {};
   }
 }

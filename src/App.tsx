@@ -59,6 +59,18 @@ export default function App() {
               
             if (adminData) {
               setSession({ role: 'admin', name: email });
+              const auditKey = `admin_audit_${email}`;
+              if (!sessionStorage.getItem(auditKey)) {
+                sessionStorage.setItem(auditKey, 'true');
+                import('./lib/supabase').then(({ logLoginAttempt }) => {
+                  logLoginAttempt({
+                    client_name: email,
+                    role: 'admin',
+                    method: 'google',
+                    status: 'success',
+                  });
+                });
+              }
             } else {
               // Not an admin, logout
               await supabase.auth.signOut();
@@ -84,6 +96,18 @@ export default function App() {
                 
               if (adminData) {
                 setSession({ role: 'admin', name: email });
+                const auditKey = `admin_audit_${email}`;
+                if (!sessionStorage.getItem(auditKey)) {
+                  sessionStorage.setItem(auditKey, 'true');
+                  import('./lib/supabase').then(({ logLoginAttempt }) => {
+                    logLoginAttempt({
+                      client_name: email,
+                      role: 'admin',
+                      method: 'google',
+                      status: 'success',
+                    });
+                  });
+                }
                 // Only navigate if we are not already on an admin-allowed route
                 const currentPath = window.location.pathname;
                 if (currentPath !== '/calendario-honor' && currentPath !== '/admin') {
@@ -92,6 +116,15 @@ export default function App() {
               } else {
                 await supabase.auth.signOut();
                 toast.error('Acceso denegado. Tu correo no está en la Lista Blanca.');
+                import('./lib/supabase').then(({ logLoginAttempt }) => {
+                  logLoginAttempt({
+                    client_name: email,
+                    role: 'admin',
+                    method: 'google',
+                    status: 'failed',
+                    failure_reason: 'Correo no autorizado en lista blanca',
+                  });
+                });
               }
             }
           } else if (event === 'SIGNED_OUT') {

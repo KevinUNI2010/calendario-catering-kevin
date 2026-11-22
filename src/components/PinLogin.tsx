@@ -37,6 +37,14 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
         const client = await fetchSupabaseClientByPin(currentPin);
         if (client) {
           setFailedAttempts(0);
+          const { logLoginAttempt } = await import('../lib/supabase');
+          logLoginAttempt({
+            client_id: client.id,
+            client_name: client.name,
+            role: client.role || 'dueño',
+            method: 'pin',
+            status: 'success',
+          });
           onLogin({
             id: client.id,
             role: client.role || 'dueño',
@@ -46,6 +54,15 @@ export const PinLogin: React.FC<PinLoginProps> = ({ onLogin }) => {
           });
           setIsLoading(false);
           return;
+        } else {
+          const { logLoginAttempt } = await import('../lib/supabase');
+          logLoginAttempt({
+            client_name: 'PIN No Reconocido',
+            role: 'invitado',
+            method: 'pin',
+            status: 'failed',
+            failure_reason: `Intento con PIN: ${currentPin.trim()}`,
+          });
         }
       } else if ((import.meta as any).env?.DEV) {
         // Fallback mock validation ONLY in local dev environment without Supabase
