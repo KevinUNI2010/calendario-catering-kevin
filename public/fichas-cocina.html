@@ -209,7 +209,7 @@
     .sheet-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       padding-bottom: 3px;
       margin-bottom: 3mm;
       border-bottom: 1.5px solid #cbd5e1;
@@ -245,32 +245,6 @@
       padding: 2px 8px;
       border-radius: 9999px;
       margin-left: 4px;
-    }
-
-    .sheet-header-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .sheet-brand {
-      font-size: 11.5px;
-      font-weight: 900;
-      color: #1e3a8a;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .sheet-badge {
-      font-size: 9.5px;
-      font-weight: 800;
-      color: #0284c7;
-      background: #e0f2fe;
-      border: 1px solid #bae6fd;
-      padding: 2px 7px;
-      border-radius: 5px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
     }
 
     /* CUADRÍCULA DE 2 COLUMNAS X 3 FILAS (6 RECUADROS - OCUPACIÓN 100% TOTAL A4) */
@@ -384,10 +358,42 @@
       border: 1px solid #bae6fd;
     }
 
-    .badge-time.pending {
-      background-color: #fef3c7;
-      color: #92400e;
-      border: 1px solid #fde68a;
+    .badge-time-writebox {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 800;
+      background-color: #f8fafc;
+      border: 1.2px solid #cbd5e1;
+    }
+
+    .badge-time-writebox .time-icon {
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    /* CASILLAS / CUADRADOS EN BLANCO PARA ESCRIBIR A MANO */
+    .write-box {
+      display: inline-block;
+      background: #ffffff;
+      border: 1.5px solid #64748b;
+      border-radius: 4px;
+      box-sizing: border-box;
+      vertical-align: middle;
+    }
+
+    .write-box-time {
+      width: 52px;
+      height: 18px;
+    }
+
+    .write-box-servilleta {
+      width: 75px;
+      height: 19px;
+      margin-left: 2px;
     }
 
     /* 2. Título del evento */
@@ -619,10 +625,6 @@
               <span class="sheet-date-text">Viernes, 20 de Noviembre</span>
               <span class="sheet-count-tag">0 eventos</span>
             </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 1/11</span>
-            </div>
           </div>
 
           <!-- CUADRÍCULA DE 6 RECUADROS (2 COLUMNAS X 3 FILAS) -->
@@ -640,10 +642,6 @@
               <span class="sheet-cal-icon">📅</span>
               <span class="sheet-date-text">Sábado, 21 de Noviembre</span>
               <span class="sheet-count-tag">4 eventos</span>
-            </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 2/11</span>
             </div>
           </div>
 
@@ -667,7 +665,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">21 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -713,7 +716,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
         </div>
@@ -737,7 +740,7 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">21 Nov</span>
-            <span class="badge-time ">🕒 6:00 p. m.</span>
+            <span class="badge-time">🕒 6:00 p. m.</span>
           </div>
         </div>
 
@@ -821,7 +824,7 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">21 Nov</span>
-            <span class="badge-time ">🕒 7:00 p. m.</span>
+            <span class="badge-time">🕒 7:00 p. m.</span>
           </div>
         </div>
 
@@ -867,7 +870,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -900,7 +903,7 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">21 Nov</span>
-            <span class="badge-time ">🕒 7:00 p. m.</span>
+            <span class="badge-time">🕒 7:00 p. m.</span>
           </div>
         </div>
 
@@ -980,10 +983,6 @@
               <span class="sheet-date-text">Domingo, 22 de Noviembre</span>
               <span class="sheet-count-tag">1 evento</span>
             </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 3/11</span>
-            </div>
           </div>
 
           <!-- CUADRÍCULA DE 6 RECUADROS (2 COLUMNAS X 3 FILAS) -->
@@ -1006,7 +1005,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">22 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1052,7 +1056,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1081,10 +1085,6 @@
               <span class="sheet-date-text">Lunes, 23 de Noviembre</span>
               <span class="sheet-count-tag">0 eventos</span>
             </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 4/11</span>
-            </div>
           </div>
 
           <!-- CUADRÍCULA DE 6 RECUADROS (2 COLUMNAS X 3 FILAS) -->
@@ -1102,10 +1102,6 @@
               <span class="sheet-cal-icon">📅</span>
               <span class="sheet-date-text">Martes, 24 de Noviembre</span>
               <span class="sheet-count-tag">0 eventos</span>
-            </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 5/11</span>
             </div>
           </div>
 
@@ -1125,10 +1121,6 @@
               <span class="sheet-date-text">Miércoles, 25 de Noviembre</span>
               <span class="sheet-count-tag">0 eventos</span>
             </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 6/11</span>
-            </div>
           </div>
 
           <!-- CUADRÍCULA DE 6 RECUADROS (2 COLUMNAS X 3 FILAS) -->
@@ -1147,10 +1139,6 @@
               <span class="sheet-date-text">Jueves, 26 de Noviembre</span>
               <span class="sheet-count-tag">0 eventos</span>
             </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 7/11</span>
-            </div>
           </div>
 
           <!-- CUADRÍCULA DE 6 RECUADROS (2 COLUMNAS X 3 FILAS) -->
@@ -1168,10 +1156,6 @@
               <span class="sheet-cal-icon">📅</span>
               <span class="sheet-date-text">Viernes, 27 de Noviembre</span>
               <span class="sheet-count-tag">2 eventos</span>
-            </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 8/11</span>
             </div>
           </div>
 
@@ -1195,7 +1179,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">27 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1241,7 +1230,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1274,7 +1263,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">27 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1320,7 +1314,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1349,10 +1343,6 @@
               <span class="sheet-date-text">Sábado, 28 de Noviembre</span>
               <span class="sheet-count-tag">5 eventos</span>
             </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 9/11</span>
-            </div>
           </div>
 
           <!-- CUADRÍCULA DE 6 RECUADROS (2 COLUMNAS X 3 FILAS) -->
@@ -1375,7 +1365,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">28 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1421,7 +1416,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1454,7 +1449,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">28 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1500,7 +1500,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1533,7 +1533,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">28 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1579,7 +1584,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1612,7 +1617,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">28 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1658,7 +1668,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1691,7 +1701,7 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">28 Nov</span>
-            <span class="badge-time ">🕒 1:00 p. m.</span>
+            <span class="badge-time">🕒 1:00 p. m.</span>
           </div>
         </div>
 
@@ -1737,7 +1747,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1766,10 +1776,6 @@
               <span class="sheet-date-text">Domingo, 29 de Noviembre</span>
               <span class="sheet-count-tag">3 eventos</span>
             </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 10/11</span>
-            </div>
           </div>
 
           <!-- CUADRÍCULA DE 6 RECUADROS (2 COLUMNAS X 3 FILAS) -->
@@ -1792,7 +1798,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">29 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1838,7 +1849,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1871,7 +1882,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">29 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1917,7 +1933,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -1950,7 +1966,12 @@
           </span>
           <div class="card-header-right">
             <span class="badge-date-pill">29 Nov</span>
-            <span class="badge-time pending">🕒 ❓:❓</span>
+            
+      <span class="badge-time-writebox" title="Escribir hora">
+        <span class="time-icon">🕒</span>
+        <span class="write-box write-box-time"></span>
+      </span>
+    
           </div>
         </div>
 
@@ -1996,7 +2017,7 @@
         <div class="card-footer">
           <div class="servilleta-box">
             <span class="serv-label">Servilleta:</span>
-            <span class="badge-pending">🎨❓</span>
+            <span class="write-box write-box-servilleta" title="Escribir color de servilleta"></span>
           </div>
           
     <div class="plates-box">
@@ -2024,10 +2045,6 @@
               <span class="sheet-cal-icon">📅</span>
               <span class="sheet-date-text">Lunes, 30 de Noviembre</span>
               <span class="sheet-count-tag">0 eventos</span>
-            </div>
-            <div class="sheet-header-right">
-              <span class="sheet-brand">CATERING KEVIN</span>
-              <span class="sheet-badge">Cocina A4 • Pág. 11/11</span>
             </div>
           </div>
 
