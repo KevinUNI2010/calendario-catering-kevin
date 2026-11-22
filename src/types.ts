@@ -44,7 +44,9 @@ export interface DishSelection {
   cantidadPlatos: number; // Conteo efectivo / activo
   platosContratadosFormula?: string; // ej: "23x8" o "150"
   platosContratados?: number; // Total calculado de la fórmula (ej: 184)
+  platosConfirmadosFormula?: string; // ej: "24x8" o "198"
   platosConfirmados?: number; // Numérico: ajuste del día para cocina (ej: 198)
+  platosServidosFormula?: string; // ej: "25x8" o "230"
   platosServidos?: number; // Numérico: conteo final servido en sala (ej: 230)
   evidencePhoto?: string | null; // Data URL o link a la foto del cuaderno recortada
   isTimePending?: boolean; // Hora por confirmar

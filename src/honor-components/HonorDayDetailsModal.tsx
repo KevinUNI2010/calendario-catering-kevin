@@ -696,12 +696,42 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                             const hasDegustacion = Boolean(displayDegustacion || contratadosNum > 0);
 
                             // Estado de Pedidos (Cocina): solo si fue completado por el administrador
-                            const hasPedidos = event.dish.platosConfirmados !== undefined && event.dish.platosConfirmados > 0;
-                            const pedidosNum = hasPedidos ? event.dish.platosConfirmados : undefined;
+                            const pedidosFormula = event.dish.platosConfirmadosFormula;
+                            const parsedPed = pedidosFormula ? parsePlateFormula(pedidosFormula) : null;
+                            const hasPedidos = (event.dish.platosConfirmados !== undefined && event.dish.platosConfirmados > 0) || Boolean(parsedPed?.isValid && parsedPed.total > 0);
+                            const pedidosNum = event.dish.platosConfirmados || (parsedPed?.isValid ? parsedPed.total : undefined);
+                            let displayPedidos = '';
+                            if (pedidosFormula && parsedPed?.isValid) {
+                              const cleanFormula = pedidosFormula.trim().toLowerCase();
+                              if (cleanFormula.includes('=')) {
+                                displayPedidos = cleanFormula;
+                              } else if (/[x*×·+]/.test(cleanFormula)) {
+                                displayPedidos = `${cleanFormula} = ${parsedPed.total}`;
+                              } else {
+                                displayPedidos = cleanFormula;
+                              }
+                            } else if (pedidosNum) {
+                              displayPedidos = String(pedidosNum);
+                            }
 
                             // Estado de Servidos (Sala): solo si fue completado por el administrador
-                            const hasServidos = event.dish.platosServidos !== undefined && event.dish.platosServidos > 0;
-                            const servidosNum = hasServidos ? event.dish.platosServidos : undefined;
+                            const servidosFormula = event.dish.platosServidosFormula;
+                            const parsedServ = servidosFormula ? parsePlateFormula(servidosFormula) : null;
+                            const hasServidos = (event.dish.platosServidos !== undefined && event.dish.platosServidos > 0) || Boolean(parsedServ?.isValid && parsedServ.total > 0);
+                            const servidosNum = event.dish.platosServidos || (parsedServ?.isValid ? parsedServ.total : undefined);
+                            let displayServidos = '';
+                            if (servidosFormula && parsedServ?.isValid) {
+                              const cleanFormula = servidosFormula.trim().toLowerCase();
+                              if (cleanFormula.includes('=')) {
+                                displayServidos = cleanFormula;
+                              } else if (/[x*×·+]/.test(cleanFormula)) {
+                                displayServidos = `${cleanFormula} = ${parsedServ.total}`;
+                              } else {
+                                displayServidos = cleanFormula;
+                              }
+                            } else if (servidosNum) {
+                              displayServidos = String(servidosNum);
+                            }
 
                             // Si no hay ningún dato de platos registrado, no mostrar la sección
                             if (!hasDegustacion && !hasPedidos && !hasServidos) return null;
@@ -729,7 +759,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                                     className="w-full sm:w-auto text-center px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-semibold border border-orange-200 dark:border-orange-800 whitespace-nowrap text-[10.5px] sm:text-[11px]" 
                                     title="Platos pedidos para cocina"
                                   >
-                                    Pedidos: {pedidosNum}
+                                    Pedidos: {displayPedidos || pedidosNum}
                                   </span>
                                 )}
 
@@ -739,7 +769,7 @@ export const HonorDayDetailsModal: React.FC<HonorDayDetailsModalProps> = ({
                                     className="w-full sm:w-auto text-center px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800 whitespace-nowrap text-[10.5px] sm:text-[11px]" 
                                     title="Platos servidos en sala"
                                   >
-                                    Servidos: {servidosNum}
+                                    Servidos: {displayServidos || servidosNum}
                                   </span>
                                 )}
                               </div>

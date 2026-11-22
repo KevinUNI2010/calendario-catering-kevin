@@ -39,7 +39,8 @@ export function mapRowToEvent(row: any): CalendarEvent {
 
   // Reconstruir objeto dish si vino desde la consulta ligera de campos aplanados
   let dish = row.dish;
-  if (!dish && (row.proteina || row.salsa || row.carbohidrato || row.ensalada || row.guarnicion || row.platosContratadosFormula || row.cantidadPlatos !== undefined)) {
+  if (!dish && (row.proteina || row.salsa || row.carbohidrato || row.ensalada || row.guarnicion || row.platosContratadosFormula || row.cantidadPlatos !== undefined || row.platosConfirmados !== undefined || row.platosServidos !== undefined || row.platosConfirmadosFormula || row.platosServidosFormula)) {
+    const parseNum = (val: any) => typeof val === 'number' ? val : (val !== undefined && val !== null && !isNaN(Number(val)) ? Number(val) : undefined);
     dish = {
       proteina: row.proteina || '',
       salsa: row.salsa || '',
@@ -49,8 +50,12 @@ export function mapRowToEvent(row: any): CalendarEvent {
       servilleta: row.servilleta || '',
       servilletas: Array.isArray(row.servilletas) ? row.servilletas : (row.servilleta ? [row.servilleta] : []),
       cantidadPlatos: typeof row.cantidadPlatos === 'number' ? row.cantidadPlatos : (typeof row.platosContratados === 'number' ? row.platosContratados : 0),
-      platosContratados: row.platosContratados,
+      platosContratados: parseNum(row.platosContratados),
       platosContratadosFormula: row.platosContratadosFormula || '',
+      platosConfirmados: parseNum(row.platosConfirmados),
+      platosConfirmadosFormula: row.platosConfirmadosFormula || '',
+      platosServidos: parseNum(row.platosServidos),
+      platosServidosFormula: row.platosServidosFormula || '',
       isTimePending: Boolean(row.isTimePending),
       isDatePending: Boolean(row.isDatePending),
       evidencePhoto: row.evidencePhoto || undefined,
@@ -140,6 +145,8 @@ export async function fetchSupabaseEvents(session?: UserSession): Promise<Calend
       'dish->salsa', 'dish->ensalada', 'dish->proteina', 'dish->guarnicion',
       'dish->carbohidrato', 'dish->servilleta', 'dish->servilletas',
       'dish->cantidadPlatos', 'dish->platosContratados', 'dish->platosContratadosFormula',
+      'dish->platosConfirmados', 'dish->platosConfirmadosFormula',
+      'dish->platosServidos', 'dish->platosServidosFormula',
       'dish->isTimePending', 'dish->isDatePending'
     ].join(',');
 

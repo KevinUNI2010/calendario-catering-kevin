@@ -106,10 +106,12 @@ export const EventModal: React.FC<EventModalProps> = ({
     (event?.dish?.platosContratados ? String(event.dish.platosContratados) : (event?.dish?.cantidadPlatos ? String(event.dish.cantidadPlatos) : ''))
   );
   const [confirmadosFormula, setConfirmadosFormula] = useState(
-    event?.dish?.platosConfirmados ? String(event.dish.platosConfirmados) : ''
+    event?.dish?.platosConfirmadosFormula ||
+    (event?.dish?.platosConfirmados ? String(event.dish.platosConfirmados) : '')
   );
   const [servidosFormula, setServidosFormula] = useState(
-    event?.dish?.platosServidos ? String(event.dish.platosServidos) : ''
+    event?.dish?.platosServidosFormula ||
+    (event?.dish?.platosServidos ? String(event.dish.platosServidos) : '')
   );
   const [evidencePhoto, setEvidencePhoto] = useState<string | null | undefined>(
     event?.dish?.evidencePhoto || event?.evidencePhoto
@@ -173,10 +175,12 @@ export const EventModal: React.FC<EventModalProps> = ({
         (event.dish?.platosContratados ? String(event.dish.platosContratados) : (event.dish?.cantidadPlatos ? String(event.dish.cantidadPlatos) : ''))
       );
       setConfirmadosFormula(
-        event.dish?.platosConfirmados ? String(event.dish.platosConfirmados) : ''
+        event.dish?.platosConfirmadosFormula ||
+        (event.dish?.platosConfirmados ? String(event.dish.platosConfirmados) : '')
       );
       setServidosFormula(
-        event.dish?.platosServidos ? String(event.dish.platosServidos) : ''
+        event.dish?.platosServidosFormula ||
+        (event.dish?.platosServidos ? String(event.dish.platosServidos) : '')
       );
       
       const initialPhoto = event.dish?.evidencePhoto || event.evidencePhoto;
@@ -294,7 +298,9 @@ export const EventModal: React.FC<EventModalProps> = ({
       cantidadPlatos: effectivePlates,
       platosContratadosFormula: contratadosFormula.trim() || undefined,
       platosContratados: finalContratados > 0 ? finalContratados : undefined,
+      platosConfirmadosFormula: confirmadosFormula.trim() || undefined,
       platosConfirmados: finalConfirmados,
+      platosServidosFormula: servidosFormula.trim() || undefined,
       platosServidos: finalServidos,
       evidencePhoto: finalEvidencePhoto,
       isTimePending,
