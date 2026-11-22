@@ -3,7 +3,7 @@ import { FileText, Printer, Download, Eye, Calendar, Sparkles, ChevronRight, Arr
 import { Link } from 'react-router-dom';
 
 export const FichasCocinaPublicView: React.FC = () => {
-  const [selectedPreview, setSelectedPreview] = useState<'nov28' | 'nov20'>('nov28');
+  const [selectedPreview, setSelectedPreview] = useState<'nov28' | 'nov22' | 'nov20'>('nov28');
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col">
@@ -55,7 +55,7 @@ export const FichasCocinaPublicView: React.FC = () => {
               Fichas de Cocina A4 (20 al 30 de Noviembre)
             </h2>
             <p className="text-sm text-blue-100 max-w-xl leading-relaxed">
-              11 páginas A4 (1 hoja por día) con cuadrícula de 8 fichas por página, diseño con fondo orgánico, fecha en cabecera y recuadros sin evento en blanco limpio.
+              11 páginas A4 (1 hoja por día) con cuadrícula de 6 fichas por página (calce exacto A4 con mayor tamaño y legibilidad), diseño con fondo orgánico, fecha en cabecera y recuadros sin evento en blanco limpio.
             </p>
 
             {/* Action buttons */}
@@ -138,26 +138,36 @@ export const FichasCocinaPublicView: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
               <button
                 onClick={() => setSelectedPreview('nov28')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   selectedPreview === 'nov28'
                     ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
-                Sáb 28 (Con eventos)
+                Sáb 28 (5 eventos)
+              </button>
+              <button
+                onClick={() => setSelectedPreview('nov22')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  selectedPreview === 'nov22'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                Dom 22 (Berthol)
               </button>
               <button
                 onClick={() => setSelectedPreview('nov20')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   selectedPreview === 'nov20'
                     ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
-                Vie 20 (Sin eventos)
+                Vie 20 (Blanco)
               </button>
             </div>
           </div>
@@ -165,8 +175,14 @@ export const FichasCocinaPublicView: React.FC = () => {
           {/* Image Container with high quality */}
           <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 flex justify-center p-2 sm:p-4">
             <img
-              src={selectedPreview === 'nov28' ? '/fichas-cocina-28nov.png' : '/fichas-cocina-20nov.png'}
-              alt={selectedPreview === 'nov28' ? 'Fichas de Cocina 28 de Noviembre' : 'Fichas de Cocina 20 de Noviembre'}
+              src={
+                selectedPreview === 'nov28'
+                  ? '/fichas-cocina-28nov.png'
+                  : selectedPreview === 'nov22'
+                  ? '/fichas-cocina-22nov.png'
+                  : '/fichas-cocina-20nov.png'
+              }
+              alt="Vista previa ficha de cocina"
               className="max-h-[750px] w-auto object-contain rounded-lg shadow-md"
             />
           </div>
