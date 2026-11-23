@@ -36,6 +36,7 @@ function getLocalColor(name) {
 
 const DAYS_OF_WEEK = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+const SHORT_MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'];
 
 function formatLongDate(dateStr) {
   // dateStr: YYYY-MM-DD
@@ -48,7 +49,7 @@ function formatLongDate(dateStr) {
 
 function formatShortDate(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
-  return `${d} Nov`;
+  return `${d} ${SHORT_MONTHS[m - 1]}`;
 }
 
 function renderTimeBadge(dateIso, isTimePending) {
@@ -279,6 +280,14 @@ function renderCard(event, dateStr) {
           </div>
         </div>
 
+        <!-- 4.5 Observaciones / Notas de Cocina (si existen en el evento) -->
+        ${event.description && event.description.trim() ? `
+          <div class="card-desc">
+            <span class="desc-tag">📝</span>
+            <span class="desc-text">${event.description.trim().replace(/\r?\n+/g, ' • ')}</span>
+          </div>
+        ` : ''}
+
         <!-- 5. Pie de Tarjeta: Servilleta al costado + N.º DE PLATOS -->
         <div class="card-footer">
           <div class="servilleta-box">
@@ -297,12 +306,12 @@ function renderEmptySlot() {
 }
 
 async function buildAll() {
-  console.log('1. Conectando a Supabase para descargar eventos actualizados del 20 al 30 de Noviembre...');
+  console.log('1. Conectando a Supabase para descargar eventos del 20 de Noviembre al 31 de Diciembre...');
   const { data: events, error } = await sb
     .from('events')
     .select('*')
     .gte('start_date', '2026-11-20T00:00:00')
-    .lte('start_date', '2026-11-30T23:59:59')
+    .lte('start_date', '2026-12-31T23:59:59')
     .order('start_date', { ascending: true });
 
   if (error) {
@@ -314,8 +323,12 @@ async function buildAll() {
 
   const byDate = {};
   for (let day = 20; day <= 30; day++) {
-    const dateStr = `2026-11-${day}`;
-    byDate[dateStr] = [];
+    const dStr = day < 10 ? '0' + day : String(day);
+    byDate[`2026-11-${dStr}`] = [];
+  }
+  for (let day = 1; day <= 31; day++) {
+    const dStr = day < 10 ? '0' + day : String(day);
+    byDate[`2026-12-${dStr}`] = [];
   }
 
   for (const ev of events) {
@@ -328,7 +341,7 @@ async function buildAll() {
   const dateKeys = Object.keys(byDate).sort();
   const totalPages = dateKeys.length;
 
-  console.log('2. Generando HTML con cuadrícula de 6 recuadros por página (calce exacto A4)...');
+  console.log(`2. Generando HTML con cuadrícula de 6 recuadros por página (${totalPages} páginas A4)...`);
 
   let pagesHtml = '';
   let pillsHtml = '';
@@ -338,9 +351,9 @@ async function buildAll() {
     const dayEvents = byDate[dateStr];
     const eventCount = dayEvents.length;
     const longDate = formatLongDate(dateStr);
-    const shortDay = dateStr.substring(8, 10);
+    const shortBadge = formatShortDate(dateStr);
 
-    pillsHtml += `<a href="#page-${dateStr}" class="day-pill-btn ${eventCount > 0 ? 'has-events' : ''}">📅 ${shortDay} Nov (${eventCount})</a>`;
+    pillsHtml += `<a href="#page-${dateStr}" class="day-pill-btn ${eventCount > 0 ? 'has-events' : ''}">📅 ${shortBadge} (${eventCount})</a>`;
 
     // Exactamente 6 recuadros por página
     let cardsHtml = '';
@@ -379,7 +392,7 @@ async function buildAll() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fichas de Cocina A4 - 20 al 30 de Noviembre (6 por Hoja)</title>
+  <title>Fichas de Cocina A4 - 20 de Noviembre al 31 de Diciembre (6 por Hoja)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -863,17 +876,47 @@ async function buildAll() {
       min-height: 18px;
     }
 
+    /* 4.5 Observaciones / Notas de Cocina */
+    .card-desc {
+      background: #f8fafc;
+      border: 1px dashed #94a3b8;
+      border-radius: 6px;
+      padding: 2.5px 6px;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      line-height: 1.2;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      box-sizing: border-box;
+    }
+
+    .desc-tag {
+      font-size: 11px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .desc-text {
+      font-weight: 700;
+      font-style: italic;
+      color: #0f172a;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     /* 5. Pie de Tarjeta: Servilleta al costado + N.º DE PLATOS */
     .card-footer {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       border-top: 1px solid #f1f5f9;
-      padding-top: 5px; /* reducido de 7px a 5px */
-      gap: 6px;
-    }
-      border-top: 1.2px solid #f1f5f9;
-      padding-top: 7px;
+      padding-top: 5px;
       gap: 6px;
     }
 
@@ -990,13 +1033,13 @@ async function buildAll() {
     <div class="no-print-row">
       <div class="no-print-info">
         <h1>
-          <span>📋 Fichas de Cocina A4 (20 al 30 de Noviembre)</span>
+          <span>📋 Fichas de Cocina A4 (20 de Noviembre al 31 de Diciembre)</span>
         </h1>
-        <p>${events.length} eventos distribuidos en 11 días. Cuadrícula de 6 recuadros por hoja (calce exacto A4 con mayor tamaño y legibilidad).</p>
+        <p>${events.length} eventos distribuidos en ${totalPages} días (${totalPages} páginas A4). Cuadrícula de 6 recuadros por hoja (calce exacto A4 con mayor tamaño y legibilidad).</p>
       </div>
       <div class="controls-group">
         <button class="btn-print" onclick="window.print()">
-          🖨️ Imprimir Todas las Hojas (PDF - 11 Págs)
+          🖨️ Imprimir Todas las Hojas (PDF - ${totalPages} Págs)
         </button>
       </div>
     </div>
@@ -1018,12 +1061,14 @@ async function buildAll() {
 
   // Write HTML files
   const htmlPathPlantillas = path.join(ROOT_DIR, 'plantillas_impresion', 'Fichas_Cocina_20_al_30_Noviembre.html');
+  const htmlPathPlantillasDic = path.join(ROOT_DIR, 'plantillas_impresion', 'Fichas_Cocina_20_Nov_al_31_Dic.html');
   const htmlPathPublic = path.join(ROOT_DIR, 'public', 'fichas-cocina.html');
-  const htmlPathPublicLong = path.join(ROOT_DIR, 'public', 'Fichas_Cocina_20_al_30_Noviembre.html');
+  const htmlPathPublicLong = path.join(ROOT_DIR, 'public', 'Fichas_Cocina_20_Nov_al_31_Dic.html');
   const htmlPathDist = path.join(ROOT_DIR, 'dist', 'fichas-cocina.html');
-  const htmlPathDistLong = path.join(ROOT_DIR, 'dist', 'Fichas_Cocina_20_al_30_Noviembre.html');
+  const htmlPathDistLong = path.join(ROOT_DIR, 'dist', 'Fichas_Cocina_20_Nov_al_31_Dic.html');
 
   fs.writeFileSync(htmlPathPlantillas, fullHtml, 'utf-8');
+  fs.writeFileSync(htmlPathPlantillasDic, fullHtml, 'utf-8');
   fs.writeFileSync(htmlPathPublic, fullHtml, 'utf-8');
   fs.writeFileSync(htmlPathPublicLong, fullHtml, 'utf-8');
   if (fs.existsSync(path.join(ROOT_DIR, 'dist'))) {
@@ -1031,7 +1076,7 @@ async function buildAll() {
     fs.writeFileSync(htmlPathDistLong, fullHtml, 'utf-8');
   }
 
-  console.log('3. Generando PDF A4 de 11 páginas con Puppeteer...');
+  console.log(`3. Generando PDF A4 de ${totalPages} páginas con Puppeteer...`);
   const browser = await puppeteer.launch({
     executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
     headless: 'new',
@@ -1043,10 +1088,11 @@ async function buildAll() {
   await page.goto('file:///' + htmlPathPlantillas.replace(/\\/g, '/'), { waitUntil: 'networkidle0' });
 
   const pdfPathPlantillas = path.join(ROOT_DIR, 'plantillas_impresion', 'Fichas_Cocina_20_al_30_Noviembre.pdf');
+  const pdfPathPlantillasDic = path.join(ROOT_DIR, 'plantillas_impresion', 'Fichas_Cocina_20_Nov_al_31_Dic.pdf');
   const pdfPathPublic = path.join(ROOT_DIR, 'public', 'fichas-cocina.pdf');
-  const pdfPathPublicLong = path.join(ROOT_DIR, 'public', 'Fichas_Cocina_20_al_30_Noviembre.pdf');
+  const pdfPathPublicLong = path.join(ROOT_DIR, 'public', 'Fichas_Cocina_20_Nov_al_31_Dic.pdf');
   const pdfPathDist = path.join(ROOT_DIR, 'dist', 'fichas-cocina.pdf');
-  const pdfPathDistLong = path.join(ROOT_DIR, 'dist', 'Fichas_Cocina_20_al_30_Noviembre.pdf');
+  const pdfPathDistLong = path.join(ROOT_DIR, 'dist', 'Fichas_Cocina_20_Nov_al_31_Dic.pdf');
 
   await page.pdf({
     path: pdfPathPlantillas,
@@ -1055,6 +1101,7 @@ async function buildAll() {
     margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' }
   });
 
+  fs.copyFileSync(pdfPathPlantillas, pdfPathPlantillasDic);
   fs.copyFileSync(pdfPathPlantillas, pdfPathPublic);
   fs.copyFileSync(pdfPathPlantillas, pdfPathPublicLong);
   if (fs.existsSync(path.join(ROOT_DIR, 'dist'))) {
@@ -1064,6 +1111,34 @@ async function buildAll() {
   console.log('PDF generado exitosamente en plantillas_impresion y public.');
 
   console.log('4. Generando capturas PNG de vista previa de las hojas...');
+  // Screenshot of Martes 8 de Diciembre (Notas de cocina / descripciones)
+  const page08Dic = await page.$('#page-2026-12-08 .a4-page');
+  if (page08Dic) {
+    const png08PathPlantillas = path.join(ROOT_DIR, 'plantillas_impresion', 'Fichas_Cocina_08_Diciembre_Desc.png');
+    const png08PathPublic = path.join(ROOT_DIR, 'public', 'fichas-cocina-08dic.png');
+    const png08PathDist = path.join(ROOT_DIR, 'dist', 'fichas-cocina-08dic.png');
+    await page08Dic.screenshot({ path: png08PathPlantillas });
+    fs.copyFileSync(png08PathPlantillas, png08PathPublic);
+    if (fs.existsSync(path.join(ROOT_DIR, 'dist'))) {
+      fs.copyFileSync(png08PathPlantillas, png08PathDist);
+    }
+    console.log('Captura de 08 Diciembre (Notas de cocina) guardada.');
+  }
+
+  // Screenshot of Jueves 17 de Diciembre (6 eventos completos)
+  const page17Dic = await page.$('#page-2026-12-17 .a4-page');
+  if (page17Dic) {
+    const png17PathPlantillas = path.join(ROOT_DIR, 'plantillas_impresion', 'Fichas_Cocina_17_Diciembre_6Eventos.png');
+    const png17PathPublic = path.join(ROOT_DIR, 'public', 'fichas-cocina-17dic.png');
+    const png17PathDist = path.join(ROOT_DIR, 'dist', 'fichas-cocina-17dic.png');
+    await page17Dic.screenshot({ path: png17PathPlantillas });
+    fs.copyFileSync(png17PathPlantillas, png17PathPublic);
+    if (fs.existsSync(path.join(ROOT_DIR, 'dist'))) {
+      fs.copyFileSync(png17PathPlantillas, png17PathDist);
+    }
+    console.log('Captura de 17 Diciembre (6 eventos) guardada.');
+  }
+
   // Screenshot of Sábado 28 de Noviembre (id: page-2026-11-28)
   const page28Nov = await page.$('#page-2026-11-28 .a4-page');
   if (page28Nov) {
@@ -1076,34 +1151,6 @@ async function buildAll() {
       fs.copyFileSync(png28PathPlantillas, png28PathDist);
     }
     console.log('Captura de 28 Noviembre (6 locales/recuadros) guardada.');
-  }
-
-  // Screenshot of Viernes 20 de Noviembre
-  const page20Nov = await page.$('#page-2026-11-20 .a4-page');
-  if (page20Nov) {
-    const png20PathPlantillas = path.join(ROOT_DIR, 'plantillas_impresion', 'Fichas_Cocina_20_Noviembre_P1.png');
-    const png20PathPublic = path.join(ROOT_DIR, 'public', 'fichas-cocina-20nov.png');
-    const png20PathDist = path.join(ROOT_DIR, 'dist', 'fichas-cocina-20nov.png');
-    await page20Nov.screenshot({ path: png20PathPlantillas });
-    fs.copyFileSync(png20PathPlantillas, png20PathPublic);
-    if (fs.existsSync(path.join(ROOT_DIR, 'dist'))) {
-      fs.copyFileSync(png20PathPlantillas, png20PathDist);
-    }
-    console.log('Captura de 20 Noviembre guardada.');
-  }
-
-  // Screenshot of Sábado 21 de Noviembre (Cristales - Rousbell)
-  const page21Nov = await page.$('#page-2026-11-21 .a4-page');
-  if (page21Nov) {
-    const png21PathPlantillas = path.join(ROOT_DIR, 'plantillas_impresion', 'Fichas_Cocina_21_Noviembre_P2.png');
-    const png21PathPublic = path.join(ROOT_DIR, 'public', 'fichas-cocina-21nov.png');
-    const png21PathDist = path.join(ROOT_DIR, 'dist', 'fichas-cocina-21nov.png');
-    await page21Nov.screenshot({ path: png21PathPlantillas });
-    fs.copyFileSync(png21PathPlantillas, png21PathPublic);
-    if (fs.existsSync(path.join(ROOT_DIR, 'dist'))) {
-      fs.copyFileSync(png21PathPlantillas, png21PathDist);
-    }
-    console.log('Captura de 21 Noviembre (Cristales) guardada.');
   }
 
   // Screenshot of Domingo 22 de Noviembre (Berthol - Villa Santiago)
