@@ -3,7 +3,7 @@ import { FileText, Printer, Download, Eye, Calendar, Sparkles, ChevronRight, Arr
 import { Link } from 'react-router-dom';
 
 export const FichasCocinaPublicView: React.FC = () => {
-  const [selectedPreview, setSelectedPreview] = useState<'nov28' | 'nov22' | 'nov20'>('nov28');
+  const [selectedPreview, setSelectedPreview] = useState<'nov28' | 'nov21' | 'nov22' | 'nov20'>('nov21');
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col">
@@ -140,6 +140,16 @@ export const FichasCocinaPublicView: React.FC = () => {
 
             <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
               <button
+                onClick={() => setSelectedPreview('nov21')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  selectedPreview === 'nov21'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                Sáb 21 (Sin texto / Blanco)
+              </button>
+              <button
                 onClick={() => setSelectedPreview('nov28')}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   selectedPreview === 'nov28'
@@ -176,7 +186,9 @@ export const FichasCocinaPublicView: React.FC = () => {
           <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 flex justify-center p-2 sm:p-4">
             <img
               src={
-                selectedPreview === 'nov28'
+                selectedPreview === 'nov21'
+                  ? '/fichas-cocina-21nov.png'
+                  : selectedPreview === 'nov28'
                   ? '/fichas-cocina-28nov.png'
                   : selectedPreview === 'nov22'
                   ? '/fichas-cocina-22nov.png'

@@ -416,6 +416,15 @@
       padding: 7px 10px;
       text-align: center;
       margin-bottom: 8px;
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .protein-box.is-blank {
+      background: #ffffff; /* fondo blanco limpio para escribir a mano */
     }
 
     .protein-text {
@@ -428,6 +437,8 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      min-height: 19px;
+      line-height: 1.2;
     }
 
     /* 4. Menú de 4 platos */
@@ -448,6 +459,7 @@
       font-weight: 700;
       color: #1e293b;
       line-height: 1.35;
+      min-height: 26px;
     }
 
     .icon-avatar {
@@ -464,12 +476,13 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      flex: 1;
     }
 
-    .item-name.is-empty {
-      color: #94a3b8;
-      font-style: italic;
-      font-weight: 500;
+    .item-name.is-blank {
+      /* Espacio en blanco limpio para escribir a mano */
+      display: inline-block;
+      min-height: 18px;
     }
 
     /* 5. Pie de Tarjeta: Servilleta al costado + N.º DE PLATOS */
@@ -680,36 +693,36 @@
           Rousbell
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
-          <span class="protein-text">PROTEÍNA POR CONFIRMAR</span>
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box is-blank">
+          <span class="protein-text">&nbsp;</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #0072BC18; border: 1px solid #0072BC30; color: #0072BC;">
               <svg width="15" height="15" viewBox="0 0 32 32" fill="none"><path d="M5 13C5 20.1797 10.3726 25 17 25C23.6274 25 29 20.1797 29 13H5Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 25L10 27H24L22 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 13C9 14.5 13 14.5 17 13C21 11.5 25 13 28 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M20 15L25 5C25.3 4.4 26 4.1 26.6 4.4C27.2 4.7 27.5 5.4 27.2 6L22.5 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
-            <span class="item-name is-empty">Sin salsa asignada</span>
+            <span class="item-name is-blank">&nbsp;</span>
           </div>
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #0072BC18; border: 1px solid #0072BC30; color: #0072BC;">
               <svg width="15" height="15" viewBox="0 0 32 32" fill="none"><path d="M7 16C7 11.5 11 8 16 8C21 8 25 11.5 25 16H7Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 11C14 11 14.5 12 14.5 12M18 10.5C18.5 11.2 18 12 18 12M10.5 13.5C11.2 13.5 11.5 14 11.5 14M21 13.5C21.5 14 21 14.5 21 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 16C6 22 10.5 25 16 25C21.5 25 26 22 26 16H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 25L10 27H22L21 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
-            <span class="item-name is-empty">Sin carbohidrato</span>
+            <span class="item-name is-blank">&nbsp;</span>
           </div>
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #0072BC18; border: 1px solid #0072BC30; color: #0072BC;">
               <svg width="15" height="15" viewBox="0 0 32 32" fill="none"><path d="M16 4C14 7 13 9 14 11C12 8 10 9 11 12C9 9 7 11 9 13C12 13 15 13 16 13C17 13 20 13 23 13C25 11 23 9 21 12C22 9 20 8 18 11C19 9 18 7 16 4Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="16" cy="21" rx="7.5" ry="9" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/><path d="M11 17L21 25M21 17L11 25M16 13V29" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>
             </div>
-            <span class="item-name is-empty">Sin guarnición</span>
+            <span class="item-name is-blank">&nbsp;</span>
           </div>
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #0072BC18; border: 1px solid #0072BC30; color: #0072BC;">
               <svg width="15" height="15" viewBox="0 0 32 32" fill="none"><path d="M6 16C6 21.5228 10.4772 26 16 26C21.5228 26 26 21.5228 26 16H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 26L10 28H22L21 26" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 16C9 13 10.5 10 13.5 10C15 10 16 11 16 12C16 11 17 10 18.5 10C21.5 10 23 13 22 16" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>
             </div>
-            <span class="item-name is-empty">Sin ensalada</span>
+            <span class="item-name is-blank">&nbsp;</span>
           </div>
         </div>
 
@@ -750,12 +763,12 @@
           15 años
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO ENROLLADO</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #4FB3F618; border: 1px solid #4FB3F630; color: #4FB3F6;">
@@ -834,12 +847,12 @@
           15 años
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO MEXICANA</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #00A65118; border: 1px solid #00A65130; color: #00A651;">
@@ -913,12 +926,12 @@
           Evento en PEDREGAL
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO ENROLLADO</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #F39C1218; border: 1px solid #F39C1230; color: #F39C12;">
@@ -1020,12 +1033,12 @@
           Berthol
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO MEXICANA</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #ED1C2418; border: 1px solid #ED1C2430; color: #ED1C24;">
@@ -1194,12 +1207,12 @@
           Graduación
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO MEXICANA</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #0072BC18; border: 1px solid #0072BC30; color: #0072BC;">
@@ -1278,12 +1291,12 @@
           Inst Ciber
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">PAVITA FALSA</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #ED1C2418; border: 1px solid #ED1C2430; color: #ED1C24;">
@@ -1380,12 +1393,12 @@
           Micaela Bsatidas
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO ENROLLADO</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #0072BC18; border: 1px solid #0072BC30; color: #0072BC;">
@@ -1464,12 +1477,12 @@
           15 años
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">PAVITA FALSA</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #4FB3F618; border: 1px solid #4FB3F630; color: #4FB3F6;">
@@ -1548,12 +1561,12 @@
           15 años
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO A LA PLANCHA</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #4FB3F618; border: 1px solid #4FB3F630; color: #4FB3F6;">
@@ -1632,12 +1645,12 @@
           Matrimo
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO MEXICANA</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #8E44AD18; border: 1px solid #8E44AD30; color: #8E44AD;">
@@ -1711,12 +1724,12 @@
           Bodas de oro
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO MEXICANA</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #00A65118; border: 1px solid #00A65130; color: #00A651;">
@@ -1813,12 +1826,12 @@
           Virgen de Fátima
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO MEXICANA</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #00A65118; border: 1px solid #00A65130; color: #00A651;">
@@ -1897,12 +1910,12 @@
           Santa Bárbara
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO ENROLLADO</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #ED1C2418; border: 1px solid #ED1C2430; color: #ED1C24;">
@@ -1981,12 +1994,12 @@
           Zárate 6B
         </div>
 
-        <!-- 3. Recuadro Proteína Principal -->
-        <div class="protein-box">
+        <!-- 3. Recuadro Proteína Principal (En blanco limpio si está por confirmar) -->
+        <div class="protein-box ">
           <span class="protein-text">POLLO ENROLLADO</span>
         </div>
 
-        <!-- 4. Menú de 4 platos con íconos ilustrados -->
+        <!-- 4. Menú de 4 platos con íconos ilustrados (En blanco limpio si está por confirmar) -->
         <div class="menu-list">
           <div class="menu-item">
             <div class="icon-avatar" style="background-color: #0072BC18; border: 1px solid #0072BC30; color: #0072BC;">
