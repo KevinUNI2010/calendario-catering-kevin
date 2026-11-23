@@ -78,12 +78,12 @@ function renderTimeBadge(dateIso, isTimePending) {
   return `<span class="badge-time">🕒 ${h}:${minStr} ${ampm}</span>`;
 }
 
-// SVGs for the 4 menu categories
+// SVGs for the 4 menu categories (reducidos en 4px: de 15px a 11px)
 const ICONS = {
-  salsa: `<svg width="15" height="15" viewBox="0 0 32 32" fill="none"><path d="M5 13C5 20.1797 10.3726 25 17 25C23.6274 25 29 20.1797 29 13H5Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 25L10 27H24L22 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 13C9 14.5 13 14.5 17 13C21 11.5 25 13 28 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M20 15L25 5C25.3 4.4 26 4.1 26.6 4.4C27.2 4.7 27.5 5.4 27.2 6L22.5 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  carbohidrato: `<svg width="15" height="15" viewBox="0 0 32 32" fill="none"><path d="M7 16C7 11.5 11 8 16 8C21 8 25 11.5 25 16H7Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 11C14 11 14.5 12 14.5 12M18 10.5C18.5 11.2 18 12 18 12M10.5 13.5C11.2 13.5 11.5 14 11.5 14M21 13.5C21.5 14 21 14.5 21 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 16C6 22 10.5 25 16 25C21.5 25 26 22 26 16H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 25L10 27H22L21 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  guarnicion: `<svg width="15" height="15" viewBox="0 0 32 32" fill="none"><path d="M16 4C14 7 13 9 14 11C12 8 10 9 11 12C9 9 7 11 9 13C12 13 15 13 16 13C17 13 20 13 23 13C25 11 23 9 21 12C22 9 20 8 18 11C19 9 18 7 16 4Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="16" cy="21" rx="7.5" ry="9" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/><path d="M11 17L21 25M21 17L11 25M16 13V29" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>`,
-  ensalada: `<svg width="15" height="15" viewBox="0 0 32 32" fill="none"><path d="M6 16C6 21.5228 10.4772 26 16 26C21.5228 26 26 21.5228 26 16H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 26L10 28H22L21 26" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 16C9 13 10.5 10 13.5 10C15 10 16 11 16 12C16 11 17 10 18.5 10C21.5 10 23 13 22 16" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>`
+  salsa: `<svg width="11" height="11" viewBox="0 0 32 32" fill="none"><path d="M5 13C5 20.1797 10.3726 25 17 25C23.6274 25 29 20.1797 29 13H5Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 25L10 27H24L22 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 13C9 14.5 13 14.5 17 13C21 11.5 25 13 28 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M20 15L25 5C25.3 4.4 26 4.1 26.6 4.4C27.2 4.7 27.5 5.4 27.2 6L22.5 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  carbohidrato: `<svg width="11" height="11" viewBox="0 0 32 32" fill="none"><path d="M7 16C7 11.5 11 8 16 8C21 8 25 11.5 25 16H7Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 11C14 11 14.5 12 14.5 12M18 10.5C18.5 11.2 18 12 18 12M10.5 13.5C11.2 13.5 11.5 14 11.5 14M21 13.5C21.5 14 21 14.5 21 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 16C6 22 10.5 25 16 25C21.5 25 26 22 26 16H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 25L10 27H22L21 25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  guarnicion: `<svg width="11" height="11" viewBox="0 0 32 32" fill="none"><path d="M16 4C14 7 13 9 14 11C12 8 10 9 11 12C9 9 7 11 9 13C12 13 15 13 16 13C17 13 20 13 23 13C25 11 23 9 21 12C22 9 20 8 18 11C19 9 18 7 16 4Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="16" cy="21" rx="7.5" ry="9" fill="currentColor" fill-opacity="0.14" stroke="currentColor" stroke-width="2"/><path d="M11 17L21 25M21 17L11 25M16 13V29" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>`,
+  ensalada: `<svg width="11" height="11" viewBox="0 0 32 32" fill="none"><path d="M6 16C6 21.5228 10.4772 26 16 26C21.5228 26 26 21.5228 26 16H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 26L10 28H22L21 26" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 16C9 13 10.5 10 13.5 10C15 10 16 11 16 12C16 11 17 10 18.5 10C21.5 10 23 13 22 16" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><circle cx="16" cy="14" r="1.5" fill="currentColor"/></svg>`
 };
 
 function renderServilletas(dish) {
@@ -646,7 +646,7 @@ async function buildAll() {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 12px 14px 11px 14px;
+      padding: 8px 12px 7px 12px; /* margenes reducidos para mayor desahogo */
       height: 100% !important;
       min-height: 87mm !important;
       box-sizing: border-box !important;
@@ -688,13 +688,13 @@ async function buildAll() {
       align-items: center;
       justify-content: space-between;
       gap: 6px;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
 
     .badge-local {
       display: inline-flex;
       align-items: center;
-      padding: 3px 10px;
+      padding: 2.5px 9px;
       border-radius: 9999px;
       font-size: 15px; /* bajado 1px (de 16px a 15px) */
       font-weight: 900;
@@ -781,7 +781,7 @@ async function buildAll() {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin: 3px 0 8px 1px;
+      margin: 1px 0 4px 1px; /* reducido para no chocar ni con el local ni con la proteína */
       line-height: 1.25;
     }
 
@@ -789,11 +789,11 @@ async function buildAll() {
     .protein-box {
       border: 1.8px solid var(--local-color, #2563eb);
       background: #eff6ff;
-      border-radius: 9px;
-      padding: 7px 10px;
+      border-radius: 8px;
+      padding: 5px 8px; /* reducido */
       text-align: center;
-      margin-bottom: 8px;
-      min-height: 38px;
+      margin-bottom: 5px; /* reducido */
+      min-height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -822,27 +822,27 @@ async function buildAll() {
     .menu-list {
       display: flex;
       flex-direction: column;
-      gap: 7px;
-      border-top: 1.2px solid #f1f5f9;
-      padding-top: 8px;
-      margin-bottom: 6px;
+      gap: 4px; /* reducido de 7px a 4px */
+      border-top: 1px solid #f1f5f9;
+      padding-top: 5px; /* reducido de 8px a 5px */
+      margin-bottom: 4px; /* reducido de 6px a 4px */
     }
 
     .menu-item {
       display: flex;
       align-items: center;
-      gap: 9px;
-      font-size: 15px; /* aumentado 1px (de 14px a 15px) */
+      gap: 7px; /* reducido de 9px a 7px */
+      font-size: 15px; /* mantenido grande a 15px */
       font-weight: 750;
       color: #1e293b;
       line-height: 1.35;
-      min-height: 26px;
+      min-height: 22px; /* reducido de 26px a 22px */
     }
 
     .icon-avatar {
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
+      width: 22px; /* reducido 4px: de 26px a 22px */
+      height: 22px; /* reducido 4px: de 26px a 22px */
+      border-radius: 5px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -850,7 +850,7 @@ async function buildAll() {
     }
 
     .item-name {
-      font-size: 15px; /* aumentado 1px */
+      font-size: 15px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -868,6 +868,10 @@ async function buildAll() {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 5px; /* reducido de 7px a 5px */
+      gap: 6px;
+    }
       border-top: 1.2px solid #f1f5f9;
       padding-top: 7px;
       gap: 6px;
