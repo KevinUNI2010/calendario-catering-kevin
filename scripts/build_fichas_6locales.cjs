@@ -694,12 +694,13 @@ async function buildAll() {
     .badge-local {
       display: inline-flex;
       align-items: center;
-      padding: 3px 12px;
+      padding: 3px 10px;
       border-radius: 9999px;
-      font-size: 16px;
+      font-size: 15px; /* bajado 1px (de 16px a 15px) */
       font-weight: 900;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       text-transform: uppercase;
+      white-space: nowrap;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
@@ -774,7 +775,7 @@ async function buildAll() {
 
     /* 2. Título del evento */
     .event-title {
-      font-size: 14px;
+      font-size: 13px; /* bajado 1px (de 14px a 13px) */
       font-weight: 700;
       color: #475569;
       white-space: nowrap;
@@ -831,8 +832,8 @@ async function buildAll() {
       display: flex;
       align-items: center;
       gap: 9px;
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 15px; /* aumentado 1px (de 14px a 15px) */
+      font-weight: 750;
       color: #1e293b;
       line-height: 1.35;
       min-height: 26px;
@@ -849,6 +850,7 @@ async function buildAll() {
     }
 
     .item-name {
+      font-size: 15px; /* aumentado 1px */
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1112,6 +1114,20 @@ async function buildAll() {
       fs.copyFileSync(png22Path, png22Dist);
     }
     console.log('Captura de 22 Noviembre (Berthol) guardada.');
+  }
+
+  // Screenshot of Viernes 27 de Noviembre (Villa Santiago - Inst Ciber)
+  const page27Nov = await page.$('#page-2026-11-27 .a4-page');
+  if (page27Nov) {
+    const png27PathPlantillas = path.join(ROOT_DIR, 'plantillas_impresion', 'Fichas_Cocina_27_Noviembre_P3.png');
+    const png27PathPublic = path.join(ROOT_DIR, 'public', 'fichas-cocina-27nov.png');
+    const png27PathDist = path.join(ROOT_DIR, 'dist', 'fichas-cocina-27nov.png');
+    await page27Nov.screenshot({ path: png27PathPlantillas });
+    fs.copyFileSync(png27PathPlantillas, png27PathPublic);
+    if (fs.existsSync(path.join(ROOT_DIR, 'dist'))) {
+      fs.copyFileSync(png27PathPlantillas, png27PathDist);
+    }
+    console.log('Captura de 27 Noviembre (Villa Santiago) guardada.');
   }
 
   await browser.close();
