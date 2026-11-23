@@ -14,6 +14,16 @@ envFile.split('\n').forEach(line => {
 
 const sb = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY);
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 const LOCAL_COLORS = {
   'VILLA SANTIAGO': '#ED1C24',
   'CRISTALES': '#0072BC',
@@ -280,11 +290,11 @@ function renderCard(event, dateStr) {
           </div>
         </div>
 
-        <!-- 4.5 Observaciones / Notas de Cocina (si existen en el evento) -->
+        <!-- 4.5 Observaciones / Notas de Cocina (tal cual se escribieron en la creación) -->
         ${event.description && event.description.trim() ? `
           <div class="card-desc">
             <span class="desc-tag">📝</span>
-            <span class="desc-text">${event.description.trim().replace(/\r?\n+/g, ' • ')}</span>
+            <span class="desc-text">${escapeHtml(event.description.trim())}</span>
           </div>
         ` : ''}
 
@@ -881,33 +891,31 @@ async function buildAll() {
       background: #f8fafc;
       border: 1px dashed #94a3b8;
       border-radius: 6px;
-      padding: 2.5px 6px;
+      padding: 3px 6px;
       margin-top: 2px;
       margin-bottom: 2px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 5px;
-      font-size: 11.5px;
-      line-height: 1.2;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      font-size: 11px;
+      line-height: 1.25;
       box-sizing: border-box;
+      max-height: 38px;
+      overflow: hidden;
     }
 
     .desc-tag {
       font-size: 11px;
       flex-shrink: 0;
-      line-height: 1;
+      line-height: 1.2;
     }
 
     .desc-text {
       font-weight: 700;
       font-style: italic;
       color: #0f172a;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      white-space: pre-line; /* respeta los saltos de línea exactos tal cual se escribieron */
+      word-break: break-word;
     }
 
     /* 5. Pie de Tarjeta: Servilleta al costado + N.º DE PLATOS */
