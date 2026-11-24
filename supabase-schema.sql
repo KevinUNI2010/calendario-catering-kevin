@@ -215,8 +215,10 @@ CREATE POLICY "events_admin_write_only" ON public.events FOR ALL USING (public.i
 -- Menú: lectura pública; modificación exclusiva de administradores
 DROP POLICY IF EXISTS "menu_items_select_all" ON public.menu_items;
 DROP POLICY IF EXISTS "menu_items_admin_modify" ON public.menu_items;
-CREATE POLICY "menu_items_select_all" ON public.menu_items FOR SELECT USING (true);
-CREATE POLICY "menu_items_admin_modify" ON public.menu_items FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
+DROP POLICY IF EXISTS "menu_items_select_read" ON public.menu_items;
+DROP POLICY IF EXISTS "menu_items_admin_write_only" ON public.menu_items;
+CREATE POLICY "menu_items_select_read" ON public.menu_items FOR SELECT USING (true);
+CREATE POLICY "menu_items_admin_write_only" ON public.menu_items FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- Admin Emails: un usuario autenticado puede leer si es admin o si es su propio correo; modificación solo por admin
 DROP POLICY IF EXISTS "admin_emails_select" ON public.admin_emails;
