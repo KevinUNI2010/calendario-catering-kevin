@@ -200,15 +200,17 @@ DROP POLICY IF EXISTS "locales_admin_modify" ON public.locales;
 CREATE POLICY "locales_select_all" ON public.locales FOR SELECT USING (true);
 CREATE POLICY "locales_admin_modify" ON public.locales FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
 
--- Eventos: administradores tienen acceso completo directo.
--- Los clientes con PIN obtienen sus eventos filtrados mediante la función RPC segura get_events_for_client(p_pin).
--- Esto previene la fuga masiva de datos (BOLA / OWASP API1) entre locales diferentes.
+-- Eventos: lectura abierta para visualización (app, celular, fichas PDF); modificación y borrado exclusivo para administradores autenticados (Google OAuth).
 DROP POLICY IF EXISTS "Permitir lectura publica de eventos" ON public.events;
 DROP POLICY IF EXISTS "Permitir escritura publica de eventos" ON public.events;
 DROP POLICY IF EXISTS "events_select_all" ON public.events;
 DROP POLICY IF EXISTS "events_admin_modify" ON public.events;
 DROP POLICY IF EXISTS "events_admin_all" ON public.events;
-CREATE POLICY "events_admin_all" ON public.events FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
+DROP POLICY IF EXISTS "events_anon_all" ON public.events;
+DROP POLICY IF EXISTS "events_select_read" ON public.events;
+DROP POLICY IF EXISTS "events_admin_write_only" ON public.events;
+CREATE POLICY "events_select_read" ON public.events FOR SELECT USING (true);
+CREATE POLICY "events_admin_write_only" ON public.events FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- Menú: lectura pública; modificación exclusiva de administradores
 DROP POLICY IF EXISTS "menu_items_select_all" ON public.menu_items;
