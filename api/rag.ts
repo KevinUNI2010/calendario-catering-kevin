@@ -340,10 +340,10 @@ CUÁNDO GENERAR EL OBJETO "cards":
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Manejo de CORS
+  // Manejo de CORS con soporte para Authorization header
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -355,6 +355,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // 1. SEGURIDAD: Extraer el token Bearer de la cabecera Authorization
+    const authHeader = req.headers.authorization || (req.headers as any)['Authorization'];
+    const token = typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
+      ? authHeader.slice(7).trim()
+      : null;
+
+    if (!token) {
+      return res.status(401).json({
+        error: 'No autorizado. Se requiere un token de sesión de Administrador.',
+        answer: 'Acceso denegado: debes iniciar sesión como Administrador para usar Kevin AI.'
+      });
+    }
+
+    if (!supabaseUrl || !supabaseKey) {
+      return res.status(500).json({ error: 'Configuración del servidor incompleta (Supabase).' });
+    }
+
+    // 2. SEGURIDAD: Validar criptográficamente el token con Supabase Auth (Google OAuth)
+    const sb = createClient(supabaseUrl, supabaseKey);
+    const { data: { user }, error: userError } = await sb.auth.getUser(token);
+
+    if (userError || !user || !user.email) {
+      return res.status(401).json({
+        error: 'Sesión inválida o expirada. Por favor vuelve a iniciar sesión con Google.',
+        answer: 'Tu sesión ha expirado o no es válida. Por favor recarga la página e inicia sesión nuevamente.'
+      });
+    }
+
+    // 3. SEGURIDAD: Verificar que el correo esté en la lista blanca de administradores
+    const { data: adminRecord, error: adminErr } = await sb
+      .from('admin_emails')
+      .select('email')
+      .ilike('email', user.email)
+      .maybeSingle();
+
+    if (adminErr || !adminRecord) {
+      return res.status(403).json({
+        error: 'Acceso denegado. Tu correo no está en la Lista Blanca de Administradores.',
+        answer: 'Lo siento, el asistente Kevin AI está habilitado exclusivamente para Administradores autorizados.'
+      });
+    }
+
     let body = req.body;
     if (typeof body === 'string') {
       try {
@@ -363,88 +405,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         body = {};
       }
     }
-    const { prompt, audioBase64, audioMimeType, imageBase64, imageMimeType, session, events } = body || {};
+    const { prompt, audioBase64, audioMimeType, imageBase64, imageMimeType, events } = body || {};
 
-    if (!session) {
-      return res.status(401).json({ error: 'No autorizado. Se requiere sesión.' });
-    }
+    const userId = user.id || user.email;
+    const userName = user.user_metadata?.full_name || user.email;
+    const userRole = 'admin';
 
-    const userId = session.id || session.name || session.role || 'anon';
-    const userName = session.name || 'Usuario';
-    const userRole = session.role || 'dueño';
+    const verifiedSession: UserSession = {
+      role: 'admin',
+      name: userName,
+      id: userId
+    };
 
-    // Restringir el asistente Kevin AI exclusivamente al rol de Administrador
-    if (userRole !== 'admin') {
-      return res.status(403).json({
-        error: 'Acceso denegado. El asistente Kevin AI está habilitado exclusivamente para Administradores.',
-        answer: 'Lo siento, el asistente Kevin AI está habilitado exclusivamente para Administradores.'
-      });
-    }
-
-    // 1. Verificar y descontar cuota en Supabase
-    let remainingQuota = userRole === 'admin' ? 999999 : 10;
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const sb = createClient(supabaseUrl, supabaseKey);
-        const { data: quotaData, error: quotaError } = await sb.rpc('get_rag_remaining_quota', {
-          p_user_id: userId,
-          p_role: userRole
-        });
-
-        if (!quotaError && typeof quotaData === 'number') {
-          remainingQuota = quotaData;
-          if (userRole !== 'admin' && remainingQuota <= 0) {
-            return res.status(200).json({
-              answer: 'Has alcanzado tu límite de 10 consultas diarias. Tu cuota se renovará mañana a las 00:00.',
-              remainingQuota: 0,
-              chart: null,
-            });
-          }
-        }
-      } catch (e) {
-        console.warn('Advertencia verificando cuota en Supabase:', e);
-      }
-    }
-
-    // 2. Procesar la consulta con Gemini
+    // 4. Procesar la consulta con Gemini pasando la sesión verificada
     const result = await processRagQuery({
       prompt,
       audioBase64,
       audioMimeType,
       imageBase64,
       imageMimeType,
-      session,
+      session: verifiedSession,
       events: events || []
     });
 
-    // 3. Registrar en Supabase la auditoría de la consulta
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const sb = createClient(supabaseUrl, supabaseKey);
-        await sb.rpc('log_rag_query', {
-          p_user_id: userId,
-          p_user_name: userName,
-          p_role: userRole,
-          p_prompt: prompt || (audioBase64 ? '[Audio de voz]' : '[Imagen adjunta]'),
-          p_has_audio: Boolean(audioBase64),
-          p_has_image: Boolean(imageBase64),
-          p_tokens: 0
-        });
-      } catch (logErr) {
-        console.warn('Advertencia registrando log de auditoría:', logErr);
-      }
+    // 5. Registrar en Supabase la auditoría de la consulta
+    try {
+      await sb.rpc('log_rag_query', {
+        p_user_id: userId,
+        p_user_name: userName,
+        p_role: userRole,
+        p_prompt: prompt || (audioBase64 ? '[Audio de voz]' : '[Imagen adjunta]'),
+        p_has_audio: Boolean(audioBase64),
+        p_has_image: Boolean(imageBase64),
+        p_tokens: 0
+      });
+    } catch (logErr) {
+      console.warn('Advertencia registrando log de auditoría:', logErr);
     }
 
     return res.status(200).json({
       answer: result.answer,
       chart: result.chart || null,
       cards: result.cards || null,
-      remainingQuota: userRole === 'admin' ? 999999 : Math.max(0, remainingQuota),
+      remainingQuota: 999999,
       error: result.error
     });
   } catch (error: any) {
     console.error('Error en endpoint /api/rag:', error);
-    return res.status(200).json({
+    return res.status(500).json({
       answer: 'Ocurrió un error en el servidor al procesar la solicitud. Por favor intenta nuevamente.',
       error: error.message || String(error)
     });

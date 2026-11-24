@@ -19,6 +19,7 @@ import { RagBarChart } from './RagBarChart';
 import { RagEventCards } from './RagEventCards';
 import { RagAuditModal } from './RagAuditModal';
 import { notify } from '../../utils/toastHelper';
+import { getSupabase } from '../../lib/supabase';
 
 interface RagChatModalProps {
   isOpen: boolean;
@@ -251,10 +252,15 @@ export const RagChatModal: React.FC<RagChatModalProps> = ({
     setIsLoading(true);
 
     try {
+      const supabase = getSupabase();
+      const { data: authData } = (await supabase?.auth.getSession()) || {};
+      const accessToken = authData?.session?.access_token;
+
       const response = await fetch('/api/rag', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
         body: JSON.stringify({
           prompt: text,
