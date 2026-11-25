@@ -114,14 +114,15 @@ export interface ConnectedUser {
   lastActive: number;
 }
 
-export type UserRole = 'admin' | 'dueño' | 'cocinero' | 'mozo';
+export type UserRole = 'admin' | 'dueño' | 'cocinero' | 'mozo' | 'viewer';
 
 export interface UserSession {
   id?: string;
   role: UserRole;
   allowedLocales?: string[];
   name?: string;
-  pin?: string;
+  lastActive?: number;
+  sessionToken?: string;
 }
 
 export interface MenuOptions {

@@ -1,9 +1,19 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { UserSession } from './types';
 import { getSupabase } from './lib/supabase';
 import toast from 'react-hot-toast';
+import {
+  clearPinSession,
+  getStoredSignedToken,
+  isLocalInactivityExpired,
+  parseSignedTokenPayload,
+  PIN_TOKEN_REFRESH_INTERVAL_MS,
+  saveSignedPinSession,
+  touchLocalActivity,
+  verifyStoredPinSession,
+} from './utils/pinSession';
 
 // Route-level code splitting for fast initial load
 const CalendarApp = lazy(() => import('./CalendarApp').then(m => ({ default: m.CalendarApp })));
@@ -17,25 +27,44 @@ export default function App() {
   const [session, setSession] = useState<UserSession | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const lastTokenRefreshRef = useRef<number>(Date.now());
+  const lastActivityTouchRef = useRef<number>(0);
+  const offlineFallbackPendingVerifyRef = useRef<boolean>(false);
+
+  const expirePinSession = useCallback((message: string) => {
+    clearPinSession();
+    offlineFallbackPendingVerifyRef.current = false;
+    setSession((prev) => (prev && prev.role !== 'admin' ? null : prev));
+    toast.error(message);
+    navigate('/');
+  }, [navigate]);
 
   useEffect(() => {
+    let isMounted = true;
+
     const initSession = async () => {
-      // 1. Check local storage for PIN session (Viewer, Dueño, Cocinero, Mozo)
+      // 1. Validar sesión PIN firmada (Viewer, Dueño, Cocinero, Mozo) contra servidor y regla de 30 días
       // SEGURIDAD: 'admin' NUNCA se restaura desde localStorage. Requiere Google OAuth / Supabase Auth.
-      const savedPin = localStorage.getItem('calendario_session');
-      if (savedPin) {
-        try {
-          const parsed = JSON.parse(savedPin);
-          if (parsed && ['viewer', 'dueño', 'cocinero', 'mozo'].includes(parsed.role)) {
-            setSession(parsed);
-            setLoading(false);
-            return;
-          } else if (parsed && parsed.role === 'admin') {
-            // Limpiar clave manipulada o sesión caducada
-            localStorage.removeItem('calendario_session');
-          }
-        } catch (e) {
-          localStorage.removeItem('calendario_session');
+      const existingToken = getStoredSignedToken();
+      if (existingToken) {
+        const result = await verifyStoredPinSession();
+        if (!isMounted) return;
+
+        if (result.valid && result.session) {
+          lastTokenRefreshRef.current = Date.now();
+          lastActivityTouchRef.current = Date.now();
+          offlineFallbackPendingVerifyRef.current = Boolean(result.offlineFallback);
+          setSession(result.session);
+          setLoading(false);
+          return;
+        }
+
+        if (result.reason === 'inactivity_expired') {
+          toast.error('Tu sesión expiró por 30 días de inactividad. Ingresa tu PIN nuevamente.');
+        } else if (result.reason === 'invalid_signature') {
+          toast.error('Sesión inválida o modificada. Ingresa tu PIN nuevamente.');
+        } else if (result.reason === 'network_blocked') {
+          toast.error('No se pudo verificar tu sesión en el servidor. Conéctate e ingresa tu PIN.');
         }
       }
 
@@ -133,19 +162,133 @@ export default function App() {
         });
       }
       
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     };
 
     initSession();
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
+  // Vigilancia continua de inactividad (30 días), manipulación de localStorage y revalidación al reconectar
+  useEffect(() => {
+    if (!session || session.role === 'admin') return;
+
+    const verifyActiveSession = async (forceServerCheck = false) => {
+      const token = getStoredSignedToken();
+      const payload = token ? parseSignedTokenPayload(token) : null;
+      if (!token || !payload) {
+        expirePinSession('Sesión inválida o manipulada. Ingresa tu PIN nuevamente.');
+        return;
+      }
+
+      if (isLocalInactivityExpired(payload)) {
+        expirePinSession('Tu sesión se cerró automáticamente tras 30 días de inactividad.');
+        return;
+      }
+
+      const now = Date.now();
+      const needsRefresh =
+        forceServerCheck ||
+        offlineFallbackPendingVerifyRef.current ||
+        now - lastTokenRefreshRef.current >= PIN_TOKEN_REFRESH_INTERVAL_MS;
+
+      if (navigator.onLine && needsRefresh) {
+        const res = await verifyStoredPinSession();
+        if (res.valid && res.session) {
+          lastTokenRefreshRef.current = Date.now();
+          offlineFallbackPendingVerifyRef.current = Boolean(res.offlineFallback);
+          const sessionIdentityChanged =
+            res.session.id !== session.id ||
+            res.session.role !== session.role ||
+            res.session.name !== session.name ||
+            JSON.stringify(res.session.allowedLocales || []) !== JSON.stringify(session.allowedLocales || []);
+          if (sessionIdentityChanged) {
+            setSession(res.session);
+          }
+        } else if (res.reason === 'inactivity_expired') {
+          expirePinSession('Tu sesión se cerró automáticamente tras 30 días de inactividad.');
+        } else if (res.reason === 'invalid_signature' || res.reason === 'missing' || res.reason === 'network_blocked') {
+          expirePinSession('Sesión inválida o manipulada. Ingresa tu PIN nuevamente.');
+        }
+      }
+    };
+
+    const handleActivity = () => {
+      const now = Date.now();
+      if (now - lastActivityTouchRef.current < 60_000) return;
+
+      const token = getStoredSignedToken();
+      const payload = token ? parseSignedTokenPayload(token) : null;
+      if (!token || !payload) {
+        expirePinSession('Sesión inválida o manipulada. Ingresa tu PIN nuevamente.');
+        return;
+      }
+
+      if (isLocalInactivityExpired(payload, now)) {
+        expirePinSession('Tu sesión se cerró automáticamente tras 30 días de inactividad.');
+        return;
+      }
+
+      lastActivityTouchRef.current = now;
+      touchLocalActivity(now);
+
+      if (navigator.onLine && (offlineFallbackPendingVerifyRef.current || now - lastTokenRefreshRef.current >= PIN_TOKEN_REFRESH_INTERVAL_MS)) {
+        verifyActiveSession();
+      }
+    };
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'calendario_session' || e.key === 'calendario_pin_last_activity') {
+        verifyActiveSession(true);
+      }
+    };
+
+    const handleVisibilityOrOnline = () => {
+      if (document.visibilityState === 'visible' || navigator.onLine) {
+        const now = Date.now();
+        const staleOrPending =
+          offlineFallbackPendingVerifyRef.current ||
+          now - lastTokenRefreshRef.current >= 5 * 60 * 1000;
+        verifyActiveSession(navigator.onLine && staleOrPending);
+      }
+    };
+
+    const intervalId = window.setInterval(() => verifyActiveSession(false), 5 * 60 * 1000);
+    window.addEventListener('pointerdown', handleActivity, { passive: true });
+    window.addEventListener('keydown', handleActivity, { passive: true });
+    window.addEventListener('touchstart', handleActivity, { passive: true });
+    window.addEventListener('scroll', handleActivity, { passive: true });
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('online', handleVisibilityOrOnline);
+    document.addEventListener('visibilitychange', handleVisibilityOrOnline);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('pointerdown', handleActivity);
+      window.removeEventListener('keydown', handleActivity);
+      window.removeEventListener('touchstart', handleActivity);
+      window.removeEventListener('scroll', handleActivity);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('online', handleVisibilityOrOnline);
+      document.removeEventListener('visibilitychange', handleVisibilityOrOnline);
+    };
+  }, [session, expirePinSession]);
+
   const handlePinLogin = (newSession: UserSession) => {
-    if (newSession.role === 'admin') {
+    if (newSession.role === 'admin' || !newSession.sessionToken) {
       toast.error('Acceso de administrador requiere inicio de sesión con Google.');
       return;
     }
+    const now = Date.now();
+    lastTokenRefreshRef.current = now;
+    lastActivityTouchRef.current = now;
+    offlineFallbackPendingVerifyRef.current = false;
+    saveSignedPinSession(newSession.sessionToken, now);
     setSession(newSession);
-    localStorage.setItem('calendario_session', JSON.stringify(newSession));
     navigate('/');
   };
 
@@ -154,7 +297,8 @@ export default function App() {
     if (session?.role === 'admin' && supabase) {
       await supabase.auth.signOut();
     }
-    localStorage.removeItem('calendario_session');
+    offlineFallbackPendingVerifyRef.current = false;
+    clearPinSession();
     setSession(null);
     navigate('/');
   };

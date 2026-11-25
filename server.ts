@@ -9,6 +9,7 @@ import { createServer as createViteServer } from 'vite';
 import { INITIAL_EVENTS, DEFAULT_LOCALES } from './src/data/seedData';
 import { CalendarEvent, Local, EmailLog } from './src/types';
 import { processRagQuery } from './src/server/ragHandler';
+import pinAuthHandler from './api/pin-auth';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -250,6 +251,11 @@ app.use(['/api/emails/send-test', '/api/share'], strictLimiter);
 // API Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// PIN Authentication & Signed 30-day Session Endpoint
+app.all('/api/pin-auth', (req, res) => {
+  return pinAuthHandler(req as any, res as any);
 });
 
 // POST RAG AI Query (Local Dev)
